@@ -30,6 +30,8 @@
 #include "cAvidaConfig.h"
 #include "cAvidaContext.h"
 
+//#include "cController.h"
+
 #include <cassert>
 
 class cAnalyze;
@@ -45,6 +47,9 @@ class cPopulationCell;
 class cStats;
 class cTestCPU;
 class cUserFeedback;
+
+//class cController;
+
 template<class T> class tDataEntry;
 
 using namespace Avida;
@@ -62,7 +67,7 @@ protected:
   cEnvironment* m_env;
   cEventList* m_event_list;
   cHardwareManager* m_hw_mgr;
-  Apto::SmartPtr<cPopulation, Apto::InternalRCObject> m_pop;
+  Apto::SmartPtr<cPopulation, Apto::InternalRCObject> m_pop; // kan behöva ändra från protected
   Apto::SmartPtr<cStats, Apto::InternalRCObject> m_stats;
   cMigrationMatrix* m_mig_mat;  
   WorldDriver* m_driver;
@@ -76,12 +81,15 @@ protected:
   
   bool m_own_driver;      // specifies whether this world object should manage its driver object
 
+  
+  
   cWorld(cAvidaConfig* cfg, const cString& wd);
   
   
 public:
   static cWorld* Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback = NULL, const Apto::Map<Apto::String, Apto::String>* mappings = NULL);
   virtual ~cWorld();
+  //Controller::cController m_controller;
   
   void SetDriver(WorldDriver* driver, bool take_ownership = false);
   
@@ -99,6 +107,8 @@ public:
   cStats& GetStats() { return *m_stats; }
   WorldDriver& GetDriver() { return *m_driver; }
   World* GetNewWorld() { return m_new_world; }
+
+  //cController GetController() {return m_controller; }
   
   Data::ManagerPtr& GetDataManager() { return m_data_mgr; }
   

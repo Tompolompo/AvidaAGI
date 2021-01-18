@@ -1,0 +1,48 @@
+<h1 id="introductiontoparasitesinavida">Introduction to Parasites in Avida</h1>
+<p>This introduction assumes some basic knowledge about Avida. In particular, familiarity with the basic organism and hardware as described <a href="https://github.com/devosoft/avida/wiki/Default-Ancestor-Guided-Tour">here</a> will be very useful to have.</p>
+<h2 id="verybriefoverviewofthetranssmthardware">(Very) Brief Overview of the TransSMT Hardware</h2>
+<p>With that said, parasites currently do not work in the default hardware but rather one that supports better threading capabilities – the TransSMT hardware. The differences aren’t huge, but they deserve their own documentation. Instead, I will just highlight major differences between the hardware types important for parasites, namely memoryspaces and threads.</p>
+<h4 id="memoryspaces">Memory Spaces</h4>
+<p>Memory spaces are regions of memory reserved for genetic instructions such as an individual’s genome. To access these memory spaces, organisms execute the <code>Set-Memory</code> instruction followed by one or more <code>Nop</code> instructions specifying which space to use. In this hardware, the genome copy produced during self-replication must also be in a seperate memory space, as well as any thread processes an individual spawns.</p>
+<h4 id="threads">Threads</h4>
+<p>Threads in this hardware are distinct code sequences that are executed either in parallel, where all threads execute an instruction per CPU cycle awarded to an individual, or round-robin, where a single instruction from a single thread is exected per awarded CPU cycle and each thread executes in turn. The number of threads an organism is allowed to have, as well as how they are scheduled is controlled by the following config options in the <code>avida.cfg</code> file.</p>
+<ul>
+<li>MAX_CPU_THREADS 1 # Maximum number of Threads a CPU can spawn</li>
+<li>THREAD_SLICING_METHOD 0 # 0 = One thread executed per time slice. # 1 = All threads executed each time slice.</li>
+</ul>
+<h2 id="parasitesinthetranssmthardware">Parasites in the TransSMT Hardware</h2>
+<p>Parasites in Avida are almost identical to hosts, self-replicating by copying their genome instruction-by-instruction into a new memory space. However, instead of dividing this new genome off into the world, parasites attempt to infect a <strong>random</strong> organism in its host’s neighborhood (globaly if <code>BIRTH_METHOD=4</code> or <code>WORLD_GEOMETRY=7</code>, and honoring the <code>WORLD_GEOMETRY</code> if <code>BIRTH_METHOD</code> is set to any other value) with their offspring parasite genome, becoming a new thread on the host organism. Parasites attempt infection by calling the <code>Inject</code> instruction, which is also <code>Nop</code>-modified to identify the memory space the parasitic thread should occupy.</p>
+<p>In order for infection to succede, the host must be able to accept a new thread in the memory space the parasite is attempting to occupy. This means the host must have fewer than <code>MAX_CPU_THREADS</code> and that the host has not used the memory space specified by the <code>Inject</code> instruction. More than one parasite per host is not currently supported, thus we typicaly set <code>MAX_CPU_THREADS=2</code>. We can eliminate the effect of host-parasite coevolution via memory space allocation and specification (and as any unforseen side-effects such as parasites overwriting host offspring when specificying a particular memory space) by giving parasites memory spaces entirely seperate from their host’s (<code>PARASITE_MEM_SPACES=1</code>).</p>
+<p>Parasites as well as hosts can perform logic tasks, and we can use their task-based phenotypes to implement additional mechanisms determining if infection will succeed or not. The config option <code>INFECTION_MECHANISM</code> already has several mechanisms implemented. The implemented options have the following behavior:</p>
+<ul>
+<li>0 - Infection will succeed independent of task-based phenotypes</li>
+<li>1 - Infection will succeed if the parasite and host have at least one overlapping task (Inverse Gene-for-Gene)</li>
+<li>2 - Infection will succeed if the parasite does at least one task the host does not perform</li>
+<li>3 - Infection will succeed if the parasite and host do the same tasks (Matching Alleles)</li>
+<li>4 - Infection will succeed if the parasite performs all the tasks the host does as well as at least one additional task (Gene-for-Gene)</li>
+</ul>
+<p>To have more control over how many CPU cycles a parasite steals from it’s host, <code>PARASITE_VIRULENCE</code> determines the probability that a CPU cycle will be given to the parasite. Thus, when this option is set to 1, the parasite is completely virulent and overtakes all of its host’s CPU cycles. It is also possible to let the parasites evolve their own virulence by setting <code>VIRULENCE_SOURCE=1</code>, and choosing values for both <code>VIRULENCE_MUT_RATE</code>, which controls the probability of mutating a parasites virulence when a new parasite is born, and <code>VIRULENCE_SD</code>, which is the standard deviation of a normal distribution used to determine how much virulence changes when it mutates.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<img src="images/host-parasite-both-small.png" alt="Depiction of a Host-Parasite Interaction" />
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p> Depiction of a Host-Parasite Interaction</p>
+<p>&nbsp;</p>
+<h2 id="eventstypicallyusedwithparasites">Events Typically Used With Parasites</h2>
+<p><code>InjectParasite</code> is typically called near the beginning of a run to infect a range of cells. It takes a parasite organism file, the memory space label, and the range of cells which should be infected.</p>
+<p><code>PrintParasiteTasksData</code> and <code>PrintHostTasksData</code> print the tasks performed by parasites and hosts respectively. Similarly, <code>PrintHostPhenotypeData</code> and <code>PrintParasitePhenotypeData</code> split up the phenotype data, such as the Shannon Diversity and Richness of unique host and parasite phenotypes.</p>
+<h2 id="typicalconfigsettings">Typical Config Settings</h2>
+<ul>
+<li>BIRTH_METHOD 4 #Population is well-mixed</li>
+<li>INJECT_METHOD 1 #Parasite thread is reset on successful infection</li>
+<li>MAX_CPU_THREADS 2 #Only allow one parasite per host</li>
+<li>INFECTION_MECHANISM 1 #Parasites infect hosts when they have at least one overlapping task</li>
+<li>PARASITE_VIRULENCE 0.8 #Parasites steal 80$ of their host’s CPU cycles</li>
+<li>VIRULENCE_SOURCE 0 #Parasites use virulence value from config, instead of evolving it</li>
+<li>PARASITE_MEM_SPACES 1 #Parasites get their own memory spaces</li>
+<li>PARASITE_NO_COPY_MUT 1 #Parasites don’t use copy mutation rates, so they can have independent mutation rates</li>
+<li>REQUIRE_SINGLE_REACTION  1 #Require hosts to perform at least one succesful reaction to reproduce</li>
+</ul>
+<p>&nbsp;</p>
+<p>A set of complete config files and ancestral organisms can be found <a href="https://github.com/zamanlh/AvidaConfigs">here</a>.</p>

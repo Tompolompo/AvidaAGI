@@ -668,8 +668,15 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const Genome& offspring_
   }
   
   Genome temp(parent_organism->GetGenome().HardwareType(), parent_organism->GetGenome().Properties(), tmpHostGenome);
-  birth_chamber.SubmitOffspring(ctx, temp, parent_organism, offspring_array, merit_array);
-    
+
+  // CONTROLLER INPUT
+  Genome controlled_genome = ctx.m_controller.controll_genome(&temp);
+  ctx.m_controller.set_parent_id(parent_organism->GetID());
+  birth_chamber.SubmitOffspring(ctx, controlled_genome, parent_organism, offspring_array, merit_array);
+  // END CONTROLLER INPUT
+
+  //birth_chamber.SubmitOffspring(ctx, temp, parent_organism, offspring_array, merit_array); //ORIGINAL SYNTAX
+  
   // First, setup the genotype of all of the offspring.
   const int parent_id = parent_organism->GetOrgInterface().GetCellID();
   assert(parent_id >= 0 && parent_id < cell_array.GetSize());

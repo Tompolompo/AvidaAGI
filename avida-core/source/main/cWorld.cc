@@ -44,6 +44,7 @@
 #include "cTestCPU.h"
 #include "cUserFeedback.h"
 
+
 #include <cassert>
 
 using namespace AvidaTools;
@@ -54,6 +55,7 @@ cWorld::cWorld(cAvidaConfig* cfg, const cString& wd)
   , m_env(NULL), m_event_list(NULL), m_hw_mgr(NULL), m_pop(NULL), m_stats(NULL), m_mig_mat(NULL), m_driver(NULL), m_data_mgr(NULL)
   , m_own_driver(false)
 {
+  
 }
 
 cWorld* cWorld::Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* mappings)
@@ -96,12 +98,17 @@ cWorld::~cWorld()
 bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* defs)
 {
   m_new_world = new_world;
-  
   bool success = true;
   
   // Setup Random Number Generator
   m_rng.ResetSeed(m_conf->RANDOM_SEED.Get());
   m_ctx = new cAvidaContext(NULL, m_rng);
+
+  
+  // m_controller.speak();
+  // m_controller.set_val(42);
+  // m_controller.print_val();
+  
   
   // Initialize new API-based data structures here for now
   {
@@ -194,6 +201,11 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   m_test_sterilize = (sterilize_fatal || sterilize_neg || sterilize_neut || sterilize_pos || sterilize_taskloss);
 
   m_pop = Apto::SmartPtr<cPopulation, Apto::InternalRCObject>(new cPopulation(this));
+
+  /*
+  Controller::cController m_controller;
+  m_controller.init(m_stats);
+  */
   
   // Setup Event List
   m_event_list = new cEventList(this);

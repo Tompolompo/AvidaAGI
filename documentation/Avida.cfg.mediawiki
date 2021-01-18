@@ -1,0 +1,19 @@
+The Avida configuration file (<kbd>avida.cfg</kbd>) is the main configuration file for Avida. With this file, the user can setup all of the basic conditions for a run.
+
+<strong>avida.cfg is actually an excellent guide to itself</strong>; every option has a description of what it does and what its options are, and many of these pages will simply refer you to the file itself instead of replicating that description.  We endeavor here to give extended explanations of particularly common or confusing options, and of settings that interact with other settings.
+
+
+== Configuration Sections ==
+* [[General Settings]]
+* [[Mutation Settings]]
+* [[Topology Settings]] : the shape and connectedness of the world
+* [[File Settings]] : other configuration files and where to save your data
+* [[Instruction Set]]
+* [[Reproduction Settings]] : birth and death
+* [[Time Slicing Settings]] : how CPU time is distributed among organisms
+* [[HTML Output Color Settings]]
+* [[Resource Hoarding Settings]] : internal resource storage for organisms
+* [[Divide Settings]] : limitations on organism division
+* [[Settings for Genealogy Info in the Test CPU]]
+* [[Mutations Reversion Settings]]
+* [[Analysis Settings]]: threads and variables in analyze mode

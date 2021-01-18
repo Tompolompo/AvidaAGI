@@ -1,0 +1,1 @@
+The default ancestor organism when using the Heads virtual CPU.

@@ -1,0 +1,33 @@
+<p>This tutorial will walk you through the steps involved in creating a deme replication event. It assumes that you have basic familiarity with C++ and Avida-ish stuff. There are several different deme replication events. Currently, they include events such as replicate when the deme is full, when the corners are occupied, when a set number of resources has been amassed (the consume-res event). For this tutorial, we'll be using 'consume-res' as an example. To add your new event: </p>
+<ol>
+<li>Come up with a few definitions for your deme replication trigger. These need to include the name of the trigger (e.g., <span style="color: #0000ff">consume-res</span>), which will be seen externally, and a deme trigger event constant name used for an enumeration (e.g., <span style="color: #0000ff">DEME_TRIGGER_CONSUME_RESOURCES</span>). The enumeration allows you to refer to your trigger by name, rather than an integer.</li>
+<li>Add your deme trigger event constant name to the enumerated triggers. To do so, go to <span style="color: #0000ff">Definitions.h</span> and search for enum <span style="color: #0000ff">eDEME_TRIGGERS</span>. Add your item right before <span style="color: #0000ff">DEME_TRIGGER_UNKNOWN</span>. For example, 
+<p><span style="color: #0000ff">  DEME_TRIGGER_CONSUME_RESOURCES,   // 10</span></p>
+</li>
+<li>
+<p>Define your 'trigger' event as part of the Replicate Demes action. To do that, in<span style="color: #0000ff"> PopulationActions.cc</span> go to the class <span style="color: #0000ff">cActionReplicateDemes : public Action</span>. Add the name of your trigger and a brief description to the comment: </p>
+<p><span style="color: #0000ff">'consume-res' ...demes that have consumed a sufficienct amount of resources</span></p>
+<p><span style="color: #000000">Then, add the same trigger to the end of the list of else if statements  </span></p>
+<p><span style="color: #0000ff"> else if (in_trigger == "consume-res") m_rep_trigger = DEME_TRIGGER_CONSUME_RESOURCES</span></p>
+</li>
+<li>
+<p>Next, add the code that describes when your replication event will occur. In <span style="color: #0000ff">cPopulation.cc</span>, locate the <span style="color: #0000ff">ReplicateDemes</span> function: </p>
+<p><span style="color: #0000ff">void cPopulation::ReplicateDemes(int rep_trigger, cAvidaContext&amp; ctx) </span></p>
+<p>Within this function, add your new trigger both to the comments and to the switch statement. For example, for the 'consume-res' event the following line was added to the comment: </p>
+<p><span style="color: #0000ff"> 10:'consume-res' ...demes that have consumed a sufficienct amount of resources</span></p>
+<div> And this case statement was added to the switch statement: </div>
+<div>
+<p><span style="color: #0000ff">case DEME_TRIGGER_CONSUME_RESOURCES: {</span></p>
+<p><span style="color: #0000ff">        // check how many resources have been consumed by the deme</span></p>
+<p><span style="color: #0000ff">        if (source_deme.GetTotalResourceAmountConsumed() &lt;</span></p>
+<p><span style="color: #0000ff">            m_world-&gt;GetConfig().RES_FOR_DEME_REP.Get()) {</span></p>
+<p><span style="color: #0000ff">          continue;</span></p>
+<p><span style="color: #0000ff"> }</span></p>
+<p>Note that this code is using information about the deme. Clearly, if your method needs information from the deme and that information doesn't exist, you'll also need to write some code to do that... </p>
+<p>&nbsp;</p>
+</div>
+</li>
+<li>Last, add your new fangled event to the events file (generally events.cfg) and make sure it works.  For example:  
+<p><span style="color: #0000ff">u 1:1:end ReplicateDemes consume-res</span></p>
+</li>
+</ol>

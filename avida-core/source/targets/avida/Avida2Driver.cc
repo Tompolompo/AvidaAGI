@@ -37,6 +37,7 @@
 #include "cPopulationCell.h"
 #include "cStats.h"
 #include "cWorld.h"
+#include "cGod.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -48,7 +49,7 @@ using namespace Avida;
 using namespace std;
 
 
-Avida2Driver::Avida2Driver(cWorld* world, World* new_world) : m_world(world), m_new_world(new_world), m_done(false)
+Avida2Driver::Avida2Driver(cWorld* world, World* new_world, cGod* God) : m_world(world), m_new_world(new_world), m_god(God), m_done(false)
 {
   GlobalObjectManager::Register(this);
   world->SetDriver(this);
@@ -87,6 +88,9 @@ void Avida2Driver::Run()
   
   cAvidaContext& ctx = m_world->GetDefaultContext();
   Avida::Context new_ctx(this, &m_world->GetRandom());
+
+  m_god->speak();
+  int dangerous_count = 0;
   
   while (!m_done) {
     m_world->GetEvents(ctx);
@@ -138,6 +142,14 @@ void Avida2Driver::Run()
         cout << "Spec: " << setw(6) << setprecision(4) << stats.GetAveSpeculative() << "  ";
         cout << "SWst: " << setw(6) << setprecision(4) << (((double)stats.GetSpeculativeWaste() / (double)m_world->CalculateUpdateSize()) * 100.0) << "%  ";
       }
+      // GOD TERMINATES PROGRAM
+      dangerous_count = m_world->GetStats().GetTaskCurCount(m_god->m_dangerous_op);
+      cout << "GOD: dangerous op : " << dangerous_count;
+      if (dangerous_count > 0){
+        // Save populations and stats etc etc
+        m_world->GetDriver().Finish();
+      }
+      // #####################
 
       cout << endl;
     }
@@ -195,5 +207,3 @@ void Avida2Driver::StdIOFeedback::Notify(const char* fmt, ...)
   va_end(args);
   printf("\n");
 }
-
-
