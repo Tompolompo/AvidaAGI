@@ -1,0 +1,50 @@
+== Congratulations, you downloaded Avida! DON'T PANIC! ==
+Next question, how do you run it?
+
+Like the rest of this wiki, the page is under construction. Please bear with us as we continue to expand this section.
+
+===Purpose:===
+To help make Avida available to new users without an in-person  tutorial of what to do and how to do it.
+
+Avida in its current state runs from the command line on Macs and Linux distributions. If you don't know how to use the command line here are a couple of tutorials you can use to get familiar:
+
+Mac users:
+* http://osxdaily.com/2007/02/07/basic-command-line-utilities-tips-commands/
+* http://smokingapples.com/software/tutorials/mac-terminal-tips/
+
+Linux users:
+* http://freeengineer.org/learnUNIXin10minutes.html
+
+Back to Avida. Assuming you downoaded a stable branch and not a development one, using your terminal, locate the directory(folder) you put Avida in.
+
+'''To run''' just plain Avida type: ./avida
+To quit Avida use: ctrl-c
+To run Avida with the viewer type (tab-completion, its useful): ./avida-viewer
+To quit Avida from the viewer use: q 
+
+If you are using the viewer and want information on all the commands head over to Avida-Viewer.
+
+===Configuration Files===
+
+Now that you have run Avida, lets look at some of the other files included with the program. (Non command line users, the command to look at the files in the directory is: ls ) The following files should be present in the directory:
+
+* analyze.cfg
+* avida.cfg
+* environment.cfg
+* events.cfg
+* instset-heads.cfg
+* instset-heads-sex.cfg
+* instset-transsmt.cfg
+* instset-transsmt.cfg
+* default-heads.org
+* default-heads-sex.org
+* default-transsmt.org
+
+Lets break that down now. Default Avida runs use: avida.cfg, environment.cfg, events.cfg, instset-heads.cfg and default-heads.org. The other files are for special cases such as sexual reproduction and other things this writer does not understand. 
+
+===avida.cfg:=== 
+
+This file is really really big. Don't let it scare you. Most of it you can ignore to start. There are a few things you might want to look at. Open the file with your favorite (or your UNIX guru's favorite) text editor from the command line (nano, emacs, vi) to be hip or be a square and use a GUI like TextEdit, TextWrangler, or gedit.  Back to things you can change in avida.cfg. There are three sections Topology, Mutation and Reproduction Group. Each section is marked off by ###name###. 
+
+Topology has 3 items of interest to new users: WORLD_X, WORLD_Y &amp; WORLD_GEOMETRY. X &amp; Y control the size of world, and geometry controls how the grid is set up (torodial, bounded, etc). World size inevitably limits the population size while the geometry effects the placement of new offspring.
+Mutation has many items of interest to new users. One of the first things to try changing in this section is the mutation rate, per copy. The default is set to 0.0075 mutations per instruction written during replication. This is much higher than most researchers use. Many researchers (that I know) 0.0025 for this setting. If you are feeling adventurous you can change the type of mutations ( insertion, deletion, slip etc). Refer to the Mutation Settings for more information/ideas.

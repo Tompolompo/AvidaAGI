@@ -1,0 +1,8 @@
+Example analyze programs, with explanations.
+
+* [[Analyze Mode : Working with Batches|Working With Batches]]
+* [[Analyze Mode : Testing a Genome Sequence|Testing a Genome Sequence]]
+* [[Analyze Mode : Using Variables|Using Variables]]
+* [[Analyze Mode : Finding Lineages|Finding Lineages]]
+* [[Analyze Mode : Building Your Own Commands|Building Your Own Commands]]
+* [[Analyze Mode : Try It Yourself Exercises|Try It Yourself Exercises]]

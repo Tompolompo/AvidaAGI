@@ -1,0 +1,15 @@
+<div>
+<p>(Material adapted from Heather Goldsby's dissertation... so, it's a bit formal.)</p>
+<p>To study group behavior with Avida, we divide the population of digital organisms into distinct subpopulations and link their long-term fates. Groups (also referred to as demes or colonies) can comprise a set of genetically-clonal or genetically-heterogeneous organisms.  As with individual organisms, entire groups replicate and compete for space, but at a much greater time-scale.</p>
+<p><strong>Group Competition</strong></p>
+<p>There are two different forms of group competition. Both types of group competition result in group replication. First, for some experiments, we use tournament selection in which groups compete every 100 updates based on a fitness function, where a group's success is determined by the behavior of its constituent organisms. Each tournament contains a set of groups selected at random, and the group with greatest fitness is replicated (ties are broken randomly). Second, some of our experiments use task-based group competition (or deme replication event), where a group replication event is triggered by the collective behavior of individuals within a group. For example, a group could be set to replicate once its constituent organisms have consumed a certain amount of resources. (See create a deme replication event for a tutorial on how to make this work.)</p>
+<p>&nbsp;</p>
+<p><strong>FAQ:</strong></p>
+</div>
+<ul>
+<li><strong>How do I set the size of a deme?</strong>  The deme x-dimension is that of the world (WORLD_X) and the deme y-dimension is the y-dimension of the world divided by the number of demes (WORLD_Y/NUM_DEMES). So, for example, if you want 400, 5x5 demes, WORLD_X = 5, WORLD_Y=2000, NUM_DEMES=400. Demes are essentially placed in a long vertical line in the world. </li>
+<li><strong>How many demes should I use?</strong> Ug. This part gets a little tricky. By default, most of us have used 400, 5x5 demes. This provides a reasonable runtime on the HPC and only hogs 2 gigs of memory per node. More demes or larger demes consume proportionally more resources. </li>
+<li><strong>How do you populate demes at the start of a run?</strong> There are quite a few different inject options that work with demes. Two common ones are to use InjectAll, which injects the ancestor organism (controlled by the START_ORGANISM configuration option) into all cells in all demes, and InjectDemes, which injects the ancestor organism into one cell per deme. Check out the complete list of actions for more options. </li>
+</ul>
+
+[[How to create a deme replication event]]
