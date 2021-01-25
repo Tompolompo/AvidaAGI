@@ -136,28 +136,19 @@ Avida2MetaDriver Avida2MetaDriver::Run()
     population.ProcessPostUpdate(ctx);
     
 		m_world->ProcessPostUpdate(ctx);
-<<<<<<< HEAD
     // No viewer; print out status for this update....
     fprintf(file, "%d,%f,%f,%f,%d", stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms());
     for (int task = 0; task < 9; task++){ //m_world->GetEnvironment().GetNumReactions();
       fprintf(file, ",%d", stats.GetTaskLastCount(task));
     }
     fprintf(file, "\n");
-=======
-        
-    // No viewer; print out status for this update....
->>>>>>> first_clean
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
       cout.setf(ios::left);
       cout.setf(ios::showpoint);
       cout << "UD: " << setw(6) << stats.GetUpdate() << "  ";
       cout << "Gen: " << setw(9) << setprecision(7) << stats.SumGeneration().Average() << "  ";
-<<<<<<< HEAD
       cout << "Fit (phi_i): " << setw(9) << setprecision(7) << stats.GetAveFitness() << "  ";
       cout << "Fit (Phi_0): " << stats.GetPhi0Fitness() << " ";
-=======
-      cout << "Fit: " << setw(9) << setprecision(7) << stats.GetAveFitness() << "  ";
->>>>>>> first_clean
       cout << "Orgs: " << setw(6) << population.GetNumOrganisms() << "  ";
       if (m_world->GetPopulation().GetNumDemes() > 1) cout << "Demes: " << setw(4) << stats.GetNumOccupiedDemes() << " ";
       if (m_world->GetVerbosity() == VERBOSE_ON || m_world->GetVerbosity() == VERBOSE_DETAILS) {
@@ -203,10 +194,7 @@ Avida2MetaDriver Avida2MetaDriver::Run()
 			m_done = true;
 		}
   }
-<<<<<<< HEAD
   fclose(file);
-=======
->>>>>>> first_clean
   m_population = &population;
   m_stats = &stats;
   m_ctx = &ctx;
