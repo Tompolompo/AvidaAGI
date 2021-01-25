@@ -32,6 +32,7 @@
 
 #include "Avida2MetaDriver.h"
 #include "cGod.h"
+//#include "cStringUtil.h"
 //#include "cStringIterator.h"
 
 int str2int(const char *s){
@@ -77,15 +78,32 @@ int main(int argc, char * argv[])
   cGod* God = new cGod(universe_settings);
   God->speak();
   cout << "Constructing " << N_worlds << " worlds..." << endl;
+  // Controller genomes
+  int n_operations=9;
+  double Phi_0[n_operations];
+  Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
+  double temp_chromosome[n_operations];
+  
 
   Avida::World* new_worlds[N_worlds];
   cWorld* worlds[N_worlds];
+  bool test;
   for (int i=0; i<N_worlds;i++){
       cout << "World: " << i+1 << endl;
       new_worlds[i] = new Avida::World(); 
       cfg->RANDOM_SEED.Set(i+1);
       worlds[i] = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_worlds[i], &feedback, &defs);
+
+      // Create arbitrary controller chromosome
+      for (int j = 0; j < n_operations; j++)
+      {
+        temp_chromosome[j] = (j+1);//
+      }
+      worlds[i]->m_ctx->m_controller.SetChromosome(temp_chromosome, n_operations); // Load controller chromosome
+      worlds[i]->setup(new_worlds[i], &feedback, &defs); // reinitialize cworld such that the correct chromosome is implemented
+      
   }
+  
   cout << "Which world will stand the test of time?" << endl;
   cout << "****************************************" << endl;
   cout << endl;
@@ -124,14 +142,32 @@ int main(int argc, char * argv[])
     drivers[i] = Avida2MetaDriver(worlds[i], new_worlds[i], God);
   }
   cout << endl;
- cout << "Universe settings: " << N_worlds << " worlds, " << N_meta_generations << " Meta generations, " << meta_generation_step_size << " Meta generation step size." << endl;
- cout << "Entering Meta evolution " << endl;
+  cout << "Universe settings: " << N_worlds << " worlds, " << N_meta_generations << " Meta generations, " << meta_generation_step_size << " Meta generation step size." << endl;
+  cout << "Entering Meta evolution " << endl;
+
  cout << "************************ Metageneration " << 0 << "*****************************" << endl;
  for (int i=0; i<N_worlds; i++){
      cout << "zeroth Metageneration on world " << i+1 << endl;
     drivers[i].Run();
   }
   cout << endl;
+
+  FILE *file_chromosomes = fopen("data/AGIdata/chromosomes.csv", "w");
+  fprintf(file_chromosomes, "World index, Meta generation" );
+  for (int task = 0; task < n_operations; task++){ //m_world->GetEnvironment().GetNumReactions();
+    //char task_name[32];
+    //snprintf(ftask_name, sizeof(char) * 32, ",task %d", task); 
+    fprintf(file_chromosomes, ",task %d value", task);
+  }
+  fprintf(file_chromosomes, "\n");
+
+  fprintf(file_chromosomes, "%d,%d", 0, 0);
+  for (int task = 0; task < n_operations; task++){ //m_world->GetEnvironment().GetNumReactions();
+    //char task_name[32];
+    //snprintf(ftask_name, sizeof(char) * 32, ",task %d", task); 
+    fprintf(file_chromosomes, ",%f", temp_chromosome[task]);
+  }
+  fprintf(file_chromosomes, "\n");
 
   double fitness[N_worlds];
   int meta_generation = 0;

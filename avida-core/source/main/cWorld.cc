@@ -58,6 +58,8 @@ cWorld::cWorld(cAvidaConfig* cfg, const cString& wd)
   
 }
 
+
+
 cWorld* cWorld::Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* mappings)
 {
   cWorld* world = new cWorld(cfg, working_dir);
@@ -101,10 +103,11 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   bool success = true;
   
   // Setup Random Number Generator
-  m_rng.ResetSeed(m_conf->RANDOM_SEED.Get());
-  m_ctx = new cAvidaContext(NULL, m_rng);
+  if (m_ctx == NULL){ // (AGI - TL) such that controller won't be reinitialized. 
+    m_rng.ResetSeed(m_conf->RANDOM_SEED.Get());
+    m_ctx = new cAvidaContext(NULL, m_rng);
+  }
 
-  
   // m_controller.speak();
   // m_controller.set_val(42);
   // m_controller.print_val();
@@ -135,7 +138,7 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   if (!m_env->Load(m_conf->ENVIRONMENT_FILE.Get(), m_working_dir, *feedback, defs)) {
     success = false;
   }
-    
+
   if(m_conf->DEMES_MIGRATION_METHOD.Get() == 4){     
     bool count_parasites = false;
     bool count_offspring = false;
@@ -200,8 +203,9 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   const bool sterilize_taskloss = m_conf->STERILIZE_TASKLOSS.Get() > 0.0;
   m_test_sterilize = (sterilize_fatal || sterilize_neg || sterilize_neut || sterilize_pos || sterilize_taskloss);
 
+  // (AGI - TL) In order to be able to initialize cworld with a population. 
   m_pop = Apto::SmartPtr<cPopulation, Apto::InternalRCObject>(new cPopulation(this));
-
+  
   /*
   Controller::cController m_controller;
   m_controller.init(m_stats);

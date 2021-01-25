@@ -670,12 +670,10 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const Genome& offspring_
   Genome temp(parent_organism->GetGenome().HardwareType(), parent_organism->GetGenome().Properties(), tmpHostGenome);
 
   // CONTROLLER INPUT
-  Genome controlled_genome = ctx.m_controller.controll_genome(&temp);
-  ctx.m_controller.set_parent_id(parent_organism->GetID());
-  birth_chamber.SubmitOffspring(ctx, controlled_genome, parent_organism, offspring_array, merit_array);
-  // END CONTROLLER INPUT
+  //Genome controlled_genome = ctx.m_controller.controll_genome(&temp);
+  //birth_chamber.SubmitOffspring(ctx, controlled_genome, parent_organism, offspring_array, merit_array);
 
-  //birth_chamber.SubmitOffspring(ctx, temp, parent_organism, offspring_array, merit_array); //ORIGINAL SYNTAX
+  birth_chamber.SubmitOffspring(ctx, temp, parent_organism, offspring_array, merit_array); 
   
   // First, setup the genotype of all of the offspring.
   const int parent_id = parent_organism->GetOrgInterface().GetCellID();
@@ -5889,6 +5887,8 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   int min_gestation_time = INT_MAX;
   int min_genome_length = INT_MAX;
   
+  double Phi0_fitness_sum = 0; //(AGI - TL)
+
   for (int i = 0; i < live_org_list.GetSize(); i++) {  
     cOrganism* organism = live_org_list[i];
     
@@ -6014,10 +6014,15 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     cHardwareBase& hardware = organism->GetHardware();
     stats.SumMemSize().Add(hardware.GetMemory().GetSize());
     num_threads += hardware.GetNumThreads();
+
+    // (AGI - TL) calculate Phi_0 
+    Phi0_fitness_sum += organism->CalcPhi0Fitness(); 
     
     // Increment the age of this organism.
     organism->GetPhenotype().IncAge();
   }
+
+  stats.SetPhi0Fitness(Phi0_fitness_sum/live_org_list.GetSize());// (AGI - TL)
   
   stats.SetBreedTrueCreatures(num_breed_true);
   stats.SetNumNoBirthCreatures(num_no_birth);
@@ -6037,7 +6042,7 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   stats.SetMinGestationTime(min_gestation_time);
   stats.SetMinGenomeLength(min_genome_length);
   
-  resource_count.UpdateGlobalResources(ctx);   
+  resource_count.UpdateGlobalResources(ctx);  
 }
 
 void cPopulation::UpdateFTOrgStats(cAvidaContext&) 

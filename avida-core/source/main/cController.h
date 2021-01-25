@@ -8,18 +8,13 @@
 namespace Controller{
     class cController{
     public:
-        int mc_set_val;
-        int mc_parent_id;
-
         cController();
-        void speak();
-        void set_val(int value);
-        void print_val();
-        void set_parent_id(int parent_id);
+        double Phi_0[9];
+        double m_chromosome[9];
+        void SetChromosome(double chromosome[], int len);
         Avida::Genome controll_genome(Avida::Genome* genome);
 
     };
 }
-
 
 #endif

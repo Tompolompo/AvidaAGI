@@ -119,6 +119,8 @@ public:
   
   static void Initialize();
   
+  // (AGI - TL) Calculate the controller fitness on Phi_0
+  double CalcPhi0Fitness();
   
   // --------  Systematics::Unit Methods  --------
   Systematics::Source UnitSource() const { return m_src; }

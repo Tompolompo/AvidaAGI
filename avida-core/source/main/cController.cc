@@ -9,34 +9,22 @@
 
 using namespace std;
 using namespace Controller;
-//using namespace Avida;
-
-//void cController::init(Apto::SmartPtr<cStats, Apto::InternalRCObject> m_stats)
 
 cController::cController() {
-    //cout << "********************************" << endl;
-    //cout << "***CONSTRUCTOR of Controller****" << endl;
-    //cout << "********************************" << endl;
-    int mc_set_val=0;
-};
-
-void cController::speak(){
-    cout << "Controller speaking" << endl;
+    Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;
+    Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
+    m_chromosome[0]=1;m_chromosome[1]=1;m_chromosome[2]=2;m_chromosome[3]=2;m_chromosome[4]=3;
+    m_chromosome[5]=3;m_chromosome[6]=4;m_chromosome[7]=4;m_chromosome[8]=5;
 }
 
-void cController::set_val(int set_value){
-    mc_set_val = set_value;
-}
-
-void cController::print_val(){
-    cout << "val = " << mc_set_val << endl;
-}
-
-void cController::set_parent_id(int parent_id){
-    mc_parent_id = parent_id;
+void cController::SetChromosome(double chromosome[], int len){
+    for (int i=0; i<len; i++){
+        m_chromosome[i]=chromosome[i];
+    }
 }
 
 Avida::Genome cController::controll_genome(Avida::Genome* old_genome){
+    /*
     Apto::String genome_string = old_genome->AsString();
     //cout << genome_string << endl;
     Apto::String sub_string_start = genome_string.Substring(0, 42);
@@ -46,7 +34,8 @@ Avida::Genome cController::controll_genome(Avida::Genome* old_genome){
     Apto::String updated_genome = sub_string_start + sub_string_end;
     //cout << updated_genome << endl;
     Avida::Genome new_genome = Avida::Genome(updated_genome);
-    return new_genome;
+    */
+    return *old_genome;
 }
 
 

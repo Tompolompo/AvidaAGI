@@ -63,8 +63,8 @@ protected:
   
   cAnalyze* m_analyze;
   cAvidaConfig* m_conf;
-  cAvidaContext* m_ctx;
-  cEnvironment* m_env;
+  //cAvidaContext* m_ctx; //original placement
+  //cEnvironment* m_env; //original position
   cEventList* m_event_list;
   cHardwareManager* m_hw_mgr;
   Apto::SmartPtr<cPopulation, Apto::InternalRCObject> m_pop; // kan behöva ändra från protected
@@ -94,7 +94,8 @@ public:
   void SetDriver(WorldDriver* driver, bool take_ownership = false);
   
   const cString& GetWorkingDir() const { return m_working_dir; }
-  
+  cAvidaContext* m_ctx; // not original placement (protected is original)
+  cEnvironment* m_env; //not original placement (protected is original)
   // General Object Accessors
   cAnalyze& GetAnalyze();
   cAvidaConfig& GetConfig() { return *m_conf; }
@@ -145,10 +146,12 @@ public:
 	
 	//! Calculate the size (in virtual CPU cycles) of the current update.
 	virtual int CalculateUpdateSize();
+  // (AGI - TL) changed from protected
+  bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings); // NOT ORIGINAL POSITION
   
 protected:
   // Internal Methods
-  bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings);
+  // bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings); ORIGINAL POSITION
 
 };
 
