@@ -180,6 +180,7 @@ private:
 
   // --------  Dominant Genotype  ---------
   double max_fitness;
+  double Phi0_fitness;
   double max_merit;
   int max_gestation_time;
   int max_genome_length;
@@ -460,6 +461,8 @@ public:
   inline void SetNumThreads(int in_num_threads) { m_num_threads = in_num_threads; }
   inline void SetNumModified(int in_num_modified);
 
+  void SetPhi0Fitness(double in_Phi0_fitness) {Phi0_fitness = in_Phi0_fitness; } //AGI TL
+  double GetPhi0Fitness() {return Phi0_fitness; } //AGI TL
   void SetMaxFitness(double in_max_fitness) { max_fitness = in_max_fitness; }
   void SetMaxMerit(double in_max_merit) { max_merit = in_max_merit; }
   void SetMaxGestationTime(int in_max_gestation_time) { max_gestation_time = in_max_gestation_time; }

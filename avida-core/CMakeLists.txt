@@ -234,6 +234,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cBirthSelectionHandler.cc
   ${MAIN_DIR}/cBirthMatingTypeGlobalHandler.cc
   ${MAIN_DIR}/cContextPhenotype.cc
+  ${MAIN_DIR}/cController.cc
   ${MAIN_DIR}/cDeme.cc
   ${MAIN_DIR}/cDemeNetwork.cc
   ${MAIN_DIR}/cDemeCellEvent.cc
@@ -428,7 +429,7 @@ OPTION(AVD_CMDLINE
 )
 IF(AVD_CMDLINE)
   SET(AVIDA_CMDLINE_DIR source/targets/avida)
-  SET(AVIDA_CMDLINE_SOURCES ${AVIDA_CMDLINE_DIR}/primitive.cc ${AVIDA_CMDLINE_DIR}/Avida2Driver.cc)
+  SET(AVIDA_CMDLINE_SOURCES ${AVIDA_CMDLINE_DIR}/primitiveMeta.cc ${AVIDA_CMDLINE_DIR}/Avida2MetaDriver.cc ${AVIDA_CMDLINE_DIR}/cGod.cc)
   SOURCE_GROUP(target\\avida FILES ${AVIDA_CMDLINE_SOURCES})
   ADD_EXECUTABLE(avida ${AVIDA_CMDLINE_SOURCES})
 

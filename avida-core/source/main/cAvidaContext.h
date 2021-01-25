@@ -28,6 +28,8 @@
 
 #include "avida/core/Types.h"
 
+#include "cController.h"
+
 class cWorld;
 
 
@@ -45,6 +47,8 @@ public:
   cAvidaContext(Avida::WorldDriver* driver, Apto::Random& rng) : m_driver(driver), m_rng(&rng), m_analyze(false), m_testing(false), m_org_faults(false) { ; }
   cAvidaContext(Avida::WorldDriver* driver, Apto::Random* rng) : m_driver(driver), m_rng(rng), m_analyze(false), m_testing(false), m_org_faults(false) { ; }
   ~cAvidaContext() { ; }
+
+  Controller::cController m_controller;
   
   Avida::WorldDriver& Driver() { return *m_driver; }
   bool HasDriver() const { return (m_driver != NULL); }

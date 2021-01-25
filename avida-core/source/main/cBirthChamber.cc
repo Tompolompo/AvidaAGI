@@ -19,6 +19,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#include <iostream>
 
 #include "cBirthChamber.h"
 
@@ -231,6 +232,7 @@ bool cBirthChamber::DoAsexBirth(cAvidaContext& ctx, const Genome& offspring, cOr
   child_array.Resize(1);
   child_array[0] = new cOrganism(m_world, ctx, offspring, parent.GetPhenotype().GetGeneration(), Systematics::Source(Systematics::DIVISION, ""));
   merit_array.Resize(1);
+  
   
   if (m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
     // calculate energy to be given to child

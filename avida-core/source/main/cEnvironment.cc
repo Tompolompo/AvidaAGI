@@ -164,7 +164,7 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc, Feedba
     }
     else if (var_name == "value") {
       if (!AssertInputDouble(var_value, "value", var_type, feedback)) return false;
-      new_process->SetValue(var_value.AsDouble());
+      new_process->SetValue(m_world->m_ctx->m_controller.m_chromosome[var_value.AsInt()]);
     }
     else if (var_name == "type") {
       if (var_value=="add") new_process->SetType(nReaction::PROCTYPE_ADD);
@@ -1387,7 +1387,7 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result,
 
     // Mark this task as performed...
     result.MarkTask(task_id, task_quality, taskctx.GetTaskValue());
-
+    
     if (!skipProcessing) {
       // And let's process it!
       DoProcesses(ctx, cur_reaction->GetProcesses(), resource_count, rbins_count,
