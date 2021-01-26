@@ -50,17 +50,33 @@ int main(int argc, char *argv[])  {
     size_t num_worlds = universe_settings[0];
     size_t num_generations  = universe_settings[1];
     size_t num_updates = universe_settings[2];
-    size_t chromosome_length = 10;
+    size_t chromosome_length = 9;
     double tournament_probability = 0.5;
     double crossover_probability = 0.5;
     double mutation_probability = 0.5;
-    char filepath[25] = "output/testresults.data";
+    //char filepath[25] = "output/testresults.data";
+
+    // Save settigns to file [make separate function for this]
+    double Phi_0[chromosome_length];
+    Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
+    FILE *file_settings = fopen("data/AGIdata/settings.csv", "w");
+    fprintf(file_settings, "N,M,I,tournament_probability, crossover_probability, mutation_probability, gene_min, gene_max");
+    for (int task = 0; task < chromosome_length; task++){
+      fprintf(file_settings, ",Phi_0[%d]", task);
+    }
+    fprintf(file_settings, "\n");
+    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f", num_worlds, num_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, gene_max, gene_max);
+    for (int task = 0; task < chromosome_length; task++){
+      fprintf(file_settings, ",%f", Phi_0[task]);
+    }
+    fprintf(file_settings, "\n");
+    fclose(file_settings);
 
     // Initialise god, result arrays and starting conditions
     cGod* God = new cGod(universe_settings);
     God->speak();
-    ofstream output(filepath);
-    output << "Results of Avida meta evolution simulation" << endl;
+    //ofstream output(filepath);
+    //output << "Results of Avida meta evolution simulation" << endl;
     std::vector<double> best_fitness(num_generations, 0);
     double best_chromosome[chromosome_length];
     std::vector<double> current_fitness(num_worlds, 0);
@@ -98,7 +114,7 @@ int main(int argc, char *argv[])  {
             Avida2MetaDriver driver = Avida2MetaDriver(world, new_world, God);
 
             driver.Run();
-            current_fitness[iworld] = EvaluateController(chromosome, chromosome_length);
+            current_fitness[iworld] = driver.m_stats->GetPhi0Fitness();
 
             // clean up
             driver.~Avida2MetaDriver();
@@ -110,7 +126,6 @@ int main(int argc, char *argv[])  {
             }
         }
 
-        cout << "**** 4" << endl;
         // Check progress
         best_fitness[imeta] = current_max_fitness;
         if (imeta%1 == 0)  {
@@ -148,6 +163,7 @@ int main(int argc, char *argv[])  {
     }
 
     // Store results
+    /*
     output << "best_fitness:";
     for (const auto &e : best_fitness)  {
         output << e << ", ";
@@ -161,6 +177,7 @@ int main(int argc, char *argv[])  {
 
     output.close();
     cout << "Results saved in: " << filepath << endl;
+    */
 
 
     // Plot results
