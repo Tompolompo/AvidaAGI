@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <unistd.h>
+// #include <unistd.h>
 
 #include "AvidaTools.h"
 #include "apto/core/FileSystem.h"
@@ -18,31 +18,17 @@
 //#include "cStringUtil.h"
 //#include "cStringIterator.h"
 
-int str2int(const char *s){
-    int res = 0;
-    while (*s) {
-        res *= 10;
-        res += *s++ - '0';
-    }
-    return res;
-}
-
 using namespace std;
+
+
+// Global parameters
+int universe_settings[4] = {2, 3, 4, 9};
+int argc_avida;
 
 int main(int argc, char *argv[])  {
 
-
-    // Parse cmd-line arguments
-    int universe_settings[4];
-    universe_settings[0] = str2int(argv[1]); // Number of worlds, even number
-    universe_settings[1] = str2int(argv[2]); // N meta generations
-    universe_settings[2] = str2int(argv[3]); // Number of updates
-    universe_settings[3] = 9; // dangerous op
-
-    char * argv_new[1];
-    argv_new[0] = argv[0];
-    argc = 1;
-
+    // Parse cmd-line arguments and extract avida params to pass on
+    char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
 
     // Genetic parameters
     int gene_min = -10; 
@@ -87,9 +73,11 @@ int main(int argc, char *argv[])  {
     // cout << Avida::Version::Banner() << endl; // print the banner and current version of Avida
     Apto::Map<Apto::String, Apto::String> defs; // define a map that maps an apto string to an apto string
     cAvidaConfig* cfg = new cAvidaConfig(); /* define our avida configuration file /new callar på constructor) can overridea config-filen osv. */
-    Avida::Util::ProcessCmdLineArgs(argc, argv_new, cfg, defs); // sätter på settings som användaren gör i command line. typ sätt på analyze mode etc 
-    cUserFeedback feedback; //visar varningsmedelanden osv till användaren
+    
+    Avida::Util::ProcessCmdLineArgs(argc_avida, argv_avida, cfg, defs); // sätter på settings som användaren gör i command line. typ sätt på analyze mode etc 
+    cfg->RANDOM_SEED.Set(42);
 
+    cUserFeedback feedback; //visar varningsmedelanden osv till användaren
     cout << "Universe settings: " << num_worlds << " worlds, " << num_generations << " meta generations, " << num_updates << " updates, " << endl;
     cout << "Starting Meta evolution " << endl;
 
@@ -97,24 +85,25 @@ int main(int argc, char *argv[])  {
     for (size_t imeta = 0; imeta < num_generations; imeta++)   {
 
         // Run for each controller
-        double current_max_fitness = 0;
+        double current_max_fitness = -99999;
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
             
             // Initialize world
             Avida::World *new_world = new Avida::World();
             cWorld *world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_world, &feedback, &defs);
+            
 
             // Load controller chromosome
             double *chromosome = controllers[iworld].data();
             world->m_ctx->m_controller.SetChromosome(chromosome, chromosome_length);
             world->setup(new_world, &feedback, &defs);
-            // world->SetVerbosity(0);
+            world->SetVerbosity(0);
 
             // Run avida simulation and evaluate controller
             Avida2MetaDriver driver = Avida2MetaDriver(world, new_world, God);
-
             driver.Run();
             current_fitness[iworld] = driver.m_stats->GetPhi0Fitness();
+            // current_fitness[iworld] = EvaluateController(chromosome, chromosome_length);
 
             // clean up
             driver.~Avida2MetaDriver(); 
@@ -175,6 +164,9 @@ int main(int argc, char *argv[])  {
     output << "\n";   
     output.close();
     cout << "Results saved in: " << filepath << endl;
+
+    // Final cleaning
+    free(argv_avida);
 
     return 0;
 }

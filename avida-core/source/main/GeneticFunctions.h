@@ -5,6 +5,8 @@
 
 double RandomNumber(char dist, int min, int max);
 
+char **ParseArgs(int argc, char **argv, int *universe_settings, int &argc_avida);
+
 std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, int gene_min, int gene_max);
 
 double EvaluateController(double *chromosome, int length);
