@@ -1,4 +1,0 @@
-cd cbuild/work
-./avida 2 2 2
-cd ../..
-

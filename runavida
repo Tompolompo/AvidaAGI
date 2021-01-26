@@ -1,0 +1,5 @@
+cd cbuild/work
+./avida 2 3 4
+echo "**************************"
+./avida -n 2 -m 3 -u 4
+cd ../..

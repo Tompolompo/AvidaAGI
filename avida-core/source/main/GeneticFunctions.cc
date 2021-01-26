@@ -1,6 +1,6 @@
-#include <vector>
 #include <iostream>
 #include <random>
+#include <algorithm>
 
 /* Generate a uniform random real number */
 double RandomNumber(char dist, int min, int max)
