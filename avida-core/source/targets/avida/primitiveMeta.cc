@@ -34,46 +34,16 @@ int main(int argc, char *argv[])  {
 
     // Parse cmd-line arguments
     int universe_settings[4];
-    int opt; 
-    
-    while((opt = getopt(argc, argv, "nmud")) != -1)  
-    {  
-        switch(opt) {   
-            case 'n':  
-                universe_settings[0] = strtol(optarg,(char **)NULL, 10); // must be even number
-                cout << universe_settings[0];
-                break;  
-            case 'm':  
-                universe_settings[1] = strtol(optarg,(char **)NULL, 10);
-                cout << universe_settings[1];
-                break; 
-            case 'u':  
-                universe_settings[2] = strtol(optarg,(char **)NULL, 10);
-                cout << universe_settings[2];
-                break; 
-            case 'd':  
-                universe_settings[3] = strtol(optarg,(char **)NULL, 10);
-                cout << universe_settings[3];
-                break;
-            case '?':  
-                printf("'%c': Not a valid option\n",optopt); 
-                abort();
-        }
-    }
-    for (int index = optind, i = 0; index < argc; index++, i++)   {
-        // printf ("Non-option argument %s\n", argv[index]);
-        argv[index] = argv[index];
-    }
-    char * argv_new[1];
-    argv_new[0] = argv[0];
-    argc = 1;
-
     universe_settings[0] = str2int(argv[1]); // Number of worlds, even number
     universe_settings[1] = str2int(argv[2]); // N meta generations
     universe_settings[2] = str2int(argv[3]); // Number of updates
     universe_settings[3] = 9; // dangerous op
 
-    
+    char * argv_new[1];
+    argv_new[0] = argv[0];
+    argc = 1;
+
+
     // Genetic parameters
     int gene_min = -10; 
     int gene_max = 10;
@@ -117,15 +87,16 @@ int main(int argc, char *argv[])  {
             // Initialize world
             Avida::World *new_world = new Avida::World();
             cWorld *world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_world, &feedback, &defs);
-    
+
             // Load controller chromosome
             double *chromosome = controllers[iworld].data();
-            // world->m_ctx->m_controller.SetChromosome(chromosome, chromosome_length);
-            // world->setup(new_world, &feedback, &defs);
+            world->m_ctx->m_controller.SetChromosome(chromosome, chromosome_length);
+            world->setup(new_world, &feedback, &defs);
             // world->SetVerbosity(0);
 
             // Run avida simulation and evaluate controller
             Avida2MetaDriver driver = Avida2MetaDriver(world, new_world, God);
+
             driver.Run();
             current_fitness[iworld] = EvaluateController(chromosome, chromosome_length);
 
@@ -139,6 +110,7 @@ int main(int argc, char *argv[])  {
             }
         }
 
+        cout << "**** 4" << endl;
         // Check progress
         best_fitness[imeta] = current_max_fitness;
         if (imeta%1 == 0)  {
