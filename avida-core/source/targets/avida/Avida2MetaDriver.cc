@@ -59,17 +59,9 @@ Avida2MetaDriver::Avida2MetaDriver(cWorld* world, World* new_world, cGod* God) :
 Avida2MetaDriver::~Avida2MetaDriver()
 {
   GlobalObjectManager::Unregister(this);
-  //delete m_world;
+  // delete m_world;
 }
 
-void Avida2MetaDriver::UpdateStats(){
-  cAvidaContext& ctx = m_world->GetDefaultContext();
-  //m_world.
-  m_stats->ProcessUpdate();
-  m_population->ProcessPostUpdate(ctx);
-  //m_population.upda
-  m_world->ProcessPostUpdate(ctx);
-}
 
 Avida2MetaDriver Avida2MetaDriver::Run()
 {
@@ -101,8 +93,8 @@ Avida2MetaDriver Avida2MetaDriver::Run()
   Avida::Context new_ctx(this, &m_world->GetRandom());
 
   int dangerous_count = 0;
-  FILE *file = fopen("data/AGIdata/test_data.csv", "w");
-  fprintf(file, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
+  // FILE *file = fopen("data/AGIdata/test_data.csv", "w");
+  // fprintf(file, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
 
   int update_step_size = m_god->m_meta_generation_step_size;
   for (int i = 0 ; i<update_step_size;i++) {
@@ -137,11 +129,11 @@ Avida2MetaDriver Avida2MetaDriver::Run()
     
 		m_world->ProcessPostUpdate(ctx);
     // No viewer; print out status for this update....
-    fprintf(file, "%d,%f,%f,%f,%d", stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms());
+    // fprintf(file, "%d,%f,%f,%f,%d", stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms());
     for (int task = 0; task < 9; task++){ //m_world->GetEnvironment().GetNumReactions();
-      fprintf(file, ",%d", stats.GetTaskLastCount(task));
+      // fprintf(file, ",%d", stats.GetTaskLastCount(task));
     }
-    fprintf(file, "\n");
+    // fprintf(file, "\n");
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
       cout.setf(ios::left);
       cout.setf(ios::showpoint);
@@ -160,17 +152,17 @@ Avida2MetaDriver Avida2MetaDriver::Run()
         cout << "Spec: " << setw(6) << setprecision(4) << stats.GetAveSpeculative() << "  ";
         cout << "SWst: " << setw(6) << setprecision(4) << (((double)stats.GetSpeculativeWaste() / (double)m_world->CalculateUpdateSize()) * 100.0) << "%  ";
       }
-      // GOD TERMINATES PROGRAM
-      dangerous_count = m_world->GetStats().GetTaskCurCount(m_god->m_dangerous_op);
-      cout << "GOD: dangerous op : " << dangerous_count;
-      if (dangerous_count > 0){
-        m_population = &population;
-        m_stats = &stats;
-        m_ctx = &ctx;
-        return *this;
-        //m_world->GetDriver().Finish();
-      }
-      // #####################
+      // // GOD TERMINATES PROGRAM
+      // dangerous_count = m_world->GetStats().GetTaskCurCount(m_god->m_dangerous_op);
+      // cout << "GOD: dangerous op : " << dangerous_count;
+      // if (dangerous_count > 0){
+      //   m_population = &population;
+      //   m_stats = &stats;
+      //   m_ctx = &ctx;
+      //   return *this;
+      //   //m_world->GetDriver().Finish();
+      // }
+      // // #####################
 
       cout << endl;
     }
@@ -194,7 +186,7 @@ Avida2MetaDriver Avida2MetaDriver::Run()
 			m_done = true;
 		}
   }
-  fclose(file);
+  // fclose(file);
   m_population = &population;
   m_stats = &stats;
   m_ctx = &ctx;
@@ -206,110 +198,6 @@ void Avida2MetaDriver::ReplacePopulation(cPopulation* new_population)
   m_population = new_population; 
 }
 
-Avida2MetaDriver Avida2MetaDriver::Continue()
-{
-    int dangerous_count = m_world->GetStats().GetTaskCurCount(m_god->m_dangerous_op);;
-    if (dangerous_count > 0){
-            cout << "World already terminated by God" << endl;
-            return *this;
-            
-        }
-
-    const double point_mut_prob = m_world->GetConfig().POINT_MUT_PROB.Get() +
-                                m_world->GetConfig().POINT_INS_PROB.Get() +
-                                m_world->GetConfig().POINT_DEL_PROB.Get() +
-                                m_world->GetConfig().DIV_LGT_PROB.Get();
-
- 
-  
-  Avida::Context new_ctx(this, &m_world->GetRandom());
-  int update_step_size = m_god->m_meta_generation_step_size;
-    for(int i=0;i<update_step_size;i++ ) {
-        m_world->GetEvents(*m_ctx);
-        if(m_done == true) break;
-        
-        // Increment the Update.
-        m_stats->IncCurrentUpdate();
-        
-        m_population->ProcessPreUpdate();
-
-        // Handle all data collection for previous update.
-        if (m_stats->GetUpdate() > 0) {
-        // Tell the stats object to do update calculations and printing.
-        m_stats->ProcessUpdate();
-        }
-        
-        // Process the update.
-        // query the world to calculate the exact size of this update:
-        const int UD_size = m_world->CalculateUpdateSize();
-        const double step_size = 1.0 / (double) UD_size;
-        
-        for (int i = 0; i < UD_size; i++) {
-        if(m_population->GetNumOrganisms() == 0) {
-            break;
-        }
-        (m_population->*ActiveProcessStep)(*m_ctx, step_size, m_population->ScheduleOrganism());
-        }
-        
-        // end of update stats...
-        m_population->ProcessPostUpdate(*m_ctx);
-        
-            m_world->ProcessPostUpdate(*m_ctx);
-            
-        // No viewer; print out status for this update....
-        if (m_world->GetVerbosity() > VERBOSE_SILENT) {
-        cout.setf(ios::left);
-        cout.setf(ios::showpoint);
-        cout << "UD: " << setw(6) << m_stats->GetUpdate() << "  ";
-        cout << "Gen: " << setw(9) << setprecision(7) << m_stats->SumGeneration().Average() << "  ";
-        cout << "Fit: " << setw(9) << setprecision(7) << m_stats->GetAveFitness() << "  ";
-        cout << "Orgs: " << setw(6) << m_population->GetNumOrganisms() << "  ";
-        if (m_world->GetPopulation().GetNumDemes() > 1) cout << "Demes: " << setw(4) << m_stats->GetNumOccupiedDemes() << " ";
-        if (m_world->GetVerbosity() == VERBOSE_ON || m_world->GetVerbosity() == VERBOSE_DETAILS) {
-            cout << "Merit: " << setw(9) << setprecision(7) << m_stats->GetAveMerit() << "  ";
-            cout << "Thrd: " << setw(6) << m_stats->GetNumThreads() << "  ";
-            cout << "Para: " << m_stats->GetNumParasites() << "  ";
-        }
-        if (m_world->GetVerbosity() >= VERBOSE_DEBUG) {
-            cout << "Spec: " << setw(6) << setprecision(4) << m_stats->GetAveSpeculative() << "  ";
-            cout << "SWst: " << setw(6) << setprecision(4) << (((double)m_stats->GetSpeculativeWaste() / (double)m_world->CalculateUpdateSize()) * 100.0) << "%  ";
-        }
-        // GOD TERMINATES PROGRAM
-        dangerous_count = m_world->GetStats().GetTaskCurCount(m_god->m_dangerous_op);
-        cout << "GOD: dangerous op : " << dangerous_count;
-        if (dangerous_count > 0){
-            //m_population = &population;
-            //m_stats = &stats;
-            //m_ctx = &ctx;
-            return *this;
-            //m_world->GetDriver().Finish();
-        }
-        // #####################
-
-        cout << endl;
-        }
-        
-        
-        
-        // Do Point Mutations
-        if (point_mut_prob > 0 ) {
-        for (int i = 0; i < m_population->GetSize(); i++) {
-            if (m_population->GetCell(i).IsOccupied()) {
-            int num_mut = m_population->GetCell(i).GetOrganism()->GetHardware().PointMutate(*m_ctx);
-            m_population->GetCell(i).GetOrganism()->IncPointMutations(num_mut);
-            }
-        }
-        }
-        
-        m_new_world->PerformUpdate(new_ctx, m_stats->GetUpdate());
-        
-        // Exit conditons...
-        if((m_population->GetNumOrganisms()==0) && m_world->AllowsEarlyExit()) {
-                m_done = true;
-            }
-    }
-  return *this;
-}
 
 void Avida2MetaDriver::Abort(Avida::AbortCondition condition)
 {

@@ -68,8 +68,7 @@ public:
   
   // Actions
   Avida2MetaDriver Run();
-  Avida2MetaDriver Continue();
-  void UpdateStats();
+
   void ReplacePopulation(cPopulation* new_population);
 
   void Finish() { m_done = true; }
