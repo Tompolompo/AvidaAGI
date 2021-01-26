@@ -54,7 +54,7 @@ int main(int argc, char *argv[])  {
     double tournament_probability = 0.8;
     double crossover_probability = 0.5;
     double mutation_probability = 0.05;
-    //char filepath[25] = "output/testresults.data";
+    char filepath[35] = "data/AGIdata/testresults.data";
 
     // Save settigns to file [make separate function for this]
     double Phi_0[chromosome_length];
@@ -77,10 +77,9 @@ int main(int argc, char *argv[])  {
     // Initialise god, result arrays and starting conditions
     cGod* God = new cGod(universe_settings);
     God->speak();
-
-    //ofstream output(filepath);
-    //output << "Results of Avida meta evolution simulation" << endl;
-    //std::vector<double> best_fitness(num_generations, 0);
+    ofstream output(filepath);
+    output << "Results of Avida meta evolution simulation" << endl;
+    std::vector<double> best_fitness(num_generations, 0);
     double best_chromosome[chromosome_length];
     std::vector<double> current_fitness(num_worlds, 0);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
@@ -128,7 +127,7 @@ int main(int argc, char *argv[])  {
             current_fitness[iworld] = driver.m_stats->GetPhi0Fitness();
 
             // clean up
-            driver.~Avida2MetaDriver();
+            driver.~Avida2MetaDriver(); 
 
             // Update best results so far
             if (current_fitness[iworld] >= current_max_fitness)  {
@@ -190,7 +189,6 @@ int main(int argc, char *argv[])  {
     fclose(file_meta_run);
 
     // Store results
-    /*
     output << "best_fitness:";
     for (const auto &e : best_fitness)  {
         output << e << ", ";
@@ -201,17 +199,8 @@ int main(int argc, char *argv[])  {
         output << best_chromosome[count] << ", ";
     }
     output << "\n";   
-
     output.close();
     cout << "Results saved in: " << filepath << endl;
-    */
-
-
-    // Plot results
-    // std::vector<double> x {1,2,3,4,5,6};
-    // std::vector<double> y {1,2,-3,4,-5,6};
-    // matplotlibcpp::plot(x, y);
-    // matplotlibcpp::show();
 
     return 0;
 }
