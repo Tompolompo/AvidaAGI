@@ -43,7 +43,7 @@ int main(int argc, char *argv[])  {
     argv_new[0] = argv[0];
     argc = 1;
 
-
+    
     // Genetic parameters
     int gene_min = -10; 
     int gene_max = 10;
@@ -51,33 +51,36 @@ int main(int argc, char *argv[])  {
     size_t num_generations  = universe_settings[1];
     size_t num_updates = universe_settings[2];
     size_t chromosome_length = 9;
-    double tournament_probability = 0.5;
+    double tournament_probability = 0.8;
     double crossover_probability = 0.5;
-    double mutation_probability = 0.5;
+    double mutation_probability = 0.05;
     //char filepath[25] = "output/testresults.data";
 
     // Save settigns to file [make separate function for this]
     double Phi_0[chromosome_length];
     Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
+    
     FILE *file_settings = fopen("data/AGIdata/settings.csv", "w");
     fprintf(file_settings, "N,M,I,tournament_probability, crossover_probability, mutation_probability, gene_min, gene_max");
     for (int task = 0; task < chromosome_length; task++){
-      fprintf(file_settings, ",Phi_0[%d]", task);
+      fprintf(file_settings, ",hatPhi_0[%d]", task);
     }
     fprintf(file_settings, "\n");
-    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f", num_worlds, num_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, gene_max, gene_max);
+    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%d,%d", num_worlds, num_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, gene_min, gene_max);
     for (int task = 0; task < chromosome_length; task++){
       fprintf(file_settings, ",%f", Phi_0[task]);
     }
     fprintf(file_settings, "\n");
     fclose(file_settings);
+    
 
     // Initialise god, result arrays and starting conditions
     cGod* God = new cGod(universe_settings);
     God->speak();
+
     //ofstream output(filepath);
     //output << "Results of Avida meta evolution simulation" << endl;
-    std::vector<double> best_fitness(num_generations, 0);
+    //std::vector<double> best_fitness(num_generations, 0);
     double best_chromosome[chromosome_length];
     std::vector<double> current_fitness(num_worlds, 0);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
@@ -89,9 +92,17 @@ int main(int argc, char *argv[])  {
     cAvidaConfig* cfg = new cAvidaConfig(); /* define our avida configuration file /new callar på constructor) can overridea config-filen osv. */
     Avida::Util::ProcessCmdLineArgs(argc, argv_new, cfg, defs); // sätter på settings som användaren gör i command line. typ sätt på analyze mode etc 
     cUserFeedback feedback; //visar varningsmedelanden osv till användaren
+    cfg->RANDOM_SEED.Set(42);
 
     cout << "Universe settings: " << num_worlds << " worlds, " << num_generations << " meta generations, " << num_updates << " updates, " << endl;
     cout << "Starting Meta evolution " << endl;
+
+    FILE *file_meta_run = fopen("data/AGIdata/metarun.csv", "w");
+    fprintf(file_meta_run, "m,max(Phi_0)");
+    for (int task = 0; task < chromosome_length; task++){
+      fprintf(file_meta_run, ",hatphi%d", task);
+    }
+    fprintf(file_meta_run, "\n");
 
     // Main loop over meta generations
     for (size_t imeta = 0; imeta < num_generations; imeta++)   {
@@ -108,7 +119,7 @@ int main(int argc, char *argv[])  {
             double *chromosome = controllers[iworld].data();
             world->m_ctx->m_controller.SetChromosome(chromosome, chromosome_length);
             world->setup(new_world, &feedback, &defs);
-            // world->SetVerbosity(0);
+            world->SetVerbosity(0);
 
             // Run avida simulation and evaluate controller
             Avida2MetaDriver driver = Avida2MetaDriver(world, new_world, God);
@@ -127,10 +138,8 @@ int main(int argc, char *argv[])  {
         }
 
         // Check progress
-        best_fitness[imeta] = current_max_fitness;
-        if (imeta%1 == 0)  {
-            cout << "Generation: " << imeta << ", Fitness: " << current_max_fitness << endl;
-        }
+        // best_fitness[imeta] = current_max_fitness;
+       
 
         // Selection
         std::vector<std::vector<double> > new_controllers = controllers;
@@ -160,7 +169,25 @@ int main(int argc, char *argv[])  {
         std::vector<double> best(best_chromosome, best_chromosome + chromosome_length);
         controllers[0] = best;
 
+        // Print progress
+         if (imeta%1 == 0)  {
+            cout << "Meta Generation: " << imeta << ", Fitness: " << current_max_fitness << ", Best chromosome: [";
+            for (int task = 0; task < chromosome_length; task++){
+                cout << ", "  << best[task];
+            }
+            cout << "]" << endl;
+        }
+
+        // Save data to file
+        fprintf(file_meta_run, "%d,%f", imeta, current_max_fitness);
+        for (int task = 0; task < chromosome_length; task++){
+            fprintf(file_meta_run, ",%f", best[task]);
+        }
+        fprintf(file_meta_run, "\n");
+        
+
     }
+    fclose(file_meta_run);
 
     // Store results
     /*
