@@ -57,7 +57,7 @@ char **ParseArgs(int argc, char **argv, int *universe_settings, int &argc_avida)
 }
 
 /* Generates a population of chromosomes that contain the genomes for the controllers */
-std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, int gene_min, int gene_max)
+std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, double gene_min, double gene_max)
 {
     // Initialize the array of chromosomes
     std::vector<std::vector<double> > population = std::vector<std::vector<double> >(num_worlds, std::vector<double>(chromosome_length, 0));
@@ -141,14 +141,27 @@ std::vector<std::vector<double> > Cross(std::vector<double> chromosome1, std::ve
 }
 
 /* Mutates each gene in a chromosome with a certain probability and returns the mutated chromosome */
-std::vector<double> Mutate(std::vector<double> chromosome, double mutation_probability) {
+std::vector<double> Mutate(std::vector<double> chromosome, double mutation_probability, double creep_rate, double creep_probability, double gene_min, double gene_max) {
     int chromosome_length = chromosome.size();
-    double min = *min_element(chromosome.begin(), chromosome.end());
-    double max = *max_element(chromosome.begin(), chromosome.end());
+    double x=0; 
+    double r;
 
     for (size_t i=0; i<chromosome_length; i++) {
-        if (RandomNumber('r', 0, 1) < mutation_probability) {
-            chromosome[i] = RandomNumber('r', min, max);
+        r = RandomNumber('r', 0, 1);
+        if ( r < mutation_probability) {
+            if (RandomNumber('r', 0, 1) < creep_probability) {
+                chromosome[i] += - creep_rate/2 + creep_rate*r;
+
+                if (chromosome[i] > gene_max){
+                    chromosome[i]=gene_max;
+                }
+                else if (chromosome[i] < gene_min){
+                    chromosome[i]=gene_min;
+                }
+            }
+            else{
+                chromosome[i] = RandomNumber('r', gene_min, gene_max);
+            } 
         }
     }
 

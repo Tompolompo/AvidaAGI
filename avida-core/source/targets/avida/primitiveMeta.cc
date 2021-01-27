@@ -15,6 +15,7 @@
 #include "GeneticFunctions.h"
 #include "Avida2MetaDriver.h"
 #include "cGod.h"
+#include <chrono> 
 //#include "cStringUtil.h"
 //#include "cStringIterator.h"
 
@@ -22,7 +23,7 @@ using namespace std;
 
 
 // Global parameters
-int universe_settings[4] = {2, 3, 4, 9};
+int universe_settings[4] = {20, 50, 3000, 9};
 int argc_avida;
 
 int main(int argc, char *argv[])  {
@@ -31,28 +32,30 @@ int main(int argc, char *argv[])  {
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
 
     // Genetic parameters
-    int gene_min = -10; 
-    int gene_max = 10;
+    double gene_min = 0; 
+    double gene_max = 7;
     size_t num_worlds = universe_settings[0];
     size_t num_generations  = universe_settings[1];
     size_t num_updates = universe_settings[2];
     size_t chromosome_length = 9;
     double tournament_probability = 0.8;
-    double crossover_probability = 0.5;
-    double mutation_probability = 0.05;
-    char filepath[35] = "data/AGIdata/testresults.data";
+    double crossover_probability = 0.7;
+    double mutation_probability_constant = 5*1/chromosome_length;
+    double mutation_probability = mutation_probability_constant;
+    double creep_rate = (gene_max-gene_min)/10;
+    double creep_probability =0.90;
 
     // Save settigns to file [make separate function for this]
     double Phi_0[chromosome_length];
     Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
     
     FILE *file_settings = fopen("data/AGIdata/settings.csv", "w");
-    fprintf(file_settings, "N,M,I,tournament_probability, crossover_probability, mutation_probability, gene_min, gene_max");
+    fprintf(file_settings, "N,M,I,tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, gene_min, gene_max, creep_rate, creep_probability");
     for (int task = 0; task < chromosome_length; task++){
       fprintf(file_settings, ",hatPhi_0[%d]", task);
     }
     fprintf(file_settings, "\n");
-    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%d,%d", num_worlds, num_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, gene_min, gene_max);
+    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f", num_worlds, num_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, gene_min, gene_max,  creep_rate, creep_probability);
     for (int task = 0; task < chromosome_length; task++){
       fprintf(file_settings, ",%f", Phi_0[task]);
     }
@@ -63,8 +66,6 @@ int main(int argc, char *argv[])  {
     // Initialise god, result arrays and starting conditions
     cGod* God = new cGod(universe_settings);
     God->speak();
-    ofstream output(filepath);
-    output << "Results of Avida meta evolution simulation" << endl;
     std::vector<double> best_fitness(num_generations, 0);
     double best_chromosome[chromosome_length];
     std::vector<double> current_fitness(num_worlds, 0);
@@ -91,8 +92,12 @@ int main(int argc, char *argv[])  {
     fprintf(file_meta_run, "\n");
 
     // Main loop over meta generations
+    auto start = std::chrono::high_resolution_clock::now(); 
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::minutes>(end - start); 
+   
     for (size_t imeta = 0; imeta < num_generations; imeta++)   {
-
+        start = std::chrono::high_resolution_clock::now(); 
         // Run for each controller
         double current_max_fitness = -99999;
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
@@ -124,10 +129,6 @@ int main(int argc, char *argv[])  {
             }
         }
 
-        // Check progress
-        // best_fitness[imeta] = current_max_fitness;
-       
-
         // Selection
         std::vector<std::vector<double> > new_controllers = controllers;
         for (size_t iworld = 0; iworld < num_worlds-1; iworld += 2) {
@@ -147,9 +148,11 @@ int main(int argc, char *argv[])  {
         }
 
         // Mutation
+        mutation_probability_constant = mutation_probability_constant/(0.1*imeta + 1);
+        mutation_probability = mutation_probability_constant/chromosome_length;
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
             std::vector<double> chromosome = new_controllers[iworld];
-            controllers[iworld] = Mutate(chromosome, mutation_probability);
+            controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max);
         }
 
         //Elitism
@@ -157,12 +160,14 @@ int main(int argc, char *argv[])  {
         controllers[0] = best;
 
         // Print progress
+        end = std::chrono::high_resolution_clock::now(); 
+        duration = std::chrono::duration_cast<std::chrono::minutes>(end - start);
          if (imeta%1 == 0)  {
             cout << "Meta Generation: " << imeta << ", Fitness: " << current_max_fitness << ", Best chromosome: [";
             for (int task = 0; task < chromosome_length; task++){
-                cout << ", "  << best[task];
+                cout << best[task] << ", ";
             }
-            cout << "]" << endl;
+            cout << "] elapsed: " << duration.count() << " min" << endl;
         }
 
         // Save data to file
@@ -175,21 +180,7 @@ int main(int argc, char *argv[])  {
 
     }
     fclose(file_meta_run);
-
-    // Store results
-    output << "best_fitness:";
-    for (const auto &e : best_fitness)  {
-        output << e << ", ";
-    }
-    output << "\n";
-    output << "best_chromosome:";
-    for(size_t count=0; count<chromosome_length; count++)   {
-        output << best_chromosome[count] << ", ";
-    }
-    output << "\n";   
-    output.close();
-    cout << "Results saved in: " << filepath << endl;
-
+    
     // Final cleaning
     free(argv_avida);
 
