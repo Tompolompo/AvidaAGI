@@ -1,7 +1,9 @@
 PROJECT(AVIDA)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+# Modern CMake required for OpenMP implementation of meta evolution
+CMAKE_MINIMUM_REQUIRED(VERSION 3.9) 
 
+# Modern c++ syntax used in meta evolution
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -34,7 +36,8 @@ SET(LIBRARY_OUTPUT_PATH
   "Built libraries are placed here before installation."
 )
 
-
+# Support for OpenMP parallellisation of meta evolution
+find_package(OpenMP)
 
 # This section defines default builtin compiler options
 # ------------------------------------------------------------------------------
@@ -443,6 +446,11 @@ IF(AVD_CMDLINE)
   IF(NOT MSVC)
     LIST(APPEND AVIDA_CMDLINE_LIBS pthread)
   ENDIF(NOT MSVC)
+
+  if(OpenMP_CXX_FOUND)
+    set(AVIDA_CMDLINE_LIBS "${AVIDA_CMDLINE_LIBS} ${OpenMP_CXX_FLAGS}")
+  endif()
+  #MESSAGE(STATUS "${AVIDA_CMDLINE_LIBS}")
   TARGET_LINK_LIBRARIES(avida ${AVIDA_CMDLINE_LIBS})
   
   INSTALL_TARGETS(/work avida)

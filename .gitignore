@@ -1,4 +1,3 @@
-.vscode
 build
 cbuild
 CMakeCache.txt
@@ -11,3 +10,4 @@ wbuild
 DerivedData
 
 .vscode
+omptest
