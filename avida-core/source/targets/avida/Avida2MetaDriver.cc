@@ -94,6 +94,7 @@ Avida2MetaDriver Avida2MetaDriver::Run(FILE *file)
   Avida::Context new_ctx(this, &m_world->GetRandom());
 
   int dangerous_count = 0;
+  m_phi_0_sum=0;
   //FILE *file = fopen("data/AGIdata/test_data.csv", "w");
   //fprintf(file, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
 
@@ -167,7 +168,9 @@ Avida2MetaDriver Avida2MetaDriver::Run(FILE *file)
 
       cout << endl;
     }
-    
+
+    // Update sum of Phi_0
+    m_phi_0_sum += stats.GetPhi0Fitness();
     
     
     // Do Point Mutations

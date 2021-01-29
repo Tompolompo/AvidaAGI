@@ -61,6 +61,7 @@ public:
   cStats* m_stats;
   cAvidaContext* m_ctx;
   cWorld* m_world;
+  double m_phi_0_sum;
   //Avida::Context m_new_ctx;  
 
   void (cPopulation::*ActiveProcessStep)(cAvidaContext& ctx, double step_size, int cell_id) = &cPopulation::ProcessStep;

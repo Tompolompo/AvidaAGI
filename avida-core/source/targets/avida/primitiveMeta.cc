@@ -40,10 +40,10 @@ int main(int argc, char *argv[])  {
     size_t num_updates = universe_settings[2];
     size_t chromosome_length = 9;
     double tournament_probability = 0.8;
-    double crossover_probability = 0.7;
+    double crossover_probability = 0.8;
     double mutation_probability_constant = 5*1/chromosome_length;
     double mutation_probability = mutation_probability_constant;
-    double creep_rate = (gene_max-gene_min)/10;
+    double creep_rate = (gene_max-gene_min)/5;
     double creep_probability = 0.90;
 
     // Set number of threads
@@ -124,14 +124,15 @@ int main(int argc, char *argv[])  {
             double *chromosome = controllers[iworld].data();            
             world->m_ctx->m_controller.SetChromosome(chromosome, chromosome_length);
             world->setup(new_world, &feedback, &defs);
-            //world->SetVerbosity(0);
+            world->SetVerbosity(0);
 
             // Run avida simulation and evaluate controller
             Avida2MetaDriver driver = Avida2MetaDriver(world, new_world, God);
             driver = driver.Run(file_run);
             fprintf(file_run, "-,-,-,-,-,-,-,-,-,-,-,-,-,-\n");
-            current_fitness[iworld] = driver.m_stats->GetPhi0Fitness();
-            // current_fitness[iworld] = EvaluateController(chromosome, chromosome_length);
+
+            current_fitness[iworld] = driver.m_phi_0_sum;
+           
 
             // clean up
             driver.~Avida2MetaDriver(); 
@@ -164,6 +165,7 @@ int main(int argc, char *argv[])  {
         // Mutation
         mutation_probability_constant = mutation_probability_constant/(0.05 + 1) + 0.05;
         mutation_probability = mutation_probability_constant/chromosome_length;
+        creep_rate = creep_rate*0.95;
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
             std::vector<double> chromosome = new_controllers[iworld];
             controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max);
@@ -191,10 +193,8 @@ int main(int argc, char *argv[])  {
             fprintf(file_meta_run, ",%f", best_chromosome[task]);
         }
         fprintf(file_meta_run, "\n");
-        
 
     }
-    
     
     // Final cleaning
     fclose(file_meta_run);
