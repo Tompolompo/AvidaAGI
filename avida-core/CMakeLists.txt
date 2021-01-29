@@ -1,7 +1,9 @@
 PROJECT(AVIDA)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+# Modern CMake required for OpenMP implementation of meta evolution
+CMAKE_MINIMUM_REQUIRED(VERSION 3.9) 
 
+# Modern c++ syntax used in meta evolution
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -34,7 +36,8 @@ SET(LIBRARY_OUTPUT_PATH
   "Built libraries are placed here before installation."
 )
 
-
+# Support for OpenMP parallellisation of meta evolution
+find_package(OpenMP)
 
 # This section defines default builtin compiler options
 # ------------------------------------------------------------------------------
@@ -89,9 +92,10 @@ IF(UNIX)
     "-O2 -g ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DDEBUG"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
   SET(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG"
+    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG -w"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
 ENDIF(UNIX)
+
 
 
 # Default build mode compiles c++ and c code with debug info and no
@@ -104,7 +108,6 @@ IF(NOT CMAKE_BUILD_TYPE)
     FORCE
   )
 ENDIF(NOT CMAKE_BUILD_TYPE)
-
 
 
 # Build Instructions for the Avida Core functionality
@@ -443,6 +446,15 @@ IF(AVD_CMDLINE)
   IF(NOT MSVC)
     LIST(APPEND AVIDA_CMDLINE_LIBS pthread)
   ENDIF(NOT MSVC)
+
+  # Build with OpenMP if it is available
+  if(OpenMP_CXX_FOUND)
+     LIST(APPEND AVIDA_CMDLINE_LIBS OpenMP::OpenMP_CXX)
+     target_compile_options(avida PRIVATE "${OpenMP_CXX_FLAGS}")
+     MESSAGE(STATUS "Building with OpenMP")
+     MESSAGE(STATUS "target compile options: ${OpenMP_CXX_FLAGS}")
+     MESSAGE(STATUS "target_link_libraries: ${AVIDA_CMDLINE_LIBS}")
+  endif()
   TARGET_LINK_LIBRARIES(avida ${AVIDA_CMDLINE_LIBS})
   
   INSTALL_TARGETS(/work avida)
