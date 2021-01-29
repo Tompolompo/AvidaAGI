@@ -23,7 +23,7 @@ using namespace std;
 
 
 // Global parameters
-int universe_settings[4] = {20, 50, 3000, 9};
+int universe_settings[4] = {2, 3, 4, 9}; //{2, 50, 3000, 9};
 int argc_avida;
 
 int main(int argc, char *argv[])  {
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])  {
     double gene_min = 0; 
     double gene_max = 7;
     size_t num_worlds = universe_settings[0];
-    size_t num_generations  = universe_settings[1];
+    size_t num_generations = universe_settings[1];
     size_t num_updates = universe_settings[2];
     size_t chromosome_length = 9;
     double tournament_probability = 0.8;
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])  {
     double mutation_probability_constant = 5*1/chromosome_length;
     double mutation_probability = mutation_probability_constant;
     double creep_rate = (gene_max-gene_min)/10;
-    double creep_probability =0.90;
+    double creep_probability = 0.90;
 
     // Save settigns to file [make separate function for this]
     double Phi_0[chromosome_length];
@@ -84,6 +84,7 @@ int main(int argc, char *argv[])  {
     cout << "Universe settings: " << num_worlds << " worlds, " << num_generations << " meta generations, " << num_updates << " updates, " << endl;
     cout << "Starting Meta evolution " << endl;
 
+    // Create results datafile
     FILE *file_meta_run = fopen("data/AGIdata/metarun.csv", "w");
     fprintf(file_meta_run, "m,max(Phi_0)");
     for (int task = 0; task < chromosome_length; task++){
@@ -91,13 +92,15 @@ int main(int argc, char *argv[])  {
     }
     fprintf(file_meta_run, "\n");
 
-    // Main loop over meta generations
+    // Timing
     auto start = std::chrono::high_resolution_clock::now(); 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::minutes>(end - start); 
    
+    // Main loop over meta generations
     for (size_t imeta = 0; imeta < num_generations; imeta++)   {
-        start = std::chrono::high_resolution_clock::now(); 
+        start = std::chrono::high_resolution_clock::now();
+
         // Run for each controller
         double current_max_fitness = -99999;
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
@@ -106,7 +109,6 @@ int main(int argc, char *argv[])  {
             Avida::World *new_world = new Avida::World();
             cWorld *world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_world, &feedback, &defs);
             
-
             // Load controller chromosome
             double *chromosome = controllers[iworld].data();
             world->m_ctx->m_controller.SetChromosome(chromosome, chromosome_length);
@@ -179,9 +181,10 @@ int main(int argc, char *argv[])  {
         
 
     }
-    fclose(file_meta_run);
+    
     
     // Final cleaning
+    fclose(file_meta_run);
     free(argv_avida);
 
     return 0;

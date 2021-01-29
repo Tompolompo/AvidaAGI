@@ -5,6 +5,8 @@ git submodule update
 
 mkdir -p cbuild
 cd cbuild
+mkdir -p work/data/AGIdata
+
 cmake "$@" ../
 make -j 10 install
 
