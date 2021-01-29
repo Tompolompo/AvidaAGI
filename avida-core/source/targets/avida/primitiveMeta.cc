@@ -32,6 +32,8 @@ int main(int argc, char *argv[])  {
     // Parse cmd-line arguments and extract avida params to pass on
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
 
+    cout << "radnom number: " << RandomNumber('r', 0, 1) << endl;
+
     // Genetic parameters
     double gene_min = 0; 
     double gene_max = 25;
@@ -40,11 +42,13 @@ int main(int argc, char *argv[])  {
     size_t num_updates = universe_settings[2];
     size_t chromosome_length = 9;
     double tournament_probability = 0.8;
-    double crossover_probability = 0.8;
-    double mutation_probability_constant = 5*1/chromosome_length;
-    double mutation_probability = mutation_probability_constant;
+    double crossover_probability = 0.3;
+    double mutation_probability_constant = 6.0;
+    double mutation_probability = mutation_probability_constant/chromosome_length;
+    double mutation_decay= 0.95;
     double creep_rate = (gene_max-gene_min)/5;
-    double creep_probability = 0.90;
+    double creep_probability = 0.9;
+    double creep_decay=0.95;
 
     // Set number of threads
     size_t n_threads = omp_get_max_threads();
@@ -56,12 +60,12 @@ int main(int argc, char *argv[])  {
     Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
     
     FILE *file_settings = fopen("data/AGIdata/settings.csv", "w");
-    fprintf(file_settings, "N,M,I,tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, gene_min, gene_max, creep_rate, creep_probability");
+    fprintf(file_settings, "N,M,I,tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, gene_min, gene_max, creep_rate, creep_probability, creep_decay");
     for (size_t task = 0; task < chromosome_length; task++){
       fprintf(file_settings, ",hatPhi_0[%d]", task);
     }
     fprintf(file_settings, "\n");
-    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f", num_worlds, num_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, gene_min, gene_max,  creep_rate, creep_probability);
+    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", num_worlds, num_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, gene_min, gene_max,  creep_rate, creep_probability, creep_decay);
     for (size_t task = 0; task < chromosome_length; task++){
       fprintf(file_settings, ",%f", Phi_0[task]);
     }
@@ -133,7 +137,6 @@ int main(int argc, char *argv[])  {
 
             current_fitness[iworld] = driver.m_phi_0_sum;
            
-
             // clean up
             driver.~Avida2MetaDriver(); 
 
@@ -149,8 +152,13 @@ int main(int argc, char *argv[])  {
         for (size_t iworld = 0; iworld < num_worlds-1; iworld += 2) {
 
             // Select a pair of chromosomes
-            size_t ix1 = TournamentSelect(current_fitness, tournament_probability);
-            size_t ix2 = TournamentSelect(current_fitness, tournament_probability);
+            int ix1 = TournamentSelect(current_fitness, tournament_probability);
+            int ix2=-1;
+            do
+            {
+                ix2 = TournamentSelect(current_fitness, tournament_probability);
+            } while (ix2==ix1); // ska det vara såhär? #RICKY
+            
             new_controllers[iworld] = controllers[ix1];
             new_controllers[iworld+1] = controllers[ix2];
 
@@ -160,21 +168,30 @@ int main(int argc, char *argv[])  {
                 new_controllers[iworld] = chromosomes[0];
                 new_controllers[iworld+1] = chromosomes[1];
             }
+
         }
 
+        //Elitism
+        controllers[0] = best_chromosome;
+
         // Mutation
-        mutation_probability_constant = mutation_probability_constant/(0.05 + 1) + 0.05;
+        mutation_probability_constant *=mutation_decay;
         mutation_probability = mutation_probability_constant/chromosome_length;
-        creep_rate = creep_rate*0.95;
-        for (size_t iworld = 0; iworld < num_worlds; iworld++) {
+        creep_rate *=creep_decay;
+        for (size_t iworld = 1; iworld < num_worlds; iworld++) {
             std::vector<double> chromosome = new_controllers[iworld];
             controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max);
         }
 
-        //Elitism
-        // std::vector<double> best(best_chromosome, best_chromosome + chromosome_length);
-        // std::vector<double> best = best_chromosome;
-        controllers[0] = best_chromosome;
+        // Temporary print of controller genomes
+        cout << "After mutation" << endl;
+        for (int c=0; c<num_worlds;c++){
+            cout << "Controller in world " << c << ", Fitness: " << current_fitness[c] << ", Genome: [";
+            for (int t=0;t<9;t++){
+                cout << controllers[c][t] << ", ";
+            }
+            cout << "]" << endl;
+        }
 
         // Print progress
         end = std::chrono::high_resolution_clock::now(); 

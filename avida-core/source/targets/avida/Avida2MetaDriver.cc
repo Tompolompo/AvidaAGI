@@ -131,11 +131,12 @@ Avida2MetaDriver Avida2MetaDriver::Run(FILE *file)
     
 		m_world->ProcessPostUpdate(ctx);
     // No viewer; print out status for this update....
+    /*
     fprintf(file, "%d,%f,%f,%f,%d", stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms());
     for (int task = 0; task < 9; task++){ //m_world->GetEnvironment().GetNumReactions();
       fprintf(file, ",%d", stats.GetTaskLastCount(task));
     }
-    fprintf(file, "\n");
+    fprintf(file, "\n");*/
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
       cout.setf(ios::left);
       cout.setf(ios::showpoint);
