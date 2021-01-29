@@ -59,11 +59,12 @@ Avida2MetaDriver::Avida2MetaDriver(cWorld* world, World* new_world, cGod* God) :
 Avida2MetaDriver::~Avida2MetaDriver()
 {
   GlobalObjectManager::Unregister(this);
-  // delete m_world;
+  //delete m_world;
+  //delete m_stats;
 }
 
 
-Avida2MetaDriver Avida2MetaDriver::Run()
+Avida2MetaDriver Avida2MetaDriver::Run(FILE *file)
 {
 /*
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
@@ -93,8 +94,8 @@ Avida2MetaDriver Avida2MetaDriver::Run()
   Avida::Context new_ctx(this, &m_world->GetRandom());
 
   int dangerous_count = 0;
-  // FILE *file = fopen("data/AGIdata/test_data.csv", "w");
-  // fprintf(file, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
+  //FILE *file = fopen("data/AGIdata/test_data.csv", "w");
+  //fprintf(file, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
 
   int update_step_size = m_god->m_meta_generation_step_size;
   for (int i = 0 ; i<update_step_size;i++) {
@@ -129,11 +130,11 @@ Avida2MetaDriver Avida2MetaDriver::Run()
     
 		m_world->ProcessPostUpdate(ctx);
     // No viewer; print out status for this update....
-    // fprintf(file, "%d,%f,%f,%f,%d", stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms());
+    fprintf(file, "%d,%f,%f,%f,%d", stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms());
     for (int task = 0; task < 9; task++){ //m_world->GetEnvironment().GetNumReactions();
-      // fprintf(file, ",%d", stats.GetTaskLastCount(task));
+      fprintf(file, ",%d", stats.GetTaskLastCount(task));
     }
-    // fprintf(file, "\n");
+    fprintf(file, "\n");
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
       cout.setf(ios::left);
       cout.setf(ios::showpoint);
@@ -186,10 +187,10 @@ Avida2MetaDriver Avida2MetaDriver::Run()
 			m_done = true;
 		}
   }
-  // fclose(file);
-  m_population = &population;
+  //fclose(file);
+  //m_population = &population;
   m_stats = &stats;
-  m_ctx = &ctx;
+  //m_ctx = &ctx;
   return *this;
 }
 

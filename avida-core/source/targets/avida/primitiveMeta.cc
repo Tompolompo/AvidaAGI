@@ -34,7 +34,7 @@ int main(int argc, char *argv[])  {
 
     // Genetic parameters
     double gene_min = 0; 
-    double gene_max = 7;
+    double gene_max = 25;
     size_t num_worlds = universe_settings[0];
     size_t num_generations = universe_settings[1];
     size_t num_updates = universe_settings[2];
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])  {
         }
 
         // Mutation
-        mutation_probability_constant = mutation_probability_constant/(0.1*imeta + 1);
+        mutation_probability_constant = mutation_probability_constant/(0.05 + 1) + 0.05;
         mutation_probability = mutation_probability_constant/chromosome_length;
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
             std::vector<double> chromosome = new_controllers[iworld];
