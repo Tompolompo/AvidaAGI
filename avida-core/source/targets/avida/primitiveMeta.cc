@@ -2,6 +2,7 @@
 #include <fstream>
 #include <omp.h>
 #include <algorithm>
+#include <chrono> 
 
 #include "AvidaTools.h"
 #include "apto/core/FileSystem.h"
@@ -12,13 +13,12 @@
 #include "cAvidaConfig.h"
 #include "cUserFeedback.h"
 #include "cWorld.h"
+//#include "cStringUtil.h"
+//#include "cStringIterator.h"
 
 #include "GeneticFunctions.h"
 #include "Avida2MetaDriver.h"
 #include "cGod.h"
-#include <chrono> 
-//#include "cStringUtil.h"
-//#include "cStringIterator.h"
 
 using namespace std;
 
@@ -28,9 +28,6 @@ int universe_settings[4] = {4, 5, 10, 9}; //{2, 50, 3000, 9};
 int argc_avida;
 
 int main(int argc, char *argv[])  {
-
-    cout << "hej" << endl;
-    
 
     // Parse cmd-line arguments and extract avida params to pass on
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
@@ -76,7 +73,8 @@ int main(int argc, char *argv[])  {
     cGod* God = new cGod(universe_settings);
     God->speak();
     std::vector<double> best_fitness(num_generations, 0);
-    double best_chromosome[chromosome_length];
+    std::vector<double> best_chromosome(chromosome_length, 0);
+    // double best_chromosome[chromosome_length];
     std::vector<double> current_fitness(num_worlds, 0);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
 
@@ -105,10 +103,11 @@ int main(int argc, char *argv[])  {
     auto start = std::chrono::high_resolution_clock::now(); 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::minutes>(end - start); 
-   
+    start = std::chrono::high_resolution_clock::now();
+    
     // Main loop over meta generations
     for (size_t imeta = 0; imeta < num_generations; imeta++)   {
-        start = std::chrono::high_resolution_clock::now();
+        
 
         // Run for each controller
         double current_max_fitness = -99999;
@@ -116,8 +115,6 @@ int main(int argc, char *argv[])  {
         {
         #pragma omp for
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
-
-            std::cout << "Thread number: " << omp_get_thread_num() << std::endl;
             
             // Initialize world
             Avida::World *new_world = new Avida::World();
@@ -138,13 +135,12 @@ int main(int argc, char *argv[])  {
             // clean up
             driver.~Avida2MetaDriver(); 
 
-            // Update best results so far
-            if (current_fitness[iworld] >= current_max_fitness)  {
-                current_max_fitness = current_fitness[iworld];
-                std::copy(chromosome, chromosome+chromosome_length, best_chromosome);
-            }
         }
         }
+        // Update best results so far
+        int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();
+        best_chromosome = controllers[imax];
+        current_max_fitness = current_fitness[imax];
 
         // Selection
         std::vector<std::vector<double> > new_controllers = controllers;
@@ -173,8 +169,9 @@ int main(int argc, char *argv[])  {
         }
 
         //Elitism
-        std::vector<double> best(best_chromosome, best_chromosome + chromosome_length);
-        controllers[0] = best;
+        // std::vector<double> best(best_chromosome, best_chromosome + chromosome_length);
+        // std::vector<double> best = best_chromosome;
+        controllers[0] = best_chromosome;
 
         // Print progress
         end = std::chrono::high_resolution_clock::now(); 
@@ -182,7 +179,7 @@ int main(int argc, char *argv[])  {
          if (imeta%1 == 0)  {
             cout << "Meta Generation: " << imeta << ", Fitness: " << current_max_fitness << ", Best chromosome: [";
             for (size_t task = 0; task < chromosome_length; task++){
-                cout << best[task] << ", ";
+                cout << best_chromosome[task] << ", ";
             }
             cout << "] elapsed: " << duration.count() << " min" << endl;
         }
@@ -190,7 +187,7 @@ int main(int argc, char *argv[])  {
         // Save data to file
         fprintf(file_meta_run, "%d,%f", imeta, current_max_fitness);
         for (size_t task = 0; task < chromosome_length; task++){
-            fprintf(file_meta_run, ",%f", best[task]);
+            fprintf(file_meta_run, ",%f", best_chromosome[task]);
         }
         fprintf(file_meta_run, "\n");
         
