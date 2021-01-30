@@ -29,6 +29,8 @@
 
 #include <ctime>
 
+//#include <iostream>
+
 
 Avida::Output::FilePtr Avida::Output::File::createWithPath(World* world, Apto::String path, bool append, Feedback* feedback)
 {
@@ -192,6 +194,7 @@ void Avida::Output::File::WriteColumnDesc(const char* descr, const char* format)
 
 void Avida::Output::File::WriteComment(const char* comment)
 {
+  //std::cout << "* ";
   if (!m_descr_written) m_descr += Apto::FormatStr("# %s\n", comment);
 }
 
@@ -205,8 +208,6 @@ void Avida::Output::File::WriteRaw(const char* str)
 {
   m_fp << str << "\n";
 }
-
-
 
 
 void Avida::Output::File::WriteTimeStamp()

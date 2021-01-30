@@ -64,7 +64,7 @@ Avida2MetaDriver::~Avida2MetaDriver()
 }
 
 
-Avida2MetaDriver Avida2MetaDriver::Run(FILE *file)
+Avida2MetaDriver Avida2MetaDriver::Run()
 {
 /*
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {

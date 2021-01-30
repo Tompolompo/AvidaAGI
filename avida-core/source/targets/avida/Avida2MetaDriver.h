@@ -68,7 +68,7 @@ public:
   
   
   // Actions
-  Avida2MetaDriver Run(FILE *file);
+  Avida2MetaDriver Run();
 
   void ReplacePopulation(cPopulation* new_population);
 

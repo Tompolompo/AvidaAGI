@@ -24,7 +24,7 @@ using namespace std;
 
 
 // Global parameters
-int universe_settings[4] = {224, 5, 500, 9}; //{2, 50, 3000, 9};
+int universe_settings[4] = {224, 5, 5, 9}; //{2, 50, 3000, 9};
 int argc_avida;
 
 int main(int argc, char *argv[])  {
@@ -101,13 +101,14 @@ int main(int argc, char *argv[])  {
     }
     fprintf(file_meta_run, "\n");
 
-    FILE *file_run = fopen("data/AGIdata/run.csv", "w");
-    fprintf(file_run, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
+    //FILE *file_run = fopen("data/AGIdata/run.csv", "w");
+    //fprintf(file_run, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
 
     // Main loop over meta generations
     auto start = std::chrono::high_resolution_clock::now(); 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::minutes>(end - start); 
+    int test = 0;
 
     for (size_t imeta = 0; imeta < num_generations; imeta++)   {
         //start = std::chrono::high_resolution_clock::now(); 
@@ -117,7 +118,8 @@ int main(int argc, char *argv[])  {
         {
         #pragma omp for
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
-            
+            test+=1;
+            cout << "******world: " << test << endl;
             // Initialize world
             Avida::World *new_world = new Avida::World();
             cWorld *world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_world, &feedback, &defs);
@@ -126,17 +128,19 @@ int main(int argc, char *argv[])  {
             double *chromosome = controllers[iworld].data();            
             world->m_ctx->m_controller.SetChromosome(chromosome, chromosome_length);
             world->setup(new_world, &feedback, &defs);
-            world->SetVerbosity(0);
+            //world->SetVerbosity(0);
 
             // Run avida simulation and evaluate controller
             Avida2MetaDriver driver = Avida2MetaDriver(world, new_world, God);
-            driver = driver.Run(file_run);
-            fprintf(file_run, "-,-,-,-,-,-,-,-,-,-,-,-,-,-\n");
+            driver = driver.Run();
+            //fprintf(file_run, "-,-,-,-,-,-,-,-,-,-,-,-,-,-\n");
 
             current_fitness[iworld] = driver.m_phi_0_sum;
            
             // clean up
+            //delete driver.m_world;
             driver.~Avida2MetaDriver(); 
+            //free(driver);
 
         }
         }
@@ -213,7 +217,7 @@ int main(int argc, char *argv[])  {
     
     // Final cleaning
     fclose(file_meta_run);
-    fclose(file_run);
+    //fclose(file_run);
     free(argv_avida);
 
     return 0;
