@@ -24,15 +24,13 @@ using namespace std;
 
 
 // Global parameters
-int universe_settings[4] = {4, 5, 10, 9}; //{2, 50, 3000, 9};
+int universe_settings[4] = {224, 5, 500, 9}; //{2, 50, 3000, 9};
 int argc_avida;
 
 int main(int argc, char *argv[])  {
 
     // Parse cmd-line arguments and extract avida params to pass on
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
-
-    cout << "radnom number: " << RandomNumber('r', 0, 1) << endl;
 
     // Genetic parameters
     double gene_min = 0; 
