@@ -119,7 +119,7 @@ int main(int argc, char *argv[])  {
         #pragma omp for
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
             test+=1;
-            cout << "******world: " << test << endl;
+            // cout << "******world: " << omp_get_thread_num() << endl;
             // Initialize world
             Avida::World *new_world = new Avida::World();
             cWorld *world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_world, &feedback, &defs);
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])  {
             double *chromosome = controllers[iworld].data();            
             world->m_ctx->m_controller.SetChromosome(chromosome, chromosome_length);
             world->setup(new_world, &feedback, &defs);
-            //world->SetVerbosity(0);
+            world->SetVerbosity(0);
 
             // Run avida simulation and evaluate controller
             Apto::SmartPtr<Avida2MetaDriver> driver(new Avida2MetaDriver(world, new_world, God));
@@ -185,14 +185,14 @@ int main(int argc, char *argv[])  {
         }
 
         // Temporary print of controller genomes
-        cout << "After mutation" << endl;
-        for (int c=0; c<num_worlds;c++){
-            cout << "Controller in world " << c << ", Fitness: " << current_fitness[c] << ", Genome: [";
-            for (int t=0;t<9;t++){
-                cout << controllers[c][t] << ", ";
-            }
-            cout << "]" << endl;
-        }
+        // cout << "After mutation" << endl;
+        // for (int c=0; c<num_worlds;c++){
+        //     cout << "Controller in world " << c << ", Fitness: " << current_fitness[c] << ", Genome: [";
+        //     for (int t=0;t<9;t++){
+        //         cout << controllers[c][t] << ", ";
+        //     }
+        //     cout << "]" << endl;
+        // }
 
         // Print progress
         end = std::chrono::high_resolution_clock::now(); 
@@ -218,6 +218,7 @@ int main(int argc, char *argv[])  {
     fclose(file_meta_run);
     //fclose(file_run);
     free(argv_avida);
+    delete cfg; cfg = NULL;
 
     return 0;
 }
