@@ -131,15 +131,14 @@ int main(int argc, char *argv[])  {
             //world->SetVerbosity(0);
 
             // Run avida simulation and evaluate controller
-            Avida2MetaDriver driver = Avida2MetaDriver(world, new_world, God);
-            driver = driver.Run();
+            Apto::SmartPtr<Avida2MetaDriver> driver(new Avida2MetaDriver(world, new_world, God));
+            current_fitness[iworld] = driver.GetPointer(driver)->Run();
             //fprintf(file_run, "-,-,-,-,-,-,-,-,-,-,-,-,-,-\n");
 
-            current_fitness[iworld] = driver.m_phi_0_sum;
-           
+            //current_fitness[iworld] = driver.m_phi_0_sum;
             // clean up
             //delete driver.m_world;
-            driver.~Avida2MetaDriver(); 
+            //delete driver.GetPointer(driver); 
             //free(driver);
 
         }

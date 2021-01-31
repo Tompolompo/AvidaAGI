@@ -3,19 +3,21 @@
 #include <algorithm>
 #include <unistd.h>
 
+std::random_device rd;
+std::mt19937 e(rd());
+static std::uniform_real_distribution<> dis(0, 1);
+
 /* Generate a uniform random real number */
 double RandomNumber(char dist, int min, int max)
 {
-    std::random_device rd;
-    std::mt19937 e(rd());
+    double r = dis(e);
 
     if (dist == 'r')    {
-        static std::uniform_real_distribution<> dis(min, max);
-        return dis(e);
+        return r * (max - min) + min;
     }
     if (dist == 'i')    {
-        static std::uniform_int_distribution<> dis(min, max);
-        return dis(e);
+        //static std::uniform_int_distribution<> dis(min, max);
+        return (int) (r * (max - min) + min);
     }
     else    {
         std::cout << "wrong distribution specified" << std::endl;
@@ -23,81 +25,6 @@ double RandomNumber(char dist, int min, int max)
     }
 }
 
-double RandomNumberPop(char dist, int min, int max)
-{
-    std::random_device rd;
-    std::mt19937 e(rd());
-
-    if (dist == 'r')    {
-        static std::uniform_real_distribution<> dis(min, max);
-        return dis(e);
-    }
-    if (dist == 'i')    {
-        static std::uniform_int_distribution<> dis(min, max);
-        return dis(e);
-    }
-    else    {
-        std::cout << "wrong distribution specified" << std::endl;
-        return -1;
-    }
-}
-
-double RandomNumberCross(char dist, int min, int max)
-{
-    std::random_device rd;
-    std::mt19937 e(rd());
-
-    if (dist == 'r')    {
-        static std::uniform_real_distribution<> dis(min, max);
-        return dis(e);
-    }
-    if (dist == 'i')    {
-        static std::uniform_int_distribution<> dis(min, max);
-        return dis(e);
-    }
-    else    {
-        std::cout << "wrong distribution specified" << std::endl;
-        return -1;
-    }
-}
-
-double RandomNumberTournament(char dist, int min, int max)
-{
-    std::random_device rd;
-    std::mt19937 e(rd());
-
-    if (dist == 'r')    {
-        static std::uniform_real_distribution<> dis(min, max);
-        return dis(e);
-    }
-    if (dist == 'i')    {
-        static std::uniform_int_distribution<> dis(min, max);
-        return dis(e);
-    }
-    else    {
-        std::cout << "wrong distribution specified" << std::endl;
-        return -1;
-    }
-}
-
-double RandomNumberMutate(char dist, int min, int max)
-{
-    std::random_device rd;
-    std::mt19937 e(rd());
-
-    if (dist == 'r')    {
-        static std::uniform_real_distribution<> dis(min, max);
-        return dis(e);
-    }
-    if (dist == 'i')    {
-        static std::uniform_int_distribution<> dis(min, max);
-        return dis(e);
-    }
-    else    {
-        std::cout << "wrong distribution specified" << std::endl;
-        return -1;
-    }
-}
 
 /* Parse cmd-line arguments, extract the AGI-params and pass on the Avida params */
 char **ParseArgs(int argc, char **argv, int *universe_settings, int &argc_avida)    {
@@ -144,7 +71,7 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
         for (int j = 0; j < population[i].size(); j++)
         {
             // Random gene value generation
-            population[i][j] = RandomNumberPop('r', gene_min, gene_max);
+            population[i][j] = RandomNumber('r', gene_min, gene_max);
             // population[i][j] = 1 + i*j;
         }    
     }
@@ -175,8 +102,8 @@ double EvaluateController(double *chromosome, int length)   {
 size_t TournamentSelect(std::vector<double> fitness, double tournament_probability)   {
 
     int population_size = fitness.size();
-    int ix1 = RandomNumberTournament('i', 0, population_size-1);
-    int ix2 = RandomNumberTournament('i', 0, population_size-1);
+    int ix1 = RandomNumber('i', 0, population_size-1);
+    int ix2 = RandomNumber('i', 0, population_size-1);
     int selected;
     
     int r = RandomNumber('r', 0, 1);
@@ -200,7 +127,7 @@ size_t TournamentSelect(std::vector<double> fitness, double tournament_probabili
 /* Performs sexual reproduction by crossing two chromosomes with eachother and returning the children */
 std::vector<std::vector<double> > Cross(std::vector<double> chromosome1, std::vector<double> chromosome2)   {
     int chromosome_length = chromosome1.size();
-    size_t cross_point = RandomNumberCross('i', 0, chromosome_length-1);
+    size_t cross_point = RandomNumber('i', 0, chromosome_length-1);
     int temp;
     std::vector<double> new_chromosome1 = chromosome1;
     std::vector<double> new_chromosome2 = chromosome2;
@@ -222,9 +149,9 @@ std::vector<double> Mutate(std::vector<double> chromosome, double mutation_proba
     double x=0; 
     double r;
     for (size_t i=0; i<chromosome_length; i++) {
-        r = RandomNumberMutate('r', 0, 1);
+        r = RandomNumber('r', 0, 1);
         if ( r < mutation_probability) {
-            if (RandomNumberMutate('r', 0, 1) < creep_probability) {
+            if (RandomNumber('r', 0, 1) < creep_probability) {
                 chromosome[i] += - creep_rate/2 + creep_rate*r;
 
                 if (chromosome[i] > gene_max){
@@ -235,7 +162,7 @@ std::vector<double> Mutate(std::vector<double> chromosome, double mutation_proba
                 }
             }
             else{
-                chromosome[i] = RandomNumberPop('r', gene_min, gene_max);
+                chromosome[i] = RandomNumber('r', gene_min, gene_max);
             } 
         }
     }

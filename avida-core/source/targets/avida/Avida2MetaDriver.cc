@@ -64,7 +64,7 @@ Avida2MetaDriver::~Avida2MetaDriver()
 }
 
 
-Avida2MetaDriver Avida2MetaDriver::Run()
+double Avida2MetaDriver::Run()
 {
 /*
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
@@ -193,9 +193,9 @@ Avida2MetaDriver Avida2MetaDriver::Run()
   }
   //fclose(file);
   //m_population = &population;
-  m_stats = &stats;
+  //m_stats = &stats;
   //m_ctx = &ctx;
-  return *this;
+  return m_phi_0_sum;
 }
 
 void Avida2MetaDriver::ReplacePopulation(cPopulation* new_population)
