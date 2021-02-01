@@ -7,8 +7,42 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <unistd.h>
 
 using namespace std;
+
+/* Parse cmd-line arguments, extract the AGI-params and pass on the Avida params */
+char **ParseArgs(int argc, char **argv, int *universe_settings, int &argc_avida)    {
+
+    int opt; 
+    while((opt = getopt(argc, argv, "n:m:u:i:")) != -1)
+    {  
+        switch(opt) {   
+            case 'n':
+                universe_settings[0] = atoi(optarg); // must be even number
+                break;  
+            case 'm':  
+                universe_settings[1] = atoi(optarg);
+                break; 
+            case 'u':  
+                universe_settings[2] = atoi(optarg);
+                break; 
+            case 'i':  
+                universe_settings[3] = atoi(optarg);
+                break;
+            case '?':  
+                printf("'%c': Not a valid option\n",optopt); 
+                abort();
+        }
+    }
+    argc_avida = argc-optind+1;
+    char** argv_new = new char*[argc_avida];
+    argv_new[0] = argv[0];
+    for (int index = optind, i = 1; index < argc; index++, i++)
+        argv_new[i] = argv[index];
+
+    return argv_new;        
+}
 
 FileSystem::FileSystem(int imeta)
 {
@@ -55,7 +89,7 @@ void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_
     strcat(settings_filename, root_dir);
     strcat(settings_filename, "/settings.csv");
     FILE *file_settings = fopen(settings_filename, "w");
-    fprintf(file_settings, "N,M,I,tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, gene_min, gene_max, creep_rate, creep_probability, creep_decay");
+    fprintf(file_settings, "N,M,U,tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, gene_min, gene_max, creep_rate, creep_probability, creep_decay");
     for (int task = 0; task < chromosome_length; task++){
       fprintf(file_settings, ",hatPhi_0[%d]", task);
     }

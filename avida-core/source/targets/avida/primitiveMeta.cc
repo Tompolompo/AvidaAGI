@@ -116,14 +116,14 @@ int main(int argc, char *argv[])  {
     }
     }
 
-    // test print of chromosomes
-    for (int iworld=0; iworld<num_worlds; iworld++){
-        cout <<  "Fitness: " << current_fitness[iworld] << " Chromosome: [";
-        for (int igene=0; igene<chromosome_length; igene++){;
-            std::cout << controllers[iworld][igene] << " ";
-        }
-        std::cout << "]" << endl;
-    }
+    // // test print of chromosomes
+    // for (int iworld=0; iworld<num_worlds; iworld++){
+    //     cout <<  "Fitness: " << current_fitness[iworld] << " Chromosome: [";
+    //     for (int igene=0; igene<chromosome_length; igene++){;
+    //         std::cout << controllers[iworld][igene] << " ";
+    //     }
+    //     std::cout << "]" << endl;
+    // }
 
     // Update best results so far
     int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();
