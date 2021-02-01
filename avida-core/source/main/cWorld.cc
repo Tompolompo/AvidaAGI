@@ -92,7 +92,7 @@ cWorld::~cWorld()
   delete m_mig_mat; 
   // cout << "m_mig_mat" << endl;
   // Delete Last
-  // delete m_conf; m_conf = NULL;
+  delete m_conf; m_conf = NULL;
 
   // cleanup driver object, if needed
   if (m_own_driver) { delete m_driver; m_driver = NULL; }

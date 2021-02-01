@@ -74,7 +74,7 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
             // population[i][j] = 1 + i*j;
         }    
     }
-    std::cout << "Initial controller population generated" << std::endl;
+    //std::cout << "Initial controller population generated" << std::endl;
     // for (size_t i = 0; i < population.size(); i++)
     // {
     //     for (size_t j = 0; j < population[i].size(); j++)

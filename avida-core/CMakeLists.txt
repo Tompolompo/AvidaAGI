@@ -274,6 +274,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cTaskLib.cc
   ${MAIN_DIR}/cWorld.cc
   ${MAIN_DIR}/GeneticFunctions.cc
+  ${MAIN_DIR}/FileSystem.cc
 )
 SOURCE_GROUP(main FILES ${MAIN_SOURCES})
 LIST(APPEND AVIDA_CORE_SOURCES ${MAIN_SOURCES})
