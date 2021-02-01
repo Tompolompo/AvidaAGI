@@ -25,24 +25,27 @@ FileSystem::FileSystem(int imeta)
     if (imeta == 0){
         // Creating a directory 
         if (mkdir(root_dir, 0777) == -1) {
-            cerr << "Error :  " << strerror(errno) << endl; 
+            //cerr << "message :  " << strerror(errno) << endl; 
         }
     
         else{
             //cout << "Directory created with name: " << root_dir << endl;
             //strcpy(root_dir, root_dir);
-            cout << root_dir << " saved as root directory" << endl;
+            //cout << root_dir << " saved as root directory" << endl;
         }
-        /*
+        
         strcpy (current_meta_dir, "./");
         strcat (current_meta_dir, root_dir);
         strcat (current_meta_dir, "/meta");
-        if (mkdir(current_meta_dir, 0777) == -1) 
-            cerr << "Error :  " << strerror(errno) << endl; */
+        if (mkdir(current_meta_dir, 0777) == -1){
+            //cerr << "message :  " << strerror(errno) << endl; 
+        }
   
     }
     else{
-        //cout << "Directory already created: " << root_dir << endl;
+        strcpy (current_meta_dir, "./");
+        strcat (current_meta_dir, root_dir);
+        strcat (current_meta_dir, "/meta");
     }
             
 }
@@ -136,4 +139,48 @@ std::vector<std::vector<double> > FileSystem::ReadChromosomes(double num_worlds,
     }
     
     return chromosomes;
+}
+
+void FileSystem::InitUpdateDirectory(int meta_generation){
+    std::string str = current_meta_dir;
+    str +="/M";
+    str += to_string(meta_generation);
+    strcpy(current_meta_dir, str.c_str());
+    if (mkdir(current_meta_dir, 0777) == -1){
+        //cerr << "message :  " << strerror(errno) << endl; 
+    }
+    else{
+        //cout << "Directory created with name: " << current_meta_dir << endl;
+    }
+}
+
+void FileSystem::InitUpdateData(int n_world){
+    std::string str = current_meta_dir;
+    str +="/N";
+    str += to_string(n_world);
+    str += ".csv";
+    int n = str.length();
+    char char_array[n + 1];
+    strcpy(char_array, str.c_str());
+    FILE *file_N = fopen(char_array, "w");
+    fprintf(file_N, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
+    fclose(file_N);
+
+}
+
+void FileSystem::SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, double n_orgs, std::vector<double> tasks, int chromosome_length){
+    std::string str = current_meta_dir;
+    str +="/N";
+    str += to_string(n_world);
+    str += ".csv";
+    int n = str.length();
+    char char_array[n + 1];
+    strcpy(char_array, str.c_str());
+    FILE *file_N = fopen(char_array, "a");
+    fprintf(file_N, "%d,%f,%f,%f,%d", update, generation, phi_i, phi_0, n_orgs);
+    for (int task = 0; task < chromosome_length; task++){ //m_world->GetEnvironment().GetNumReactions();
+      fprintf(file_N, ",%d", tasks[task]);
+    }
+    fprintf(file_N, "\n");
+    fclose(file_N);
 }

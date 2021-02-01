@@ -1,4 +1,3 @@
-import os
 import subprocess
 
 def run_avida(n, m, u, i):

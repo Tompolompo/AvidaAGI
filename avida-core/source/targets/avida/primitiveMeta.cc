@@ -45,8 +45,8 @@ int main(int argc, char *argv[])  {
     double crossover_probability = 0.3;
     double mutation_probability_constant = 6.0;
     double mutation_probability = mutation_probability_constant/chromosome_length;
-    double mutation_decay = 0.95;
-    double creep_rate = (gene_max-gene_min)/5;
+    double mutation_decay= 0.95;
+    double creep_rate = (gene_max-gene_min)/5.0;
     double creep_probability = 0.9;
     double creep_decay = 0.95;
 
@@ -76,6 +76,7 @@ int main(int argc, char *argv[])  {
         // read chromosomes from file
         controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
     }
+    fs.InitUpdateDirectory(imeta);
 
     // Initialise avida stuff
     Avida::Initialize(); // Initialize...
@@ -107,9 +108,10 @@ int main(int argc, char *argv[])  {
         world->setup(new_world, &feedback, &defs);
         world->SetVerbosity(0);
 
+        
         // Run avida simulation and evaluate controller
         Apto::SmartPtr<Avida2MetaDriver> driver(new Avida2MetaDriver(world, new_world, God));
-        current_fitness[iworld] = driver.GetPointer(driver)->Run();
+        current_fitness[iworld] = driver.GetPointer(driver)->Run(fs, iworld);
         
     }
     }
@@ -154,7 +156,7 @@ int main(int argc, char *argv[])  {
     mutation_probability_constant *=mutation_decay;
     mutation_probability = mutation_probability_constant/chromosome_length;
     creep_rate *=creep_decay;
-    for (size_t iworld = 1; iworld < num_worlds; iworld++) {
+    for (size_t iworld = 0; iworld < num_worlds; iworld++) {
         std::vector<double> chromosome = new_controllers[iworld];
         controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max);
     }

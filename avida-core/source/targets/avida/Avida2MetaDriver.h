@@ -34,6 +34,7 @@
 #include "cStats.h"
 #include "cWorld.h"
 #include "avida/core/Context.h"
+#include "FileSystem.h"
 
 class cWorld;
 
@@ -68,7 +69,7 @@ public:
   
   
   // Actions
-  double Run();
+  double Run(FileSystem fs, int iworld);
 
   void ReplacePopulation(cPopulation* new_population);
 
