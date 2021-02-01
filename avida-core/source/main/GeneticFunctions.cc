@@ -16,7 +16,6 @@ double RandomNumber(char dist, int min, int max)
         return r * (max - min) + min;
     }
     if (dist == 'i')    {
-        //static std::uniform_int_distribution<> dis(min, max);
         return (int) (r * (max - min) + min);
     }
     else    {

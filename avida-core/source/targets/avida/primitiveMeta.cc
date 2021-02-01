@@ -24,7 +24,7 @@ using namespace std;
 
 
 // Global parameters
-int universe_settings[4] = {224, 5, 5, 9}; //{2, 50, 3000, 9};
+int universe_settings[4] = {100, 1, 1000, 9}; //{2, 50, 3000, 9};
 int argc_avida;
 
 int main(int argc, char *argv[])  {
@@ -51,11 +51,11 @@ int main(int argc, char *argv[])  {
     // Set number of threads
     size_t n_threads = omp_get_max_threads();
     if (n_threads > num_worlds) n_threads = num_worlds;
-    std::cout << "Running with " << n_threads << " threads" << std::endl;
+    //std::cout << "Running with " << n_threads << " threads" << std::endl;
 
     // Save settigns to file [make separate function for this]
     double Phi_0[chromosome_length];
-    Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
+    Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;    
     
     FILE *file_settings = fopen("data/AGIdata/settings.csv", "w");
     fprintf(file_settings, "N,M,I,tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, gene_min, gene_max, creep_rate, creep_probability, creep_decay");
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])  {
 
     // Initialise god, result arrays and starting conditions
     cGod* God = new cGod(universe_settings);
-    God->speak();
+    //God->speak();
     std::vector<double> best_fitness(num_generations, 0);
     std::vector<double> best_chromosome(chromosome_length, 0);
     // double best_chromosome[chromosome_length];
@@ -84,14 +84,15 @@ int main(int argc, char *argv[])  {
     Avida::Initialize(); // Initialize...
     // cout << Avida::Version::Banner() << endl; // print the banner and current version of Avida
     Apto::Map<Apto::String, Apto::String> defs; // define a map that maps an apto string to an apto string
-    cAvidaConfig* cfg = new cAvidaConfig(); /* define our avida configuration file /new callar på constructor) can overridea config-filen osv. */
+    cAvidaConfig* cfg = new cAvidaConfig(); // define our avida configuration file /new callar på constructor) can overridea config-filen osv. 
     
     Avida::Util::ProcessCmdLineArgs(argc_avida, argv_avida, cfg, defs); // sätter på settings som användaren gör i command line. typ sätt på analyze mode etc 
     cfg->RANDOM_SEED.Set(42);
 
     cUserFeedback feedback; //visar varningsmedelanden osv till användaren
-    cout << "Universe settings: " << num_worlds << " worlds, " << num_generations << " meta generations, " << num_updates << " updates, " << endl;
-    cout << "Starting Meta evolution " << endl;
+    //cout << "Universe settings: " << num_worlds << " worlds, " << num_generations << " meta generations, " << num_updates << " updates, " << endl;
+    //cout << "Starting Meta evolution " << endl;
+    
 
     // Create results datafile
     FILE *file_meta_run = fopen("data/AGIdata/metarun.csv", "w");
@@ -119,6 +120,9 @@ int main(int argc, char *argv[])  {
         #pragma omp for
         for (size_t iworld = 0; iworld < num_worlds; iworld++) {
             test+=1;
+
+            //TEST
+            
             // cout << "******world: " << omp_get_thread_num() << endl;
             // Initialize world
             Avida::World *new_world = new Avida::World();
