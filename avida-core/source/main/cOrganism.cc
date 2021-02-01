@@ -787,6 +787,10 @@ void cOrganism::PrintFinalStatus(ostream& fp, int time_used, int time_allocated)
 
 // (AGI - TL) Calculate the controller fitness on Phi_0
 double cOrganism::CalcPhi0Fitness(){
+  /*double Phi_0[9]; //TEMPORARY SOLUTION
+  Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;
+  Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
+  cout <<  << endl;*/
   double calculated_bonus = 0.0;
   for (int i = 0; i<m_world->GetEnvironment().GetNumReactions() ; i++){
     calculated_bonus += m_world->m_ctx->m_controller.Phi_0[i] * GetPhenotype().GetLastCountForTask(i);

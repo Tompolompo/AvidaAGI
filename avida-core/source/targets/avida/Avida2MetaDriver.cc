@@ -44,6 +44,7 @@
 #include <ctime>
 #include <iostream>
 #include <iomanip>
+#include "FileSystem.h"
 
 using namespace Avida;
 using namespace std;
@@ -64,7 +65,7 @@ Avida2MetaDriver::~Avida2MetaDriver()
 }
 
 
-double Avida2MetaDriver::Run()
+double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
 {
 /*
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
@@ -99,6 +100,9 @@ double Avida2MetaDriver::Run()
   //fprintf(file, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
 
   int update_step_size = m_god->m_meta_generation_step_size;
+  //cout << " 1 "
+  m_fs.InitUpdateData(m_iworld);
+  
   for (int i = 0 ; i<update_step_size;i++) {
     m_world->GetEvents(ctx);
     if(m_done == true) break;
@@ -131,6 +135,12 @@ double Avida2MetaDriver::Run()
     
 		m_world->ProcessPostUpdate(ctx);
     // No viewer; print out status for this update....
+    int chromosome_length = 9;
+    std::vector<double> task_count = std::vector<double>(chromosome_length, 0);
+    for (int i=0;i>chromosome_length;i++){
+      task_count[i] = stats.GetTaskLastCount(i);
+    }
+    m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
     /*
     fprintf(file, "%d,%f,%f,%f,%d", stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms());
     for (int task = 0; task < 9; task++){ //m_world->GetEnvironment().GetNumReactions();

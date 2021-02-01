@@ -27,15 +27,13 @@ class FileSystem{
         void SaveMetaData(int chromosome_length, int imeta, double current_max_fitness, std::vector<double> best_chromosome);
 
         // create folder "M[%meta_generation]"
-        //void InitMetaGenData(int meta_generation); //update current meta_dir
+        void InitUpdateDirectory(int meta_generation); //update current meta_dir
 
         // create file "N[%n_world].csv" for world
-        //void InitUpdateData(int n_world); 
+        void InitUpdateData(int n_world); 
+
         // Save data for updates
-        //void SaveUpdateData();
-
-
-        
+        void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, double n_orgs, std::vector<double> tasks, int chromosome_length);
             
 };
 
