@@ -1,9 +1,13 @@
 import os
 import subprocess
 
-def run_avida(m):
-    subprocess.call(["./avida", "-n10", "-m" + str(m), "-u100"], )
+def run_avida(n, m, u):
+    subprocess.call(["./avida", "-n" + str(n), "-m" + str(m), "-u" + str(u)], )
 
-for i in range(3):
-    run_avida(i)
+N=8
+M=2
+U=1000
+for i in range(M):
+    print("Running with " + str(N) +  " worlds,  " + str(M) + " meta generations and " + str(U) + " updates.")
+    run_avida(n=N, m=i, u=U)
 
