@@ -41,7 +41,7 @@ char **ParseArgs(int argc, char **argv, int *universe_settings, int &argc_avida)
             case 'u':  
                 universe_settings[2] = atoi(optarg);
                 break; 
-            case 'd':  
+            case 'i':  
                 universe_settings[3] = atoi(optarg);
                 break;
             case '?':  
