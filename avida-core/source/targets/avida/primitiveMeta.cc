@@ -69,7 +69,7 @@ int main(int argc, char *argv[])  {
     if (imeta==0)   {
         // save settings and initialize run file
         fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, Phi_0, chromosome_length);
-        fs.InitMetaData(num_meta_generations);
+        fs.InitMetaData(chromosome_length);
         controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
     }
     else    {
