@@ -67,14 +67,15 @@ IF(UNIX)
     IF (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang.*")
       SET(HAVE_FUSED_MADD FALSE)
     ELSE (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang.*")
-      SET(CMAKE_REQUIRED_FLAGS "-mno-fused-madd")
+      SET(CMAKE_REQUIRED_FLAGS "-ffp-contract=on")
       CHECK_C_SOURCE_COMPILES("int main() { return 0; }" HAVE_FUSED_MADD)
     ENDIF (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang.*")
   ENDIF (CMAKE_CXX_COMPILER MATCHES ".*icpc.*")
   SET(CMAKE_REQUIRED_FLAGS "")
 
   IF(HAVE_FUSED_MADD)
-    SET(COMPILER_OPTIMIZATION_FLAGS "-mno-fused-madd ${COMPILER_OPTIMIZATION_FLAGS}")
+#    SET(COMPILER_OPTIMIZATION_FLAGS "-mno-fused-madd ${COMPILER_OPTIMIZATION_FLAGS}")
+    SET(COMPILER_OPTIMIZATION_FLAGS "-ffp-contract=on ${COMPILER_OPTIMIZATION_FLAGS}")
   ENDIF(HAVE_FUSED_MADD)
 
   # Four types of c++ compilations:
@@ -83,7 +84,7 @@ IF(UNIX)
   # - release (Release)
   # - release with debug info (RelWithDebInfo)
   SET(CMAKE_CXX_FLAGS_DEBUG
-    "-g ${COMPILER_WARNING_FLAGS} -DDEBUG"
+    " -O1 -g ${COMPILER_WARNING_FLAGS} -DDEBUG -w -march=native"
     CACHE STRING "Flags used by the compiler during debug builds." FORCE)
   SET(CMAKE_CXX_FLAGS_MINSIZEREL
     "-Os ${COMPILER_WARNING_FLAGS} -DNDEBUG"
@@ -92,7 +93,7 @@ IF(UNIX)
     "-O2 -g ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DDEBUG"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
   SET(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG -w"
+    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG -w -march=native"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
 ENDIF(UNIX)
 
@@ -450,14 +451,11 @@ IF(AVD_CMDLINE)
 
   # Build with OpenMP if it is available
   if(OpenMP_CXX_FOUND)
-     LIST(APPEND AVIDA_CMDLINE_LIBS OpenMP::OpenMP_CXX)
-     target_compile_options(avida PRIVATE "${OpenMP_CXX_FLAGS}")
-     MESSAGE(STATUS "Building with OpenMP")
-     MESSAGE(STATUS "target compile options: ${OpenMP_CXX_FLAGS}")
-     MESSAGE(STATUS "target_link_libraries: ${AVIDA_CMDLINE_LIBS}")
+    LIST(APPEND AVIDA_CMDLINE_LIBS OpenMP::OpenMP_CXX)
+    target_compile_options(avida PRIVATE "${OpenMP_CXX_FLAGS}")
   endif()
+
   TARGET_LINK_LIBRARIES(avida ${AVIDA_CMDLINE_LIBS})
-  
   INSTALL_TARGETS(/work avida)
 ENDIF(AVD_CMDLINE)
 

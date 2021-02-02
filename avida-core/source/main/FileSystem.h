@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+char **ParseArgs(int argc, char **argv, int *universe_settings, int &argc_avida);
+
 class FileSystem{
     public:
         char buffer[80];

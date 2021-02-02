@@ -1,7 +1,7 @@
 #include <iostream>
 #include <random>
 #include <algorithm>
-#include <unistd.h>
+
 
 std::random_device rd;
 std::mt19937 e(rd());
@@ -25,38 +25,7 @@ double RandomNumber(char dist, int min, int max)
 }
 
 
-/* Parse cmd-line arguments, extract the AGI-params and pass on the Avida params */
-char **ParseArgs(int argc, char **argv, int *universe_settings, int &argc_avida)    {
 
-    int opt; 
-    while((opt = getopt(argc, argv, "n:m:u:d:")) != -1)
-    {  
-        switch(opt) {   
-            case 'n':
-                universe_settings[0] = atoi(optarg); // must be even number
-                break;  
-            case 'm':  
-                universe_settings[1] = atoi(optarg);
-                break; 
-            case 'u':  
-                universe_settings[2] = atoi(optarg);
-                break; 
-            case 'd':  
-                universe_settings[3] = atoi(optarg);
-                break;
-            case '?':  
-                printf("'%c': Not a valid option\n",optopt); 
-                abort();
-        }
-    }
-    argc_avida = argc-optind+1;
-    char** argv_new = new char*[argc_avida];
-    argv_new[0] = argv[0];
-    for (int index = optind, i = 1; index < argc; index++, i++)
-        argv_new[i] = argv[index];
-
-    return argv_new;        
-}
 
 /* Generates a population of chromosomes that contain the genomes for the controllers */
 std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, double gene_min, double gene_max)
