@@ -114,6 +114,8 @@ int main(int argc, char *argv[])  {
         // Run avida simulation and evaluate controller
         Apto::SmartPtr<Avida2MetaDriver> driver(new Avida2MetaDriver(world, new_world, God));
         current_fitness[iworld] = driver.GetPointer(driver)->Run(fs, iworld);
+        // current_fitness[iworld] = EvaluateController(chromosome, chromosome_length);
+        
     }
     }
 
