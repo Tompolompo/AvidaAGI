@@ -108,12 +108,14 @@ int main(int argc, char *argv[])  {
         world->setup(new_world, &feedback, &defs);
         world->SetVerbosity(0);
 
-        
         // Run avida simulation and evaluate controller
         Apto::SmartPtr<Avida2MetaDriver> driver(new Avida2MetaDriver(world, new_world, God));
         current_fitness[iworld] = driver.GetPointer(driver)->Run(fs, iworld);
+<<<<<<< HEAD
         // current_fitness[iworld] = EvaluateController(chromosome, chromosome_length);
         
+=======
+>>>>>>> c35c0c9512d3b0e5cf66465d7a9331baffb0d91e
     }
     }
 
@@ -171,7 +173,7 @@ int main(int argc, char *argv[])  {
         for (size_t task = 0; task < chromosome_length; task++){
             cout << best_chromosome[task] << ", ";
         }
-        cout << "] elapsed: " << duration.count() << " seconds" << endl;
+        cout << "] elapsed: " << duration.count()/60.0 << " min" << endl;
     }
 
 

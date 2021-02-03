@@ -202,7 +202,7 @@ void FileSystem::InitUpdateData(int n_world){
 
 }
 
-void FileSystem::SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, double n_orgs, std::vector<double> tasks, int chromosome_length){
+void FileSystem::SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int chromosome_length){
     std::string str = current_meta_dir;
     str +="/N";
     str += to_string(n_world);
@@ -212,7 +212,7 @@ void FileSystem::SaveUpdateData(int n_world, int update, double generation, doub
     strcpy(char_array, str.c_str());
     FILE *file_N = fopen(char_array, "a");
     fprintf(file_N, "%d,%f,%f,%f,%d", update, generation, phi_i, phi_0, n_orgs);
-    for (int task = 0; task < chromosome_length; task++){ //m_world->GetEnvironment().GetNumReactions();
+    for (int task = 0; task < chromosome_length; task++){ 
       fprintf(file_N, ",%d", tasks[task]);
     }
     fprintf(file_N, "\n");

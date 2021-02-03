@@ -35,7 +35,7 @@ class FileSystem{
         void InitUpdateData(int n_world); 
 
         // Save data for updates
-        void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, double n_orgs, std::vector<double> tasks, int chromosome_length);
+        void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int chromosome_length);
             
 };
 

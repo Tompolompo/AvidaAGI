@@ -103,7 +103,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
   //cout << " 1 "
   m_fs.InitUpdateData(m_iworld);
   
-  for (int i = 0 ; i<update_step_size;i++) {
+  for (int u = 0 ; u<update_step_size;u++) {
     m_world->GetEvents(ctx);
     if(m_done == true) break;
     
@@ -136,9 +136,9 @@ double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
 		m_world->ProcessPostUpdate(ctx);
     // No viewer; print out status for this update....
     int chromosome_length = 9;
-    std::vector<double> task_count = std::vector<double>(chromosome_length, 0);
-    for (int i=0;i>chromosome_length;i++){
-      task_count[i] = stats.GetTaskLastCount(i);
+    std::vector<int> task_count = std::vector<int>(chromosome_length, 0);
+    for (int j=0;j<chromosome_length;j++){
+      task_count[j] = stats.GetTaskLastCount(j);
     }
     m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
     /*
