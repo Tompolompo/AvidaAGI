@@ -35,7 +35,7 @@ int main(int argc, char *argv[])  {
 
     // Genetic parameters
     double gene_min = 0; 
-    double gene_max = 25;
+    double gene_max = 7;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
     int num_updates = universe_settings[2];
@@ -43,12 +43,14 @@ int main(int argc, char *argv[])  {
     int chromosome_length = 9;
     double tournament_probability = 0.8;
     double crossover_probability = 0.3;
-    double mutation_probability_constant = 6.0;
+    double mutation_probability_constant = 3.0;
     double mutation_probability = mutation_probability_constant/chromosome_length;
-    double mutation_decay= 0.95;
-    double creep_rate = (gene_max-gene_min)/5.0;
+    double mutation_decay = 0.95;
+    double min_mutation_constant = 0.5;
+    double creep_rate = (gene_max-gene_min)/3.0;
     double creep_probability = 0.9;
-    double creep_decay = 0.95;
+    double creep_decay = 0.98;
+    double min_creep = (gene_max-gene_min)/25.0;
 
     // Set number of threads
     size_t n_threads = omp_get_max_threads();
@@ -68,7 +70,7 @@ int main(int argc, char *argv[])  {
     FileSystem fs = FileSystem(imeta);
     if (imeta==0)   {
         // save settings and initialize run file
-        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, Phi_0, chromosome_length);
+        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, Phi_0, chromosome_length);
         fs.InitMetaData(chromosome_length);
         controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
     }
@@ -84,13 +86,14 @@ int main(int argc, char *argv[])  {
     Apto::Map<Apto::String, Apto::String> defs; // define a map that maps an apto string to an apto string
     cAvidaConfig* cfg = new cAvidaConfig(); // define our avida configuration file /new callar på constructor) can overridea config-filen osv. 
     Avida::Util::ProcessCmdLineArgs(argc_avida, argv_avida, cfg, defs); // sätter på settings som användaren gör i command line. typ sätt på analyze mode etc 
-    cfg->RANDOM_SEED.Set(42);
+    cfg->RANDOM_SEED.Set(imeta);
     cUserFeedback feedback; //visar varningsmedelanden osv till användaren
 
     // Timing
+    /*
     auto start = std::chrono::high_resolution_clock::now(); 
     auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start); 
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start); */
 
     // Process all worlds
     #pragma omp parallel num_threads(n_threads)
@@ -147,13 +150,12 @@ int main(int argc, char *argv[])  {
             new_controllers[iworld] = chromosomes[0];
             new_controllers[iworld+1] = chromosomes[1];
         }
-
     }
 
     // Mutation
-    mutation_probability_constant *=mutation_decay;
+    mutation_probability_constant = mutation_probability_constant*pow(mutation_decay,imeta)+min_mutation_constant;
     mutation_probability = mutation_probability_constant/chromosome_length;
-    creep_rate *=creep_decay;
+    creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
     for (size_t iworld = 0; iworld < num_worlds; iworld++) {
         std::vector<double> chromosome = new_controllers[iworld];
         controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max);
@@ -163,14 +165,15 @@ int main(int argc, char *argv[])  {
     controllers[0] = best_chromosome;
 
     // Print progress
+    /*
     end = std::chrono::high_resolution_clock::now(); 
-    duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-        if (imeta%1 == 0)  {
+    duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);*/
+    if (imeta%1 == 0)  {
         cout << "Meta Generation: " << imeta << ", Fitness: " << current_max_fitness << ", Best chromosome: [";
         for (size_t task = 0; task < chromosome_length; task++){
             cout << best_chromosome[task] << ", ";
         }
-        cout << "] elapsed: " << duration.count()/60.0 << " min" << endl;
+        cout << "] ";
     }
 
 
