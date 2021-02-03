@@ -42,13 +42,13 @@ int main(int argc, char *argv[])  {
     int imeta = universe_settings[3];
     int chromosome_length = 9;
     double tournament_probability = 0.8;
-    double crossover_probability = 0.3;
-    double mutation_probability_constant = 6.0;
+    double crossover_probability = 0.8;
+    double mutation_probability_constant = 1.0;
     double mutation_probability = mutation_probability_constant/chromosome_length;
-    double mutation_decay= 0.95;
+    double mutation_decay = 1;
     double creep_rate = (gene_max-gene_min)/5.0;
-    double creep_probability = 0.9;
-    double creep_decay = 0.95;
+    double creep_probability = 0.8;
+    double creep_decay = 1;
 
     // Set number of threads
     size_t n_threads = omp_get_max_threads();
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])  {
     if (imeta==0)   {
         // save settings and initialize run file
         fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, Phi_0, chromosome_length);
-        fs.InitMetaData(num_meta_generations);
+        fs.InitMetaData(chromosome_length);
         controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
     }
     else    {
@@ -112,6 +112,7 @@ int main(int argc, char *argv[])  {
         // Run avida simulation and evaluate controller
         Apto::SmartPtr<Avida2MetaDriver> driver(new Avida2MetaDriver(world, new_world, God));
         current_fitness[iworld] = driver.GetPointer(driver)->Run(fs, iworld);
+        // current_fitness[iworld] = EvaluateController(chromosome, chromosome_length);
         
     }
     }
@@ -153,9 +154,7 @@ int main(int argc, char *argv[])  {
     }
 
     // Mutation
-    mutation_probability_constant *=mutation_decay;
     mutation_probability = mutation_probability_constant/chromosome_length;
-    creep_rate *=creep_decay;
     for (size_t iworld = 0; iworld < num_worlds; iworld++) {
         std::vector<double> chromosome = new_controllers[iworld];
         controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max);
