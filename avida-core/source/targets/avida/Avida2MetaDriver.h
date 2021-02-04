@@ -1,5 +1,5 @@
 /*
- *  Avida2Driver.h
+ *  Avida2MetaDriver.h
  *  avida
  *
  *  Created by David on 12/11/05.
@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef Avida2Driver_h
-#define Avida2Driver_h
+#ifndef Avida2MetaDriver_h
+#define Avida2MetaDriver_h
 
 #include "avida/core/Feedback.h"
 #include "avida/core/Types.h"
@@ -32,7 +32,7 @@
 class cWorld;
 
 
-class Avida2Driver : public Avida::WorldDriver
+class Avida2MetaDriver : public Avida::WorldDriver
 {
 protected:
   cWorld* m_world;
@@ -47,8 +47,8 @@ protected:
   } m_feedback;
   
 public:
-  Avida2Driver(cWorld* world, Avida::World* new_world);
-  ~Avida2Driver();  
+  Avida2MetaDriver(cWorld* world, Avida::World* new_world);
+  ~Avida2MetaDriver();  
   
   // Actions
   void Run();

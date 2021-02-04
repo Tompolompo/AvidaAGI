@@ -1,5 +1,5 @@
 /*
- *  Avida2Driver.cc
+ *  Avida2MetaDriver.cc
  *  avida
  *
  *  Created by David on 12/11/05.
@@ -22,7 +22,7 @@
  *
  */
 
-#include "Avida2Driver.h"
+#include "Avida2MetaDriver.h"
 
 #include "avida/core/Context.h"
 #include "avida/core/World.h"
@@ -48,20 +48,20 @@ using namespace Avida;
 using namespace std;
 
 
-Avida2Driver::Avida2Driver(cWorld* world, World* new_world) : m_world(world), m_new_world(new_world), m_done(false)
+Avida2MetaDriver::Avida2MetaDriver(cWorld* world, World* new_world) : m_world(world), m_new_world(new_world), m_done(false)
 {
   GlobalObjectManager::Register(this);
   world->SetDriver(this);
 }
 
-Avida2Driver::~Avida2Driver()
+Avida2MetaDriver::~Avida2MetaDriver()
 {
   GlobalObjectManager::Unregister(this);
   delete m_world;
 }
 
 
-void Avida2Driver::Run()
+void Avida2MetaDriver::Run()
 {
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
     cout << "In analyze mode!!" << endl;
@@ -162,12 +162,12 @@ void Avida2Driver::Run()
   }
 }
 
-void Avida2Driver::Abort(Avida::AbortCondition condition)
+void Avida2MetaDriver::Abort(Avida::AbortCondition condition)
 {
   exit(condition);
 }
 
-void Avida2Driver::StdIOFeedback::Error(const char* fmt, ...)
+void Avida2MetaDriver::StdIOFeedback::Error(const char* fmt, ...)
 {
   printf("error: ");
   va_list args;
@@ -177,7 +177,7 @@ void Avida2Driver::StdIOFeedback::Error(const char* fmt, ...)
   printf("\n");
 }
 
-void Avida2Driver::StdIOFeedback::Warning(const char* fmt, ...)
+void Avida2MetaDriver::StdIOFeedback::Warning(const char* fmt, ...)
 {
   printf("warning: ");
   va_list args;
@@ -187,7 +187,7 @@ void Avida2Driver::StdIOFeedback::Warning(const char* fmt, ...)
   printf("\n");
 }
 
-void Avida2Driver::StdIOFeedback::Notify(const char* fmt, ...)
+void Avida2MetaDriver::StdIOFeedback::Notify(const char* fmt, ...)
 {
   va_list args;
   va_start(args, fmt);

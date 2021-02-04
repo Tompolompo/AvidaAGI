@@ -13,11 +13,12 @@
 #include "cAvidaConfig.h"
 #include "cUserFeedback.h"
 #include "cWorld.h"
-#include "Avida2Driver.h"
+#include "Avida2MetaDriver.h"
 
 // #include "cGod.h"
 #include "GeneticFunctions.h"
 #include "FileSystem.h"
+#include "cGod.h"
 
 using namespace std;
 
@@ -34,8 +35,6 @@ void EvaluateTest(int ix, double* chromosome, int length, std::vector<double> &f
 
 void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitness, char **argv)  {
 
-    
-
     // Initialize the configuration data...
     Apto::Map<Apto::String, Apto::String> defs;
     cAvidaConfig* cfg = new cAvidaConfig();
@@ -44,7 +43,7 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
     cUserFeedback feedback;
     Avida::World* new_world = new Avida::World();
     cWorld* world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_world, &feedback, &defs);
-
+    world->SetVerbosity(0);
     // for (int i = 0; i < feedback.GetNumMessages(); i++) {
     //     switch (feedback.GetMessageType(i)) {
     //     case cUserFeedback::UF_ERROR:    cerr << "error: "; break;
@@ -66,11 +65,11 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
 
     // cout << endl;
 
-    Avida2Driver *driver = new Avida2Driver(world, new_world);
+    Avida2MetaDriver *driver = new Avida2MetaDriver(world, new_world);
     driver->Run();
     fitness[ix] = EvaluateController(chromosome, length);
 
-    delete driver;
+    // delete driver;
 
 }
 
@@ -102,7 +101,7 @@ int main(int argc, char **argv)  {
     std::vector<std::thread> threads(num_worlds);
 
     // Initialise god, result arrays and starting conditions
-    // cGod* God = new cGod(universe_settings);
+    cGod* God = new cGod(universe_settings);
     std::vector<double> best_chromosome(chromosome_length, 0);
     double max_fitness = 0;
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
@@ -189,7 +188,8 @@ int main(int argc, char **argv)  {
 
     // Clean up
     delete[] argv_avida;
-    // delete God;
+    delete God;
 
+    std::cout << "simulation finished" << std::endl;
 }
 
