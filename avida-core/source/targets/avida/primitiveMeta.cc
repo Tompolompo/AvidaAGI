@@ -35,7 +35,7 @@ int main(int argc, char *argv[])  {
 
     // Genetic parameters
     double gene_min = -1; 
-    double gene_max = 7;
+    double gene_max = +1;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
     int num_updates = universe_settings[2];
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])  {
     double creep_rate = (gene_max-gene_min)/3.0;
     double creep_probability = 0.9;
     double creep_decay = 0.98;
-    double min_creep = (gene_max-gene_min)/25.0;
+    double min_creep = 10000;//(gene_max-gene_min)/25.0;
 
     // Set number of threads
     size_t n_threads = omp_get_max_threads();

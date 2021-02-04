@@ -32,14 +32,22 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
 {
     // Initialize the array of chromosomes
     std::vector<std::vector<double> > population = std::vector<std::vector<double> >(num_worlds, std::vector<double>(chromosome_length, 0));
-
+    double r = 0;
     // Generation of gene values
     for (int i = 0; i < population.size(); i++)
     {
         for (int j = 0; j < population[i].size(); j++)
         {
             // Random gene value generation
-            population[i][j] = RandomNumber('r', gene_min, gene_max);
+            //population[i][j] = RandomNumber('r', gene_min, gene_max); //ORIGINAL
+            r = RandomNumber('r', gene_min, gene_max);
+            if (r > 0){
+                population[i][j] = 1;
+            }
+            else{
+                population[i][j] = -1;
+            }
+            
             // population[i][j] = 1 + i*j;
         }    
     }

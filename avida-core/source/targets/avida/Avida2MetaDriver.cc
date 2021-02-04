@@ -143,7 +143,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
 
     m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
     
-    dangerous_count = m_world->GetStats().GetTaskCurCount(m_god->m_dangerous_op);
+    dangerous_count = m_world->GetStats().GetTaskLastCount(m_god->m_dangerous_op);
     if (dangerous_count > 0){
         return -pow(10,10);
       }
