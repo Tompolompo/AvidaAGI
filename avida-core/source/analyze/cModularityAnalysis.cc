@@ -29,26 +29,26 @@
 
 
 void cModularityAnalysis::Initialize()
-{
-  tDataCommandManager<cAnalyzeGenotype>& dcm = cAnalyzeGenotype::GetDataCommandManager();
-  // A basic macro to link a keyword to a description and Get and Set methods in cAnalyzeGenotype.
-#define ADD_GDATA(KEYWORD, DESC, GET, COMP) \
-  dcm.Add(KEYWORD, new tDataEntryProxy<cAnalyzeGenotype, cFlexVar ()> \
-    (KEYWORD, DESC, &cModularityAnalysis::GET, COMP));
-#define ADD_GDATA_IDX(KEYWORD, DESC, GET, COMP) \
-  dcm.Add(KEYWORD, new tDataEntryProxy<cAnalyzeGenotype, cFlexVar (int)> \
-    (KEYWORD, &cModularityAnalysis::DESC, &cModularityAnalysis::GET, COMP));
+{ // AVAKTIVERAD
+//   tDataCommandManager<cAnalyzeGenotype>& dcm = cAnalyzeGenotype::GetDataCommandManager();
+//   // A basic macro to link a keyword to a description and Get and Set methods in cAnalyzeGenotype.
+// #define ADD_GDATA(KEYWORD, DESC, GET, COMP) \
+//   dcm.Add(KEYWORD, new tDataEntryProxy<cAnalyzeGenotype, cFlexVar ()> \
+//     (KEYWORD, DESC, &cModularityAnalysis::GET, COMP));
+// #define ADD_GDATA_IDX(KEYWORD, DESC, GET, COMP) \
+//   dcm.Add(KEYWORD, new tDataEntryProxy<cAnalyzeGenotype, cFlexVar (int)> \
+//     (KEYWORD, &cModularityAnalysis::DESC, &cModularityAnalysis::GET, COMP));
 
-  ADD_GDATA("tasks_done", "Number of Tasks Performed", GetTasksDoneFor, 2);
-  ADD_GDATA("insts_tasks", "Number of Instructions Involved in Tasks", GetInstsInvolvedInTasksFor, 1);
-  ADD_GDATA("tasks_prop", "Proportion of Sites in Tasks", GetTaskProportionFor, 4);
-  ADD_GDATA("ave_tasks_per_site", "Average Number of Tasks Per Site", GetAveTasksPerSiteFor, 6);
-  ADD_GDATA("ave_sites_per_task", "Average Number of Sites Per Task", GetAveSitesPerTaskFor, 6);
-  ADD_GDATA("ave_prop_nonoverlap", "Average Proportion of the Non-overlapping Region of a Task", GetTaskProportionFor, 4);
-  ADD_GDATA_IDX("sites_per_task", DescSitesPerTask, GetSitesPerTaskFor, 1);
-  ADD_GDATA_IDX("sites_inv_x_tasks", DescSitesInvolvedInXTasks, GetSitesInvolvedInXTasksFor, 1);
-  ADD_GDATA_IDX("task_length", DescTaskLength, GetTaskLengthFor, 4);
-  ADD_GDATA_IDX("ave_task_position", DescAveTaskPosition, GetAveTaskPositionFor, 4);  
+//   ADD_GDATA("tasks_done", "Number of Tasks Performed", GetTasksDoneFor, 2);
+//   ADD_GDATA("insts_tasks", "Number of Instructions Involved in Tasks", GetInstsInvolvedInTasksFor, 1);
+//   ADD_GDATA("tasks_prop", "Proportion of Sites in Tasks", GetTaskProportionFor, 4);
+//   ADD_GDATA("ave_tasks_per_site", "Average Number of Tasks Per Site", GetAveTasksPerSiteFor, 6);
+//   ADD_GDATA("ave_sites_per_task", "Average Number of Sites Per Task", GetAveSitesPerTaskFor, 6);
+//   ADD_GDATA("ave_prop_nonoverlap", "Average Proportion of the Non-overlapping Region of a Task", GetTaskProportionFor, 4);
+//   ADD_GDATA_IDX("sites_per_task", DescSitesPerTask, GetSitesPerTaskFor, 1);
+//   ADD_GDATA_IDX("sites_inv_x_tasks", DescSitesInvolvedInXTasks, GetSitesInvolvedInXTasksFor, 1);
+//   ADD_GDATA_IDX("task_length", DescTaskLength, GetTaskLengthFor, 4);
+//   ADD_GDATA_IDX("ave_task_position", DescAveTaskPosition, GetAveTaskPositionFor, 4);  
 }
 
 void cModularityAnalysis::CalcFunctionalModularity(cAvidaContext& ctx)

@@ -2,6 +2,9 @@ PROJECT(AVIDA)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
+# Modern c++ syntax used in meta evolution
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 IF(COMMAND cmake_policy)
   CMAKE_POLICY(SET CMP0003 NEW)
@@ -87,7 +90,7 @@ IF(UNIX)
     "-O2 -g ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DDEBUG"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
   SET(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG"
+    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG -lpthread"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
 ENDIF(UNIX)
 
@@ -267,6 +270,8 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cStats.cc
   ${MAIN_DIR}/cTaskLib.cc
   ${MAIN_DIR}/cWorld.cc
+  ${MAIN_DIR}/GeneticFunctions.cc
+  ${MAIN_DIR}/FileSystem.cc
 )
 SOURCE_GROUP(main FILES ${MAIN_SOURCES})
 LIST(APPEND AVIDA_CORE_SOURCES ${MAIN_SOURCES})
