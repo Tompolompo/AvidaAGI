@@ -78,7 +78,7 @@ int main(int argc, char *argv[])  {
         // read chromosomes from file
         controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
     }
-    fs.InitUpdateDirectory(42);
+    fs.InitUpdateDirectory(imeta);
 
     // Initialise avida stuff
     Avida::Initialize(); // Initialize...
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])  {
     Apto::Map<Apto::String, Apto::String> defs; // define a map that maps an apto string to an apto string
     cAvidaConfig* cfg = new cAvidaConfig(); // define our avida configuration file /new callar på constructor) can overridea config-filen osv. 
     Avida::Util::ProcessCmdLineArgs(argc_avida, argv_avida, cfg, defs); // sätter på settings som användaren gör i command line. typ sätt på analyze mode etc 
-    cfg->RANDOM_SEED.Set(imeta);
+    cfg->RANDOM_SEED.Set(42);
     cUserFeedback feedback; //visar varningsmedelanden osv till användaren
 
     // Timing
