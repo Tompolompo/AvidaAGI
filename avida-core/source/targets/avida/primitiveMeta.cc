@@ -78,7 +78,7 @@ int main(int argc, char *argv[])  {
         // read chromosomes from file
         controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
     }
-    fs.InitUpdateDirectory(imeta);
+    fs.InitUpdateDirectory(42);
 
     // Initialise avida stuff
     Avida::Initialize(); // Initialize...
