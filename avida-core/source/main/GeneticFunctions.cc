@@ -24,9 +24,6 @@ double RandomNumber(char dist, int min, int max)
     }
 }
 
-
-
-
 /* Generates a population of chromosomes that contain the genomes for the controllers */
 std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, double gene_min, double gene_max)
 {
@@ -42,10 +39,10 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
             //population[i][j] = RandomNumber('r', gene_min, gene_max); //ORIGINAL
             r = RandomNumber('r', gene_min, gene_max);
             if (r > 0){
-                population[i][j] = 1;
+                population[i][j] = gene_max;
             }
             else{
-                population[i][j] = -1;
+                population[i][j] = gene_min;
             }
             
             // population[i][j] = 1 + i*j;
