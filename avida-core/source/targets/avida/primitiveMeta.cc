@@ -25,7 +25,7 @@ using namespace std;
 
 
 // Global parameters
-int universe_settings[4] = {5, 3, 50, 0};
+int universe_settings[4] = {1, 1, 1000, 0};
 int argc_avida;
 
 int main(int argc, char *argv[])  {
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])  {
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
 
     // Genetic parameters
-    double gene_min = 0; 
+    double gene_min = -1; 
     double gene_max = 7;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
@@ -106,7 +106,10 @@ int main(int argc, char *argv[])  {
         cWorld *world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_world, &feedback, &defs);
         
         // Load controller chromosome
-        double *chromosome = controllers[iworld].data();            
+        double *chromosome = controllers[iworld].data();
+        //double Phi0[9];
+
+        //Phi0[0]=5;Phi0[1]=5;Phi0[2]=5;Phi0[3]=5;Phi0[4]=5;Phi0[5]=5;Phi0[6]=4;Phi0[7]=4;Phi0[8]=5;             
         world->m_ctx->m_controller.SetChromosome(chromosome, chromosome_length);
         world->setup(new_world, &feedback, &defs);
         world->SetVerbosity(0);

@@ -96,8 +96,8 @@ double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
 
   int dangerous_count = 0;
   m_phi_0_sum=0;
-  //FILE *file = fopen("data/AGIdata/test_data.csv", "w");
-  //fprintf(file, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
+
+  
 
   int update_step_size = m_god->m_meta_generation_step_size;
   //cout << " 1 "
@@ -140,13 +140,14 @@ double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
     for (int j=0;j<chromosome_length;j++){
       task_count[j] = stats.GetTaskLastCount(j);
     }
+
     m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
-    /*
-    fprintf(file, "%d,%f,%f,%f,%d", stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms());
-    for (int task = 0; task < 9; task++){ //m_world->GetEnvironment().GetNumReactions();
-      fprintf(file, ",%d", stats.GetTaskLastCount(task));
-    }
-    fprintf(file, "\n");*/
+    
+    dangerous_count = m_world->GetStats().GetTaskCurCount(m_god->m_dangerous_op);
+    if (dangerous_count > 0){
+        return -pow(10,10);
+      }
+
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
       cout.setf(ios::left);
       cout.setf(ios::showpoint);
@@ -165,21 +166,11 @@ double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
         cout << "Spec: " << setw(6) << setprecision(4) << stats.GetAveSpeculative() << "  ";
         cout << "SWst: " << setw(6) << setprecision(4) << (((double)stats.GetSpeculativeWaste() / (double)m_world->CalculateUpdateSize()) * 100.0) << "%  ";
       }
-      // // GOD TERMINATES PROGRAM
-      // dangerous_count = m_world->GetStats().GetTaskCurCount(m_god->m_dangerous_op);
-      // cout << "GOD: dangerous op : " << dangerous_count;
-      // if (dangerous_count > 0){
-      //   m_population = &population;
-      //   m_stats = &stats;
-      //   m_ctx = &ctx;
-      //   return *this;
-      //   //m_world->GetDriver().Finish();
-      // }
-      // // #####################
-
+      cout << "GOD: dangerous op : " << dangerous_count;
       cout << endl;
     }
-
+    // GOD TERMINATES PROGRAM
+  
     // Update sum of Phi_0
     m_phi_0_sum += stats.GetPhi0Fitness();
     
