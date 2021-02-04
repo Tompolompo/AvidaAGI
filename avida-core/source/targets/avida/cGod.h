@@ -6,7 +6,7 @@ class cGod{
         int m_dangerous_op;
         int m_number_of_worlds;
         int m_meta_generations;
-        int m_meta_generation_step_size;
+        int m_updates;
         cGod(int universe_settings[4]);
         void speak();
         

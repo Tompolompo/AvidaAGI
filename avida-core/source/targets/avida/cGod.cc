@@ -8,7 +8,7 @@ cGod::cGod(int universe_settings[4]){
     
     m_number_of_worlds = universe_settings[0];
     m_meta_generations = universe_settings[1];
-    m_meta_generation_step_size = universe_settings[2];
+    m_updates = universe_settings[2];
     m_dangerous_op = universe_settings[3];
 }
 

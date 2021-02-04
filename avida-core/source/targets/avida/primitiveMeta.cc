@@ -33,7 +33,7 @@ void EvaluateTest(int ix, double* chromosome, int length, std::vector<double> &f
     // std::cout << "fitness[" << ix << "] = " << fitness[ix] << endl; 
 }
 
-void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitness, char **argv)  {
+void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitness, char **argv, cGod *god)  {
 
     // Initialize the configuration data...
     Apto::Map<Apto::String, Apto::String> defs;
@@ -65,7 +65,7 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
 
     // cout << endl;
 
-    Avida2MetaDriver *driver = new Avida2MetaDriver(world, new_world);
+    Avida2MetaDriver *driver = new Avida2MetaDriver(world, new_world, god);
     driver->Run();
     fitness[ix] = EvaluateController(chromosome, length);
 
@@ -127,7 +127,7 @@ int main(int argc, char **argv)  {
             // Evaluate the controller
             double *chromosome = controllers[iworld].data();
             // threads[iworld] = std::thread(EvaluateTest, iworld, chromosome, chromosome_length, std::ref(current_fitness));
-            threads[iworld] = std::thread(Evaluate, iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida));
+            threads[iworld] = std::thread(Evaluate, iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God));
 
         }
 

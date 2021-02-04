@@ -29,6 +29,8 @@
 #include "avida/core/Types.h"
 #include "avida/core/WorldDriver.h"
 
+#include "cGod.h"
+
 class cWorld;
 
 
@@ -36,6 +38,7 @@ class Avida2MetaDriver : public Avida::WorldDriver
 {
 protected:
   cWorld* m_world;
+  cGod* m_god;
   Avida::World* m_new_world;
   bool m_done;
   
@@ -47,8 +50,10 @@ protected:
   } m_feedback;
   
 public:
-  Avida2MetaDriver(cWorld* world, Avida::World* new_world);
+  Avida2MetaDriver(cWorld* world, Avida::World* new_world, cGod* God);
   ~Avida2MetaDriver();  
+
+  // double m_phi_0_sum;
   
   // Actions
   void Run();
