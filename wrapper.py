@@ -6,8 +6,8 @@ def run_avida(n, m, u, i):
     subprocess.call(["./avida", "-n" + str(n), "-m" + str(m), "-u" + str(u), "-i" + str(i)], )
 
 N=50
-M=20
-U=5000
+M=10
+U=30000
 print("Running with " + str(N) +  " worlds, " + str(M) + " meta generations and " + str(U) + " updates.")
 
 times = []
