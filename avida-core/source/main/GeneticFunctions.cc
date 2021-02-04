@@ -37,7 +37,7 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
         {
             // Random gene value generation
             //population[i][j] = RandomNumber('r', gene_min, gene_max); //ORIGINAL
-            r = RandomNumber('r', gene_min, gene_max);
+            r = RandomNumber('r', -1, +1);
             if (r > 0){
                 population[i][j] = gene_max;
             }

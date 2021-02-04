@@ -50,7 +50,7 @@ int main(int argc, char *argv[])  {
     double creep_rate = (gene_max-gene_min)/3.0;
     double creep_probability = 1;
     double creep_decay = 0.98;
-    double min_creep = 100000;//(gene_max-gene_min)/25.0;
+    double min_creep = (gene_max-gene_min)/25.0;
 
     // Set number of threads
     size_t n_threads = omp_get_max_threads();
