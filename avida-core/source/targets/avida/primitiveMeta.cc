@@ -26,13 +26,6 @@ using namespace std;
 int universe_settings[4] = {5, 3, 50, 0};
 int argc_avida;
 
-
-void EvaluateTest(int ix, double* chromosome, int length, std::vector<double> &fitness)  {
-
-    
-    // std::cout << "fitness[" << ix << "] = " << fitness[ix] << endl; 
-}
-
 void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitness, char **argv, cGod *god)  {
 
     // Initialize the configuration data...
@@ -44,32 +37,14 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
     Avida::World* new_world = new Avida::World();
     cWorld* world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_world, &feedback, &defs);
     world->SetVerbosity(0);
-    // for (int i = 0; i < feedback.GetNumMessages(); i++) {
-    //     switch (feedback.GetMessageType(i)) {
-    //     case cUserFeedback::UF_ERROR:    cerr << "error: "; break;
-    //     case cUserFeedback::UF_WARNING:  cerr << "warning: "; break;
-    //     default: break;
-    //     };
-    //     cerr << feedback.GetMessage(i) << endl;
-    // }
 
-    // if (!world) cout << "Error creating world";
-
-    // const int rand_seed = world->GetConfig().RANDOM_SEED.Get();
-    // cout << "Random Seed: " << rand_seed;
-    // if (rand_seed != world->GetRandom().Seed()) cout << " -> " << world->GetRandom().Seed();
-    // cout << endl;
-
-    // if (world->GetConfig().VERBOSITY.Get() > VERBOSE_NORMAL)
-    //     cout << "Data Directory: " << Avida::Output::Manager::Of(new_world)->OutputPath() << endl;
-
-    // cout << endl;
-
-    Avida2MetaDriver *driver = new Avida2MetaDriver(world, new_world, god);
-    driver->Run();
+    // Avida2MetaDriver *driver = new Avida2MetaDriver(world, new_world, god);
+    // driver->Run();
+    // delete driver;
+    (new Avida2MetaDriver(world, new_world, god))->Run();
     fitness[ix] = EvaluateController(chromosome, length);
 
-    // delete driver;
+    
 
 }
 
@@ -119,14 +94,11 @@ int main(int argc, char **argv)  {
 
         std::vector<double> current_fitness(num_worlds, 0);
 
-        
-
         // Run for each controller
         for (int iworld = 0; iworld < num_worlds; iworld++) {
 
             // Evaluate the controller
             double *chromosome = controllers[iworld].data();
-            // threads[iworld] = std::thread(EvaluateTest, iworld, chromosome, chromosome_length, std::ref(current_fitness));
             threads[iworld] = std::thread(Evaluate, iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God));
 
         }

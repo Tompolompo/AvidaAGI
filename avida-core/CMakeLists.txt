@@ -82,7 +82,7 @@ IF(UNIX)
   # - release (Release)
   # - release with debug info (RelWithDebInfo)
   SET(CMAKE_CXX_FLAGS_DEBUG
-    "-O1 -g ${COMPILER_WARNING_FLAGS} -DDEBUG -lpthread -w -march=native"
+    "-O1 -g ${COMPILER_WARNING_FLAGS} -DDEBUG -lpthread -w"
     CACHE STRING "Flags used by the compiler during debug builds." FORCE)
   SET(CMAKE_CXX_FLAGS_MINSIZEREL
     "-Os ${COMPILER_WARNING_FLAGS} -DNDEBUG"
