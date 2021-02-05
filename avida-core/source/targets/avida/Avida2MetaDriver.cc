@@ -144,9 +144,9 @@ double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
     m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
     
     dangerous_count = m_world->GetStats().GetTaskLastCount(m_god->m_dangerous_op);
-    if (dangerous_count > 0){
+    /*if (dangerous_count > 100){
         return -pow(10,10);
-      }
+    }*/
 
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
       cout.setf(ios::left);
