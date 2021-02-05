@@ -100,8 +100,11 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   bool success = true;
   
   // Setup Random Number Generator
-  m_rng.ResetSeed(m_conf->RANDOM_SEED.Get());
-  m_ctx = new cAvidaContext(NULL, m_rng);
+  // MODIFIED
+  if (m_ctx == NULL){ // (AGI - TL) such that controller won't be reinitialized. 
+    m_rng.ResetSeed(m_conf->RANDOM_SEED.Get());
+    m_ctx = new cAvidaContext(NULL, m_rng);
+  }
   
   // Initialize new API-based data structures here for now
   {

@@ -785,6 +785,17 @@ void cOrganism::PrintFinalStatus(ostream& fp, int time_used, int time_allocated)
   }
 }
 
+// MODIFIED
+double cOrganism::CalcPhi0Fitness(){ // (AGI - TL) Calculate the controller fitness on Phi_0
+
+  double calculated_bonus = 0.0;
+  for (int i = 0; i<m_world->GetEnvironment().GetNumReactions() ; i++){
+    calculated_bonus += m_world->m_ctx->m_controller.Phi_0[i] * GetPhenotype().GetLastCountForTask(i);
+  }
+
+  return pow(2,calculated_bonus) * GetPhenotype().GetCurMeritBase() / GetPhenotype().gestation_time;
+}
+
 bool cOrganism::Divide_CheckViable(cAvidaContext& ctx)
 {
   if (GetPhenotype().GetCurBonus() < m_world->GetConfig().REQUIRED_BONUS.Get()) return false;

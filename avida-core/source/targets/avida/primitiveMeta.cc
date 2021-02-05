@@ -41,8 +41,8 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
     // Avida2MetaDriver *driver = new Avida2MetaDriver(world, new_world, god);
     // driver->Run();
     // delete driver;
-    (new Avida2MetaDriver(world, new_world, god))->Run();
-    fitness[ix] = EvaluateController(chromosome, length);
+    fitness[ix] = ( (new Avida2MetaDriver(world, new_world, god))->Run() );
+    // fitness[ix] = EvaluateController(chromosome, length);
 
     
 

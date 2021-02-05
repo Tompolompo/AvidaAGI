@@ -62,15 +62,15 @@ Avida2MetaDriver::~Avida2MetaDriver()
   delete m_world;
 }
 
-
-void Avida2MetaDriver::Run()
+// MODIFIED: was void function
+double Avida2MetaDriver::Run()
 { 
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
     cout << "In analyze mode!!" << endl;
     cAnalyze& analyze = m_world->GetAnalyze();
     analyze.RunFile(m_world->GetConfig().ANALYZE_FILE.Get());
     if (m_world->GetConfig().ANALYZE_MODE.Get() == 2) analyze.RunInteractive();
-    return;
+    return 0; // MODIFIED
   }
   
   cPopulation& population = m_world->GetPopulation();
@@ -92,7 +92,7 @@ void Avida2MetaDriver::Run()
   
   // MODIFIED
   int updates = m_god->m_updates;
-  // m_phi_0_sum=0;
+  m_phi_0_sum = 0;
   // while (!m_done) { // original
   for (int u = 0; u<updates; u++) { // ny
 
@@ -134,7 +134,7 @@ void Avida2MetaDriver::Run()
       cout << "UD: " << setw(6) << stats.GetUpdate() << "  ";
       cout << "Gen: " << setw(9) << setprecision(7) << stats.SumGeneration().Average() << "  ";
       cout << "Fit (phi_i): " << setw(9) << setprecision(7) << stats.GetAveFitness() << "  ";
-      // cout << "Fit (Phi_0): " << stats.GetPhi0Fitness() << " ";
+      cout << "Fit (Phi_0): " << stats.GetPhi0Fitness() << " "; // MODIFIED: added this line
       cout << "Orgs: " << setw(6) << population.GetNumOrganisms() << "  ";
       if (m_world->GetPopulation().GetNumDemes() > 1) cout << "Demes: " << setw(4) << stats.GetNumOccupiedDemes() << " ";
       if (m_world->GetVerbosity() == VERBOSE_ON || m_world->GetVerbosity() == VERBOSE_DETAILS) {
@@ -150,7 +150,8 @@ void Avida2MetaDriver::Run()
       cout << endl;
     }
     
-    // m_phi_0_sum += stats.GetPhi0Fitness();
+    // MODIFIED
+    m_phi_0_sum += stats.GetPhi0Fitness();
 
     // Do Point Mutations
     if (point_mut_prob > 0 ) {
@@ -170,6 +171,8 @@ void Avida2MetaDriver::Run()
 		}
   }
 
+  // MODIFIED
+  return m_phi_0_sum;
 }
 
 void Avida2MetaDriver::Abort(Avida::AbortCondition condition)

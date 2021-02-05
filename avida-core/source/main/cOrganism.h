@@ -118,6 +118,9 @@ public:
   ~cOrganism();
   
   static void Initialize();
+
+  // MODIFIED 
+  double CalcPhi0Fitness(); // (AGI - TL) Calculate the controller fitness on Phi_0
   
   
   // --------  Systematics::Unit Methods  --------

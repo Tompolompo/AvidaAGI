@@ -5881,6 +5881,9 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   double min_fitness = FLT_MAX;
   int min_gestation_time = INT_MAX;
   int min_genome_length = INT_MAX;
+
+  // MODIFIED
+  double Phi0_fitness_sum = 0; //(AGI - TL)
   
   for (int i = 0; i < live_org_list.GetSize(); i++) {  
     cOrganism* organism = live_org_list[i];
@@ -6008,9 +6011,14 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     stats.SumMemSize().Add(hardware.GetMemory().GetSize());
     num_threads += hardware.GetNumThreads();
     
+    // MODIFIED
+    Phi0_fitness_sum += organism->CalcPhi0Fitness(); // (AGI - TL) calculate Phi_0 
+
     // Increment the age of this organism.
     organism->GetPhenotype().IncAge();
   }
+  // MODIFIED
+  stats.SetPhi0Fitness(Phi0_fitness_sum/live_org_list.GetSize());// (AGI - TL)
   
   stats.SetBreedTrueCreatures(num_breed_true);
   stats.SetNumNoBirthCreatures(num_no_birth);
