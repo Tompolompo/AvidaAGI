@@ -2,7 +2,8 @@
 #include <fstream>
 #include <algorithm>
 #include <chrono>
-#include <thread>
+// #include <thread>
+// #include <omp.h>
 
 #include "AvidaTools.h"
 #include "apto/core/FileSystem.h"
@@ -15,7 +16,6 @@
 #include "cWorld.h"
 #include "Avida2MetaDriver.h"
 
-// #include "cGod.h"
 #include "GeneticFunctions.h"
 #include "FileSystem.h"
 #include "cGod.h"
@@ -40,9 +40,16 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
     world->SetVerbosity(0);
 
     // Run simulation and compute fitness
-    fitness[ix] = ( (new Avida2MetaDriver(world, new_world, god))->Run() );
+    // fitness[ix] = ( (new Avida2MetaDriver(world, new_world, god))->Run() );
     // fitness[ix] = EvaluateController(chromosome, length);
 
+    Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
+    double tmp = driver->Run();
+    fitness[ix] = tmp;
+
+    delete driver;
+
+    
 }
 
 int main(int argc, char **argv)  {
@@ -69,10 +76,11 @@ int main(int argc, char **argv)  {
     double min_creep = (gene_max-gene_min)/25.0;
 
     // Set number of threads
-    size_t n_threads = std::thread::hardware_concurrency();
+    // size_t n_threads = std::thread::hardware_concurrency();
+    size_t n_threads = 1; //omp_get_max_threads();
     if (n_threads > num_worlds) n_threads = num_worlds;
     std::cout << "Running with " << n_threads << " threads" << std::endl;
-    std::vector<std::thread> threads(num_worlds);
+    // std::vector<std::thread> threads(num_worlds);
 
     // Initialise starting conditions
     cGod* God = new cGod(universe_settings);
@@ -81,13 +89,11 @@ int main(int argc, char **argv)  {
     // std::vector<double> Phi_0 = std::vector<double>(chromosome_length, 0);
     // Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
     
+    // Initialise Avida
     Avida::Initialize();
-    // cout << Avida::Version::Banner() << endl;
-    // Initialise the configuration data...
     Apto::Map<Apto::String, Apto::String> defs;
     cAvidaConfig* cfg = new cAvidaConfig();
     Avida::Util::ProcessCmdLineArgs(argc_avida, argv, cfg, defs);
-    
 
 
     // Timing
@@ -101,7 +107,8 @@ int main(int argc, char **argv)  {
         std::vector<double> current_fitness(num_worlds, 0);
         double max_fitness = 0;
         cfg->RANDOM_SEED.Set(imeta); // Hur bör denna sättas?
-
+        
+        
         // FileSystem fs = FileSystem(imeta);
         // if (imeta==0)   {
         //     // save settings and initialize run file
@@ -118,16 +125,21 @@ int main(int argc, char **argv)  {
         // Run for each controller
         for (int iworld = 0; iworld < num_worlds; iworld++) {
 
+ 
             // Evaluate the controller
             double *chromosome = controllers[iworld].data();
-            threads[iworld] = std::thread(Evaluate, iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God), std::ref(defs), std::ref(cfg));
+            // threads[iworld] = std::thread(Evaluate, iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God), std::ref(defs), std::ref(cfg));
+            Evaluate(iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God), std::ref(defs), std::ref(cfg));
+
+            
 
         }
 
         // Wait for all worlds to complete
-        for (auto &th : threads) {
-            th.join();
-        }
+        // for (auto &th : threads) {
+        //     th.join();
+        // }
+        
 
         // Update best results so far
         int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();

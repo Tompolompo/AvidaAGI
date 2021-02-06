@@ -93,8 +93,9 @@ double Avida2MetaDriver::Run()
   // MODIFIED
   int updates = m_god->m_updates;
   m_phi_0_sum = 0;
-  // while (!m_done) { // original
-  for (int u = 0; u<updates; u++) { // ny
+  int u = 0;
+  while (!m_done) { // original
+  // for (int u = 0; u<updates; u++) { // ny
 
     m_world->GetEvents(ctx);
     if(m_done == true) break;
@@ -169,6 +170,10 @@ double Avida2MetaDriver::Run()
     if((population.GetNumOrganisms()==0) && m_world->AllowsEarlyExit()) {
 			m_done = true;
 		}
+    // MODIFIED
+    u++;
+    if (u == updates) m_done = true;
+
   }
 
   // MODIFIED
