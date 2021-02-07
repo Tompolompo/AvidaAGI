@@ -59,7 +59,7 @@ cWorld::cWorld(cAvidaConfig* cfg, const cString& wd)
 cWorld* cWorld::Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* mappings)
 {
   cWorld* world = new cWorld(cfg, working_dir);
-  if (!world->setup(new_world, feedback, mappings)) {
+  if (!world->setup(new_world, feedback, mappings, NULL, 0)) { // MODIFIED: added dummy arguments since we changed setup() arguments
     delete world;
     world = NULL;
   }
@@ -93,7 +93,7 @@ cWorld::~cWorld()
 }
 
 
-bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* defs)
+bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* defs, double* chromosome, int length)
 {
   m_new_world = new_world;
   
@@ -101,10 +101,11 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   
   // Setup Random Number Generator
   // MODIFIED
-  if (m_ctx == NULL){ // (AGI - TL) such that controller won't be reinitialized. 
-    m_rng.ResetSeed(m_conf->RANDOM_SEED.Get());
-    m_ctx = new cAvidaContext(NULL, m_rng);
-  }
+  // if (m_ctx == NULL){ // (AGI - TL) such that controller won't be reinitialized. 
+  m_rng.ResetSeed(m_conf->RANDOM_SEED.Get());
+  m_ctx = new cAvidaContext(NULL, m_rng);
+  m_ctx->m_controller.SetChromosome(chromosome, length); //Load controller chromosome here
+  // }
   
   // Initialize new API-based data structures here for now
   {

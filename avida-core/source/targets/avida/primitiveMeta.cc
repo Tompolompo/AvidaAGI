@@ -23,31 +23,28 @@
 using namespace std;
 
 // Global parameters
-int universe_settings[4] = {5, 3, 50, 0};
+int universe_settings[4] = {5, 3, 4, 0};
 int argc_avida;
 
 void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitness, char **argv, cGod *god, Apto::Map<Apto::String, Apto::String> defs, cAvidaConfig* cfg)  {
 
-
     // Initialise world
     Avida::World* new_world = new Avida::World();
     cUserFeedback feedback;
-    cWorld* world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), new_world, &feedback, &defs);
+    cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()));
 
-    // Set up world and controller          
-    world->m_ctx->m_controller.SetChromosome(chromosome, length);
-    world->setup(new_world, &feedback, &defs);
+    // Set up world and controller 
+    world->setup(new_world, &feedback, &defs, chromosome, length);
     world->SetVerbosity(0);
 
     // Run simulation and compute fitness
-    // fitness[ix] = ( (new Avida2MetaDriver(world, new_world, god))->Run() );
-    // fitness[ix] = EvaluateController(chromosome, length);
-
     Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
     double tmp = driver->Run();
     fitness[ix] = tmp;
 
+    // Clean up (Working in single thread mode)
     // delete driver;
+    // delete world;
 
     
 }
