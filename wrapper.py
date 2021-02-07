@@ -11,7 +11,7 @@ U=40000
 print("Running with " + str(N) +  " worlds, " + str(M) + " meta generations and " + str(U) + " updates.")
 
 times = []
-for i in range(0,M):
+for i in range(18,M):
     start = time.perf_counter()
     run_avida(n=N, m=M, u=U, i=i)
     times.append(time.perf_counter()-start)
