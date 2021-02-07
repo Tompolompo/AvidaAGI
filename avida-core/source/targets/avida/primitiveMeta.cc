@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <chrono>
 // #include <thread>
-// #include <omp.h>
+#include <omp.h>
 
 #include "AvidaTools.h"
 #include "apto/core/FileSystem.h"
@@ -47,7 +47,7 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
     double tmp = driver->Run();
     fitness[ix] = tmp;
 
-    delete driver;
+    // delete driver;
 
     
 }
@@ -76,8 +76,7 @@ int main(int argc, char **argv)  {
     double min_creep = (gene_max-gene_min)/25.0;
 
     // Set number of threads
-    // size_t n_threads = std::thread::hardware_concurrency();
-    size_t n_threads = 1; //omp_get_max_threads();
+    size_t n_threads = omp_get_max_threads(); //std::thread::hardware_concurrency();
     if (n_threads > num_worlds) n_threads = num_worlds;
     std::cout << "Running with " << n_threads << " threads" << std::endl;
     // std::vector<std::thread> threads(num_worlds);
@@ -123,6 +122,7 @@ int main(int argc, char **argv)  {
         // fs.InitUpdateDirectory(imeta);
 
         // Run for each controller
+        #pragma omp parallel for
         for (int iworld = 0; iworld < num_worlds; iworld++) {
 
  
@@ -136,7 +136,7 @@ int main(int argc, char **argv)  {
         }
 
         // Wait for all worlds to complete
-        // for (auto &th : threads) {
+        // for (std::thread &th : threads) {
         //     th.join();
         // }
         
