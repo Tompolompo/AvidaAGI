@@ -4,6 +4,7 @@
 #include <chrono>
 // #include <thread>
 #include <omp.h>
+#include <memory>
 
 #include "AvidaTools.h"
 #include "apto/core/FileSystem.h"
@@ -30,7 +31,9 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
 
     // Initialise world
     Avida::World* new_world = new Avida::World();
+    // unique_ptr<Avida::World> new_world(new Avida::World());
     cUserFeedback feedback;
+    // unique_ptr<cWorld> world(new cWorld(cfg, cString(Apto::FileSystem::GetCWD()))); 
     cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()));
 
     // Set up world and controller 
@@ -38,13 +41,14 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
     world->SetVerbosity(0);
 
     // Run simulation and compute fitness
+    //unique_ptr<Avida2MetaDriver> driver(new Avida2MetaDriver(world.get(), new_world.get(), god));
     Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
-    double tmp = driver->Run();
-    fitness[ix] = tmp;
+    fitness[ix] = driver->Run();
 
-    // Clean up (Working in single thread mode)
-    // delete driver;
+    // Clean up
+    delete driver;
     // delete world;
+    // delete new_world;
 
     
 }

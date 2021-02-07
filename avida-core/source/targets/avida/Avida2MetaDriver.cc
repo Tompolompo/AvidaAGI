@@ -59,7 +59,7 @@ Avida2MetaDriver::Avida2MetaDriver(cWorld* world, World* new_world, cGod* God) :
 Avida2MetaDriver::~Avida2MetaDriver()
 {
   GlobalObjectManager::Unregister(this);
-  delete m_world;
+  // delete m_world;
 }
 
 // MODIFIED: was void function
