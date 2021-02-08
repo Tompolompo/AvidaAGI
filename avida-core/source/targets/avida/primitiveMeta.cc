@@ -49,8 +49,7 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
     delete driver;
     // delete world;
     // delete new_world;
-
-    
+   
 }
 
 int main(int argc, char **argv)  {
@@ -86,15 +85,19 @@ int main(int argc, char **argv)  {
     cGod* God = new cGod(universe_settings);
     std::vector<double> best_chromosome(chromosome_length, 0);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
-    // std::vector<double> Phi_0 = std::vector<double>(chromosome_length, 0);
-    // Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
     
+    // Save settings
+    std::vector<double> Phi_0 = std::vector<double>(chromosome_length, 0);
+    Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
+    FileSystem fs = FileSystem(0);
+    fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, Phi_0, chromosome_length);
+    fs.InitMetaData(chromosome_length);
+
     // Initialise Avida
     Avida::Initialize();
     Apto::Map<Apto::String, Apto::String> defs;
     cAvidaConfig* cfg = new cAvidaConfig();
     Avida::Util::ProcessCmdLineArgs(argc_avida, argv, cfg, defs);
-
 
     // Timing
     auto start = std::chrono::high_resolution_clock::now(); 
@@ -106,33 +109,18 @@ int main(int argc, char **argv)  {
 
         std::vector<double> current_fitness(num_worlds, 0);
         double max_fitness = 0;
-        cfg->RANDOM_SEED.Set(imeta); // Hur bör denna sättas?
-        
-        
-        // FileSystem fs = FileSystem(imeta);
-        // if (imeta==0)   {
-        //     // save settings and initialize run file
-        //     fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, Phi_0, chromosome_length);
-        //     fs.InitMetaData(chromosome_length);
-        //     // controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
-        // }
-        // else    {
-        //     // read chromosomes from file
-        //     // controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
-        // }
-        // fs.InitUpdateDirectory(imeta);
+        cfg->RANDOM_SEED.Set(imeta); // Hur/var bör denna sättas?
+        fs.InitUpdateDirectory(imeta);
 
         // Run for each controller
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(n_threads)
         for (int iworld = 0; iworld < num_worlds; iworld++) {
 
  
             // Evaluate the controller
             double *chromosome = controllers[iworld].data();
             // threads[iworld] = std::thread(Evaluate, iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God), std::ref(defs), std::ref(cfg));
-            Evaluate(iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God), std::ref(defs), std::ref(cfg));
-
-            
+            Evaluate(iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God), std::ref(defs), std::ref(cfg));      
 
         }
 
@@ -141,7 +129,6 @@ int main(int argc, char **argv)  {
         //     th.join();
         // }
         
-
         // Update best results so far
         int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();
         best_chromosome = controllers[imax];
@@ -192,19 +179,15 @@ int main(int argc, char **argv)  {
             cout << "] elapsed: " << duration.count() << " seconds" << endl;
         }
 
-        // // Save data to file
-        // fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome);
-
-        // // Save chromosomes to file
-        // fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
+        // Save data to file
+        fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome);
 
     }
 
     
     // Clean up
     delete[] argv_avida;
-    delete God;
-    delete cfg;
+    delete God, cfg;
 
     std::cout << "simulation finished" << std::endl;
 }
