@@ -1,1 +1,0 @@
-The default instruction set file for the Heads architecture.
