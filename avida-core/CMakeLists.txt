@@ -1,6 +1,7 @@
 PROJECT(AVIDA)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+# Modern CMake required for OpenMP implementation of meta evolution
+CMAKE_MINIMUM_REQUIRED(VERSION 3.9) 
 
 # Modern c++ syntax used in meta evolution
 set(CMAKE_CXX_STANDARD 11)
@@ -82,7 +83,7 @@ IF(UNIX)
   # - release (Release)
   # - release with debug info (RelWithDebInfo)
   SET(CMAKE_CXX_FLAGS_DEBUG
-    "-O1 -g ${COMPILER_WARNING_FLAGS} -DDEBUG -lpthread -w"
+    "-O1 -g ${COMPILER_WARNING_FLAGS} -DDEBUG -w"
     CACHE STRING "Flags used by the compiler during debug builds." FORCE)
   SET(CMAKE_CXX_FLAGS_MINSIZEREL
     "-Os ${COMPILER_WARNING_FLAGS} -DNDEBUG"
@@ -91,9 +92,10 @@ IF(UNIX)
     "-O2 -g ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DDEBUG"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
   SET(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG -lpthread -w -march=native"
+    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG -w -march=native"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
 ENDIF(UNIX)
+
 
 
 # Default build mode compiles c++ and c code with debug info and no
@@ -106,7 +108,6 @@ IF(NOT CMAKE_BUILD_TYPE)
     FORCE
   )
 ENDIF(NOT CMAKE_BUILD_TYPE)
-
 
 
 # Build Instructions for the Avida Core functionality
@@ -446,13 +447,20 @@ IF(AVD_CMDLINE)
   IF(NOT MSVC)
     LIST(APPEND AVIDA_CMDLINE_LIBS pthread)
   ENDIF(NOT MSVC)
+<<<<<<< HEAD
+=======
+
+>>>>>>> dangerous_op
   # Build with OpenMP if it is available
   if(OpenMP_CXX_FOUND)
     LIST(APPEND AVIDA_CMDLINE_LIBS OpenMP::OpenMP_CXX)
     target_compile_options(avida PRIVATE "${OpenMP_CXX_FLAGS}")
   endif()
+<<<<<<< HEAD
+=======
+
+>>>>>>> dangerous_op
   TARGET_LINK_LIBRARIES(avida ${AVIDA_CMDLINE_LIBS})
-  
   INSTALL_TARGETS(/work avida)
 ENDIF(AVD_CMDLINE)
 

@@ -44,6 +44,7 @@
 #include "cTestCPU.h"
 #include "cUserFeedback.h"
 
+
 #include <cassert>
 
 using namespace AvidaTools;
@@ -54,7 +55,10 @@ cWorld::cWorld(cAvidaConfig* cfg, const cString& wd)
   , m_env(NULL), m_event_list(NULL), m_hw_mgr(NULL), m_pop(NULL), m_stats(NULL), m_mig_mat(NULL), m_driver(NULL), m_data_mgr(NULL)
   , m_own_driver(false)
 {
+  
 }
+
+
 
 cWorld* cWorld::Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* mappings)
 {
@@ -72,31 +76,37 @@ cWorld::~cWorld()
   
   // These must be deleted first
   delete m_analyze; m_analyze = NULL;
-  
+  // cout << "m_analyze" << endl;
+
   // Forcefully clean up population before classification manager
   m_pop = Apto::SmartPtr<cPopulation, Apto::InternalRCObject>();
+  // cout << "m_analyze" << endl;
   
   delete m_env; m_env = NULL;
+  // cout << "m_env" << endl;
   delete m_event_list; m_event_list = NULL;
+  // cout << "m_event_list" << endl;
   delete m_hw_mgr; m_hw_mgr = NULL;
+  // cout << "m_hw_mgr" << endl;
 
   delete m_mig_mat; 
-  
+  // cout << "m_mig_mat" << endl;
   // Delete Last
   // delete m_conf; m_conf = NULL; // MODIFIED: config "owned" by primitiveMeta.cc
 
   // cleanup driver object, if needed
   if (m_own_driver) { delete m_driver; m_driver = NULL; }
-  
+  // cout << "m_own_driver" << endl;
   delete m_ctx;
+  // cout << "m_ctx" << endl;
   delete m_new_world;
+  // cout << "m_new_world" << endl;
 }
 
 
 bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* defs, double* chromosome, int length)
 {
   m_new_world = new_world;
-  
   bool success = true;
   
   // Setup Random Number Generator
@@ -132,7 +142,7 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   if (!m_env->Load(m_conf->ENVIRONMENT_FILE.Get(), m_working_dir, *feedback, defs)) {
     success = false;
   }
-    
+
   if(m_conf->DEMES_MIGRATION_METHOD.Get() == 4){     
     bool count_parasites = false;
     bool count_offspring = false;
@@ -197,7 +207,13 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   const bool sterilize_taskloss = m_conf->STERILIZE_TASKLOSS.Get() > 0.0;
   m_test_sterilize = (sterilize_fatal || sterilize_neg || sterilize_neut || sterilize_pos || sterilize_taskloss);
 
+  // (AGI - TL) In order to be able to initialize cworld with a population. 
   m_pop = Apto::SmartPtr<cPopulation, Apto::InternalRCObject>(new cPopulation(this));
+  
+  /*
+  Controller::cController m_controller;
+  m_controller.init(m_stats);
+  */
   
   // Setup Event List
   m_event_list = new cEventList(this);

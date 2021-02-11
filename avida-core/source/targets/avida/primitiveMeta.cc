@@ -4,7 +4,7 @@
 #include <chrono>
 // #include <thread>
 #include <omp.h>
-#include <memory>
+// #include <memory>
 
 #include "AvidaTools.h"
 #include "apto/core/FileSystem.h"
@@ -58,11 +58,15 @@ int main(int argc, char **argv)  {
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
 
     // Genetic parameters
-    double gene_min = 0; 
-    double gene_max = 7;
+    //double gene_min = -5; 
+    //double gene_max = +5;
+    int gene_min = 1; 
+    int gene_max = 7;
+    bool int_genomes = true;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
     int num_updates = universe_settings[2];
+    int imeta = universe_settings[3];
     int chromosome_length = 9;
     double tournament_probability = 0.8;
     double crossover_probability = 0.3;
@@ -71,9 +75,9 @@ int main(int argc, char **argv)  {
     double mutation_decay = 0.95;
     double min_mutation_constant = 0.5;
     double creep_rate = (gene_max-gene_min)/3.0;
-    double creep_probability = 0.9;
+    double creep_probability = 1;
     double creep_decay = 0.98;
-    double min_creep = (gene_max-gene_min)/25.0;
+    double min_creep = 100000*(gene_max-gene_min)/25.0;
 
     // Set number of threads
     size_t n_threads = omp_get_max_threads(); //std::thread::hardware_concurrency();
@@ -148,7 +152,7 @@ int main(int argc, char **argv)  {
             new_controllers[iworld+1] = controllers[ix2];
 
             // Crossover
-            if (RandomNumber('r', 0, 1) < crossover_probability) {
+            if (RandomNumber(0.0, 1.0) < crossover_probability) {
                 std::vector<std::vector<double> > chromosomes = Cross(controllers[ix1], controllers[ix2]);
                 new_controllers[iworld] = chromosomes[0];
                 new_controllers[iworld+1] = chromosomes[1];
@@ -184,6 +188,8 @@ int main(int argc, char **argv)  {
 
     }
 
+    // Save chromosomes to file (to be able to continue at last imeta)
+    fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
     
     // Clean up
     delete[] argv_avida;

@@ -1389,7 +1389,7 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result,
 
     // Mark this task as performed...
     result.MarkTask(task_id, task_quality, taskctx.GetTaskValue());
-
+    
     if (!skipProcessing) {
       // And let's process it!
       DoProcesses(ctx, cur_reaction->GetProcesses(), resource_count, rbins_count,

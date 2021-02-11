@@ -481,7 +481,7 @@ void cOrganism::doOutput(cAvidaContext& ctx,
       }
     }
   }
-  
+
   bool task_completed = m_phenotype.TestOutput(ctx, taskctx, globalAndDeme_resource_count, 
                                                m_phenotype.GetCurRBinsAvail(), globalAndDeme_res_change, 
                                                insts_triggered, is_parasite, context_phenotype);
