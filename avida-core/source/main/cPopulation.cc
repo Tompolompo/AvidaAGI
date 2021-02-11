@@ -5889,8 +5889,6 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
 
   // MODIFIED
   double Phi0_fitness_sum = 0; //(AGI - TL)
-  
-  double Phi0_fitness_sum = 0; //(AGI - TL)
 
   for (int i = 0; i < live_org_list.GetSize(); i++) {  
     cOrganism* organism = live_org_list[i];

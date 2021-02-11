@@ -49,8 +49,8 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
         {
             // Random gene value generation
             population[i][j] = RandomNumber(gene_min, gene_max);
-        }    
-    }
+        }
+    }   
     return population;
 }
 

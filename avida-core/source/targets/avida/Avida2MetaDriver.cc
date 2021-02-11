@@ -91,7 +91,6 @@ double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
   cAvidaContext& ctx = m_world->GetDefaultContext();
   Avida::Context new_ctx(this, &m_world->GetRandom());
 
-  m_god->speak();
   int dangerous_count = 0;
   
   // MODIFIED

@@ -43,7 +43,7 @@ void Evaluate(int ix, double* chromosome, int length, std::vector<double> &fitne
     // Run simulation and compute fitness
     //unique_ptr<Avida2MetaDriver> driver(new Avida2MetaDriver(world.get(), new_world.get(), god));
     Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
-    fitness[ix] = driver->Run();
+    // fitness[ix] = driver->Run();
 
     // Clean up
     delete driver;
@@ -66,7 +66,7 @@ int main(int argc, char **argv)  {
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
     int num_updates = universe_settings[2];
-    int imeta = universe_settings[3];
+    // int imeta = universe_settings[3];
     int chromosome_length = 9;
     double tournament_probability = 0.8;
     double crossover_probability = 0.3;
@@ -86,9 +86,11 @@ int main(int argc, char **argv)  {
     // std::vector<std::thread> threads(num_worlds);
 
     // Initialise starting conditions
-    cGod* God = new cGod(universe_settings);
+    std::cout << "Running with: " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
+    cGod* god = new cGod(universe_settings);
     std::vector<double> best_chromosome(chromosome_length, 0);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
+    double max_fitness;
     
     // Save settings
     std::vector<double> Phi_0 = std::vector<double>(chromosome_length, 0);
@@ -112,20 +114,37 @@ int main(int argc, char **argv)  {
     for (size_t imeta = 0; imeta < num_meta_generations; imeta++)   {
 
         std::vector<double> current_fitness(num_worlds, 0);
-        double max_fitness = 0;
-        cfg->RANDOM_SEED.Set(imeta); // Hur/var bör denna sättas?
+        cfg->RANDOM_SEED.Set(0);
         fs.InitUpdateDirectory(imeta);
 
         // Run for each controller
         #pragma omp parallel for num_threads(n_threads)
         for (int iworld = 0; iworld < num_worlds; iworld++) {
 
- 
-            // Evaluate the controller
             double *chromosome = controllers[iworld].data();
             // threads[iworld] = std::thread(Evaluate, iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God), std::ref(defs), std::ref(cfg));
-            Evaluate(iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God), std::ref(defs), std::ref(cfg));      
+            // Evaluate(iworld, chromosome, chromosome_length, std::ref(current_fitness), std::ref(argv_avida), std::ref(God), std::ref(defs), std::ref(cfg));      
 
+            // Initialise world
+            Avida::World* new_world = new Avida::World();
+            // unique_ptr<Avida::World> new_world(new Avida::World());
+            cUserFeedback feedback;
+            // unique_ptr<cWorld> world(new cWorld(cfg, cString(Apto::FileSystem::GetCWD()))); 
+            cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()));
+
+            // Set up world and controller 
+            world->setup(new_world, &feedback, &defs, chromosome, chromosome_length);
+            world->SetVerbosity(0);
+
+            // Run simulation and compute fitness
+            //unique_ptr<Avida2MetaDriver> driver(new Avida2MetaDriver(world.get(), new_world.get(), god));
+            Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
+            current_fitness[iworld] = driver->Run(fs, iworld);
+
+            // Clean up
+            delete driver;
+            // delete world;
+            // delete new_world;
         }
 
         // Wait for all worlds to complete
@@ -193,7 +212,7 @@ int main(int argc, char **argv)  {
     
     // Clean up
     delete[] argv_avida;
-    delete God, cfg;
+    delete god, cfg;
 
     std::cout << "simulation finished" << std::endl;
 }

@@ -83,6 +83,7 @@ FileSystem::FileSystem(int imeta)
     }
             
 }
+
 void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, std::vector<double> Phi_0, int chromosome_length){
 
     char settings_filename[80] = "./";
@@ -195,6 +196,10 @@ std::vector<std::vector<double> > FileSystem::ReadChromosomes(double num_worlds,
 }
 
 void FileSystem::InitUpdateDirectory(int meta_generation){
+    strcpy (current_meta_dir, "./");
+    strcat (current_meta_dir, root_dir);
+    strcat (current_meta_dir, "/meta");
+
     std::string str = current_meta_dir;
     str +="/M";
     str += to_string(meta_generation);

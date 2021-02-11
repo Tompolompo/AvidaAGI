@@ -41,7 +41,6 @@ protected:
   cWorld* m_world;
   cGod* m_god; // MODIFIED: added this
   Avida::World* m_new_world;
-  cGod* m_god;
   bool m_done;
   
   class StdIOFeedback : public Avida::Feedback

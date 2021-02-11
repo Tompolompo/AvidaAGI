@@ -447,19 +447,11 @@ IF(AVD_CMDLINE)
   IF(NOT MSVC)
     LIST(APPEND AVIDA_CMDLINE_LIBS pthread)
   ENDIF(NOT MSVC)
-<<<<<<< HEAD
-=======
-
->>>>>>> dangerous_op
   # Build with OpenMP if it is available
   if(OpenMP_CXX_FOUND)
     LIST(APPEND AVIDA_CMDLINE_LIBS OpenMP::OpenMP_CXX)
     target_compile_options(avida PRIVATE "${OpenMP_CXX_FLAGS}")
   endif()
-<<<<<<< HEAD
-=======
-
->>>>>>> dangerous_op
   TARGET_LINK_LIBRARIES(avida ${AVIDA_CMDLINE_LIBS})
   INSTALL_TARGETS(/work avida)
 ENDIF(AVD_CMDLINE)
