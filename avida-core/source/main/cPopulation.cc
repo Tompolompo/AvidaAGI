@@ -6016,9 +6016,6 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     stats.SumMemSize().Add(hardware.GetMemory().GetSize());
     num_threads += hardware.GetNumThreads();
 
-    // (AGI - TL) calculate Phi_0 
-    Phi0_fitness_sum += organism->CalcPhi0Fitness(); 
-    
     // MODIFIED
     Phi0_fitness_sum += organism->CalcPhi0Fitness(); // (AGI - TL) calculate Phi_0 
 

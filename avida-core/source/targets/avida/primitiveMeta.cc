@@ -86,7 +86,7 @@ int main(int argc, char **argv)  {
     // std::vector<std::thread> threads(num_worlds);
 
     // Initialise starting conditions
-    std::cout << "Running with: " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
+    std::cout << "Running with " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
     cGod* god = new cGod(universe_settings);
     std::vector<double> best_chromosome(chromosome_length, 0);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
