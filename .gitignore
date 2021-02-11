@@ -1,3 +1,5 @@
+
+# original avida
 build
 cbuild
 CMakeCache.txt
@@ -9,5 +11,9 @@ install_manifest.txt
 wbuild
 DerivedData
 
+# inställningar
 .vscode
 .ipynb_checkpoints
+
+# exkluderade mappar
+figures
