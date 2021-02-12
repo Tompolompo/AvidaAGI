@@ -94,9 +94,7 @@ int main(int argc, char **argv)  {
  
             // Initialise world
             Avida::World* new_world = new Avida::World();
-            // unique_ptr<Avida::World> new_world(new Avida::World());
             cUserFeedback feedback;
-            // unique_ptr<cWorld> world(new cWorld(cfg, cString(Apto::FileSystem::GetCWD()))); 
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()));
 
             // Set up world and controller 
@@ -105,14 +103,12 @@ int main(int argc, char **argv)  {
             world->SetVerbosity(0);
 
             // Run simulation and compute fitness
-            //unique_ptr<Avida2MetaDriver> driver(new Avida2MetaDriver(world.get(), new_world.get(), god));
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
             current_fitness[iworld] = driver->Run(fs, iworld);
 
             // Clean up
             delete driver;
-            // delete world;
-            // delete new_world;
+
         }
         
         // Update best results so far
