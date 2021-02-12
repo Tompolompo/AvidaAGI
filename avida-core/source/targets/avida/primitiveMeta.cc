@@ -62,7 +62,6 @@ int main(int argc, char **argv)  {
     //double gene_max = +5;
     int gene_min = 1; 
     int gene_max = 7;
-    bool int_genomes = true;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
     int num_updates = universe_settings[2];
