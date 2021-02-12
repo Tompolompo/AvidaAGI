@@ -82,7 +82,7 @@ IF(UNIX)
   # - release (Release)
   # - release with debug info (RelWithDebInfo)
   SET(CMAKE_CXX_FLAGS_DEBUG
-    "-O1 -g ${COMPILER_WARNING_FLAGS} -DDEBUG -lpthread -w"
+    "-O1 -g ${COMPILER_WARNING_FLAGS} -DDEBUG -w"
     CACHE STRING "Flags used by the compiler during debug builds." FORCE)
   SET(CMAKE_CXX_FLAGS_MINSIZEREL
     "-Os ${COMPILER_WARNING_FLAGS} -DNDEBUG"
@@ -91,7 +91,7 @@ IF(UNIX)
     "-O2 -g ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DDEBUG"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
   SET(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG -lpthread -w -march=native"
+    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG -w -march=native"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
 ENDIF(UNIX)
 
@@ -452,7 +452,6 @@ IF(AVD_CMDLINE)
     target_compile_options(avida PRIVATE "${OpenMP_CXX_FLAGS}")
   endif()
   TARGET_LINK_LIBRARIES(avida ${AVIDA_CMDLINE_LIBS})
-  
   INSTALL_TARGETS(/work avida)
 ENDIF(AVD_CMDLINE)
 

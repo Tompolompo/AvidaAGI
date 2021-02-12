@@ -44,8 +44,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include "cGod.h"
-
 using namespace Avida;
 using namespace std;
 
@@ -63,7 +61,7 @@ Avida2MetaDriver::~Avida2MetaDriver()
 }
 
 // MODIFIED: was void function
-double Avida2MetaDriver::Run()
+double Avida2MetaDriver::Run(FileSystem m_fs, int m_iworld)
 { 
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
     cout << "In analyze mode!!" << endl;
@@ -89,13 +87,17 @@ double Avida2MetaDriver::Run()
   
   cAvidaContext& ctx = m_world->GetDefaultContext();
   Avida::Context new_ctx(this, &m_world->GetRandom());
+
+  int dangerous_count = 0;
   
   // MODIFIED
   int updates = m_god->m_updates;
   m_phi_0_sum = 0;
+  m_fs.InitUpdateData(m_iworld);
+
   int u = 0;
-  while (!m_done) { // original
-  // for (int u = 0; u<updates; u++) { // ny
+  while (!m_done) {
+  // for (int u = 0; u<updates; u++) {
 
     m_world->GetEvents(ctx);
     if(m_done == true) break;
@@ -127,6 +129,19 @@ double Avida2MetaDriver::Run()
     population.ProcessPostUpdate(ctx);
     
 		m_world->ProcessPostUpdate(ctx);
+
+    // MODIFIED
+    int chromosome_length = 9;
+    std::vector<int> task_count = std::vector<int>(chromosome_length, 0);
+    for (int j=0;j<chromosome_length;j++){
+      task_count[j] = stats.GetTaskLastCount(j);
+    }
+    m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
+    
+    dangerous_count = m_world->GetStats().GetTaskLastCount(m_god->m_dangerous_op);
+    /*if (dangerous_count > 100){
+        return -pow(10,10);
+    }*/
         
     // No viewer; print out status for this update....
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
@@ -147,7 +162,7 @@ double Avida2MetaDriver::Run()
         cout << "Spec: " << setw(6) << setprecision(4) << stats.GetAveSpeculative() << "  ";
         cout << "SWst: " << setw(6) << setprecision(4) << (((double)stats.GetSpeculativeWaste() / (double)m_world->CalculateUpdateSize()) * 100.0) << "%  ";
       }
-
+      cout << "GOD: dangerous op : " << dangerous_count;
       cout << endl;
     }
     
@@ -213,5 +228,3 @@ void Avida2MetaDriver::StdIOFeedback::Notify(const char* fmt, ...)
   va_end(args);
   printf("\n");
 }
-
-

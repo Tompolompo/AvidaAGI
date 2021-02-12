@@ -29,10 +29,11 @@
 #include "avida/core/Types.h"
 #include "avida/core/WorldDriver.h"
 
-#include "cGod.h" // MODIFIED: added this
+// MODIFIED
+#include "cGod.h" // added this
+#include "FileSystem.h" // added this
 
 class cWorld;
-
 
 class Avida2MetaDriver : public Avida::WorldDriver
 {
@@ -55,9 +56,10 @@ public:
 
   // MODIFIED
   double m_phi_0_sum; // added this
+
   
   // Actions
-  double Run();
+  double Run(FileSystem fs, int iworld);
 
   void Finish() { m_done = true; }
   void Pause() { return; }

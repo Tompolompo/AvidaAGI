@@ -83,6 +83,7 @@ FileSystem::FileSystem(int imeta)
     }
             
 }
+
 void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, std::vector<double> Phi_0, int chromosome_length){
 
     char settings_filename[80] = "./";
@@ -95,6 +96,25 @@ void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_
     }
     fprintf(file_settings, "\n");
     fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep);
+    for (int task = 0; task < chromosome_length; task++){
+      fprintf(file_settings, ",%f", Phi_0[task]);
+    }
+    fprintf(file_settings, "\n");
+    fclose(file_settings);
+}
+
+void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, int gene_min, int gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, std::vector<double> Phi_0, int chromosome_length){
+
+    char settings_filename[80] = "./";
+    strcat(settings_filename, root_dir);
+    strcat(settings_filename, "/settings.csv");
+    FILE *file_settings = fopen(settings_filename, "w");
+    fprintf(file_settings, "N,M,U,tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max, creep_rate, creep_probability, creep_decay, min_creep");
+    for (int task = 0; task < chromosome_length; task++){
+      fprintf(file_settings, ",hatPhi_0[%d]", task);
+    }
+    fprintf(file_settings, "\n");
+    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f,%f,%d,%d,%f,%f,%f,%f", num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep);
     for (int task = 0; task < chromosome_length; task++){
       fprintf(file_settings, ",%f", Phi_0[task]);
     }
@@ -176,6 +196,10 @@ std::vector<std::vector<double> > FileSystem::ReadChromosomes(double num_worlds,
 }
 
 void FileSystem::InitUpdateDirectory(int meta_generation){
+    strcpy (current_meta_dir, "./");
+    strcat (current_meta_dir, root_dir);
+    strcat (current_meta_dir, "/meta");
+
     std::string str = current_meta_dir;
     str +="/M";
     str += to_string(meta_generation);
