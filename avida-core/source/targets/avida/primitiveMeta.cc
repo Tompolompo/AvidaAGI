@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <chrono>
 #include <omp.h>
-// #include <memory>
 
 #include "AvidaTools.h"
 #include "apto/core/FileSystem.h"

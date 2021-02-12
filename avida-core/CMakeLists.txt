@@ -1,6 +1,7 @@
 PROJECT(AVIDA)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+# Modern Cmake required for OpenMP support
+CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
 
 # Modern c++ syntax used in meta evolution
 set(CMAKE_CXX_STANDARD 11)
