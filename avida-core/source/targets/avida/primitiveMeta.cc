@@ -33,8 +33,8 @@ int main(int argc, char **argv)  {
     // Genetic parameters
     //double gene_min = -5; 
     //double gene_max = +5;
-    int gene_min = 1; 
-    int gene_max = 7;
+    int gene_min = -15; 
+    int gene_max = 15;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
     int num_updates = universe_settings[2];
@@ -65,7 +65,7 @@ int main(int argc, char **argv)  {
     
     // Save settings
     std::vector<double> Phi_0 = std::vector<double>(chromosome_length, 0);
-    Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
+    Phi_0[0]=2;Phi_0[1]=2;Phi_0[2]=4;Phi_0[3]=4;Phi_0[4]=-6;Phi_0[5]=6;Phi_0[6]=8;Phi_0[7]=-8;Phi_0[8]=10;
     FileSystem fs = FileSystem(0);
     fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, Phi_0, chromosome_length);
     fs.InitMetaData(chromosome_length);
@@ -108,7 +108,6 @@ int main(int argc, char **argv)  {
 
             // Clean up
             delete driver;
-
         }
         
         // Update best results so far
@@ -135,7 +134,6 @@ int main(int argc, char **argv)  {
                 new_controllers[iworld] = chromosomes[0];
                 new_controllers[iworld+1] = chromosomes[1];
             }
-
         }
 
         // Mutation
