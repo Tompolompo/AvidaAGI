@@ -140,7 +140,7 @@ public:
 	virtual int CalculateUpdateSize();
 
   // MODIFIED
-  bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings, double* chromosome, int length); // (AGI - TL) changed from protected and added arguments
+  bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings, double* ref_chromosome, double* chromosome, int length); // (AGI - TL) changed from protected and added arguments
   
 protected:
   // Internal Methods

@@ -93,7 +93,7 @@ cWorld::~cWorld()
 }
 
 
-bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* defs, double* chromosome, int length)
+bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* defs, double* ref_chromosome, double* chromosome, int length)
 {
   m_new_world = new_world;
   
@@ -105,6 +105,8 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   m_rng.ResetSeed(m_conf->RANDOM_SEED.Get());
   m_ctx = new cAvidaContext(NULL, m_rng);
   m_ctx->m_controller.SetChromosome(chromosome, length); //Load controller chromosome here
+  m_ctx->m_controller.SetRefChromosome(ref_chromosome, length); //Load controller chromosome here
+  
   // }
   
   // Initialize new API-based data structures here for now

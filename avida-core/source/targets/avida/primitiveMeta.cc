@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <omp.h>
+#include "mpi.h"
 
 #include "AvidaTools.h"
 #include "apto/core/FileSystem.h"
@@ -26,6 +27,12 @@ int universe_settings[4] = {5, 3, 4, 0};
 int argc_avida;
 
 int main(int argc, char **argv)  {
+
+    // Initiate MPI and forward arguments
+    MPI_Init(&argc, &argv);
+    int num_procs, rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
  
     // Read cmd-line arguments and set parameters
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
@@ -33,12 +40,11 @@ int main(int argc, char **argv)  {
     // Genetic parameters
     //double gene_min = -5; 
     //double gene_max = +5;
-    int gene_min = -15; 
-    int gene_max = 15;
+    int gene_min = -10; 
+    int gene_max = 10;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
     int num_updates = universe_settings[2];
-    // int imeta = universe_settings[3];
     int chromosome_length = 9;
     double tournament_probability = 0.8;
     double crossover_probability = 0.3;
@@ -51,30 +57,32 @@ int main(int argc, char **argv)  {
     double creep_decay = 0.98;
     double min_creep = 100000*(gene_max-gene_min)/25.0;
 
-    // Set number of threads
-    size_t n_threads = omp_get_max_threads();
-    if (n_threads > num_worlds) n_threads = num_worlds;
-    std::cout << "Using " << n_threads << " threads" << std::endl;
+    // MPI params
+    num_procs--;
+    int limit = num_worlds/num_procs;
+
+    if (rank == num_procs)  {
+        cout << "Running with " << num_procs+1 << " processes, " << limit << " worlds per process" << endl;
+        std::cout << "Running with " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
+    }
 
     // Initialise starting conditions
-    std::cout << "Running with " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
     cGod* god = new cGod(universe_settings);
     std::vector<double> best_chromosome(chromosome_length, 0);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
     double max_fitness;
     
     // Save settings
-    std::vector<double> Phi_0 = std::vector<double>(chromosome_length, 0);
-    Phi_0[0]=2;Phi_0[1]=2;Phi_0[2]=4;Phi_0[3]=4;Phi_0[4]=-6;Phi_0[5]=6;Phi_0[6]=8;Phi_0[7]=-8;Phi_0[8]=10;
+    std::vector<double> ref_chromosome{1, 1, 2, 2, 3, 3, 4, 4, 5}; // Phi0 hat
     FileSystem fs = FileSystem(0);
-    fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, Phi_0, chromosome_length);
+    fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
     fs.InitMetaData(chromosome_length);
 
     // Initialise Avida
     Avida::Initialize();
     Apto::Map<Apto::String, Apto::String> defs;
     cAvidaConfig* cfg = new cAvidaConfig();
-    Avida::Util::ProcessCmdLineArgs(argc_avida, argv, cfg, defs);
+    Avida::Util::ProcessCmdLineArgs(argc_avida, argv_avida, cfg, defs);
 
     // Timing
     auto start = std::chrono::high_resolution_clock::now(); 
@@ -88,89 +96,152 @@ int main(int argc, char **argv)  {
         cfg->RANDOM_SEED.Set(0);
         fs.InitUpdateDirectory(imeta);
 
-        // Run for each controller
-        #pragma omp parallel for num_threads(n_threads)
-        for (int iworld = 0; iworld < num_worlds; iworld++) {
- 
-            // Initialise world
-            Avida::World* new_world = new Avida::World();
-            cUserFeedback feedback;
-            cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()));
+        if (rank < num_procs) { // In worker process
+            // std::cout << "Running process " << rank << "/" << num_procs-1 << std::endl;
 
-            // Set up world and controller 
-            double *chromosome = controllers[iworld].data();
-            world->setup(new_world, &feedback, &defs, chromosome, chromosome_length);
-            world->SetVerbosity(0);
+            // Find our working interval
+            int rank_num = rank+1;
+            int end = rank_num*limit-1, start = rank_num*limit-limit;
+                
+            // Compute fitness for chosen worlds
+            for (int iworld=start; iworld<=end; iworld++)   {
 
-            // Run simulation and compute fitness
-            Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
-            current_fitness[iworld] = driver->Run(fs, iworld);
+                // Initialise world
+                Avida::World* new_world = new Avida::World();
+                cUserFeedback feedback;
+                cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()));
 
-            // Clean up
-            delete driver;
+                // Set up world and controller 
+                double *chromosome = controllers[iworld].data();
+                world->setup(new_world, &feedback, &defs, ref_chromosome, chromosome, chromosome_length);
+                world->SetVerbosity(0);
+
+                // Run simulation and compute fitness
+                Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
+                current_fitness[iworld] = driver->Run(fs, iworld);
+
+                // Clean up
+                delete driver;
+
+            }
+
+            // Send fitness to master process
+            MPI_Send(&current_fitness[0], num_worlds, MPI_DOUBLE, num_procs, 0, MPI_COMM_WORLD);
+
         }
-        
-        // Update best results so far
-        int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();
-        best_chromosome = controllers[imax];
-        max_fitness = current_fitness[imax];
+        else    { // In master process
+            // std::cout << "Running master process " << std::endl;
 
-        // Selection
-        std::vector<std::vector<double> > new_controllers = controllers;
-        for (size_t iworld = 0; iworld < num_worlds-1; iworld += 2) {
+            std::vector<std::vector<double> > fitnesses = std::vector<std::vector<double> >(num_procs, std::vector<double>(num_worlds, 0));
+            std::vector<double> buffer(num_worlds, 0);
 
-            // Select a pair of chromosomes
-            int ix1 = TournamentSelect(current_fitness, tournament_probability);
-            int ix2=-1;
-            do { ix2 = TournamentSelect(current_fitness, tournament_probability); }
-            while (ix2==ix1);
+            for (int i=0; i<num_procs; i++) {
+                // std::cout << "recieve from worker " << i << std::endl;
+                MPI_Recv(&buffer[0], num_worlds, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+                // std::cout << "buffer: ";
+                for (int j = 0; j < num_worlds; j++) {
+                    fitnesses[i][j] = buffer[j];
+                    // std::cout << buffer[j] << " ";
+                }
+                // std::cout << std::endl;
+                
+            }
+
+            // std::cout << "fitnesses:" << std::endl;
+            // for (int i = 0; i < num_procs; i++) {
+            //     for (int j = 0; j < num_worlds; j++) {
+            //         // fitnesses[i][j] = fitness[j];
+            //         std::cout << fitnesses[i][j] << " ";
+            //     }
+            //     std::cout << std::endl;
+            // }
+            // std::cout << std::endl;
+
+
+            // Sum up fitness
+            for (size_t i=0; i<num_worlds; i++) {
+                double colsum = 0;
+                for (size_t j=0; j<num_procs; j++) {
+                    colsum += fitnesses[j][i];
+                }
+                current_fitness[i] = colsum;
+            }
             
-            new_controllers[iworld] = controllers[ix1];
-            new_controllers[iworld+1] = controllers[ix2];
+            // std::cout << "final fitness: ";
+            // for (int k=0; k<num_worlds; k++)   {
+            //     std::cout << current_fitness[k] << " ";
+            // }
+            // std::cout << std::endl;
+        
+            // Update best results so far
+            int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();
+            best_chromosome = controllers[imax];
+            max_fitness = current_fitness[imax];
 
-            // Crossover
-            if (RandomNumber(0.0, 1.0) < crossover_probability) {
-                std::vector<std::vector<double> > chromosomes = Cross(controllers[ix1], controllers[ix2]);
-                new_controllers[iworld] = chromosomes[0];
-                new_controllers[iworld+1] = chromosomes[1];
+            // Selection
+            std::vector<std::vector<double> > new_controllers = controllers;
+            for (size_t iworld = 0; iworld < num_worlds-1; iworld += 2) {
+
+                // Select a pair of chromosomes
+                int ix1 = TournamentSelect(current_fitness, tournament_probability);
+                int ix2=-1;
+                do { ix2 = TournamentSelect(current_fitness, tournament_probability); }
+                while (ix2==ix1);
+                
+                new_controllers[iworld] = controllers[ix1];
+                new_controllers[iworld+1] = controllers[ix2];
+
+                // Crossover
+                if (RandomNumber(0.0, 1.0) < crossover_probability) {
+                    std::vector<std::vector<double> > chromosomes = Cross(controllers[ix1], controllers[ix2]);
+                    new_controllers[iworld] = chromosomes[0];
+                    new_controllers[iworld+1] = chromosomes[1];
+                }
             }
-        }
 
-        // Mutation
-        mutation_probability_constant = mutation_probability_constant*pow(mutation_decay,imeta)+min_mutation_constant;
-        mutation_probability = mutation_probability_constant/chromosome_length;
-        creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
-        for (size_t iworld = 0; iworld < num_worlds; iworld++) {
-            std::vector<double> chromosome = new_controllers[iworld];
-            controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max);
-        }
-
-        //Elitism
-        controllers[0] = best_chromosome;
-
-        // Print progress
-        end = std::chrono::high_resolution_clock::now(); 
-        duration = std::chrono::duration_cast<std::chrono::minutes>(end - start);
-            if (imeta%1 == 0)  {
-            cout << "Meta Generation: " << imeta << ", Fitness: " << max_fitness << ", Best chromosome: [";
-            for (size_t task = 0; task < chromosome_length; task++){
-                cout << best_chromosome[task] << ", ";
+            // Mutation
+            mutation_probability_constant = mutation_probability_constant*pow(mutation_decay,imeta)+min_mutation_constant;
+            mutation_probability = mutation_probability_constant/chromosome_length;
+            creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
+            for (size_t iworld = 0; iworld < num_worlds; iworld++) {
+                std::vector<double> chromosome = new_controllers[iworld];
+                controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max);
             }
-            cout << "] elapsed: " << duration.count() << " minutes" << endl;
-        }
 
-        // Save data to file
-        fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome);
+            //Elitism
+            controllers[0] = best_chromosome;
+
+            // Print progress
+            end = std::chrono::high_resolution_clock::now(); 
+            duration = std::chrono::duration_cast<std::chrono::minutes>(end - start);
+                if (imeta%1 == 0)  {
+                cout << "Meta Generation: " << imeta << ", Fitness: " << max_fitness << ", Best chromosome: [";
+                for (size_t task = 0; task < chromosome_length; task++){
+                    cout << best_chromosome[task] << ", ";
+                }
+                cout << "] elapsed: " << duration.count() << " minutes" << endl;
+            }
+
+            // Save data to file
+            fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome);
+
+        }
 
     }
 
-    // Save chromosomes to file (to be able to continue at last imeta)
-    fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
+    if (rank == num_procs)  {
+        std::cout << "simulation finished" << std::endl;
+        
+        // Save chromosomes to file (to be able to continue at last imeta)
+        fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
+    }
     
     // Clean up
     delete[] argv_avida;
     delete god, cfg;
 
-    std::cout << "simulation finished" << std::endl;
+    MPI_Finalize();
+
 }
 

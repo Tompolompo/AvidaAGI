@@ -1,11 +1,5 @@
-// cController.cc
 #include <iostream> 
-//#include <string>
 #include "cController.h" // header in local directory
-//#include "cStats.h"
-
-//genome
-#include "avida/core/Genome.h"
 
 using namespace std;
 using namespace Controller;
@@ -22,6 +16,13 @@ void cController::SetChromosome(double chromosome[], int len){
         m_chromosome[i]=chromosome[i];
     }
 }
+
+void cController::SetRefChromosome(double chromosome[], int len){
+    for (int i=0; i<len; i++){
+        Phi_0[i]=chromosome[i];
+    }
+}
+
 
 Avida::Genome cController::controll_genome(Avida::Genome* old_genome){
     /*
