@@ -113,7 +113,7 @@ int main(int argc, char **argv)  {
 
                 // Set up world and controller 
                 double *chromosome = controllers[iworld].data();
-                world->setup(new_world, &feedback, &defs, ref_chromosome, chromosome, chromosome_length);
+                world->setup(new_world, &feedback, &defs, ref_chromosome.data(), chromosome, chromosome_length);
                 world->SetVerbosity(0);
 
                 // Run simulation and compute fitness

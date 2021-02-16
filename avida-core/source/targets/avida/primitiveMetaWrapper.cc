@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-// #include <chrono>
 #include <omp.h>
 
 #include "AvidaTools.h"
@@ -63,11 +62,10 @@ int main(int argc, char **argv)  {
     std::vector<double> current_fitness(num_worlds, 0);
     
     // Save settings
-    std::vector<double> Phi_0 = std::vector<double>(chromosome_length, 0);
-    Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
+    std::vector<double> ref_chromosome{1, 1, 2, 2, 3, 3, 4, 4, 5}; // Phi0 hat
     FileSystem fs = FileSystem(imeta);
     if (imeta == 0) {
-        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, Phi_0, chromosome_length);
+        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
         fs.InitMetaData(chromosome_length);
         controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
     }
@@ -90,18 +88,15 @@ int main(int argc, char **argv)  {
 
         // Initialise world
         Avida::World* new_world = new Avida::World();
-        // unique_ptr<Avida::World> new_world(new Avida::World());
         cUserFeedback feedback;
-        // unique_ptr<cWorld> world(new cWorld(cfg, cString(Apto::FileSystem::GetCWD()))); 
         cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()));
 
         // Set up world and controller 
         double *chromosome = controllers[iworld].data();
-        world->setup(new_world, &feedback, &defs, chromosome, chromosome_length);
+        world->setup(new_world, &feedback, &defs, ref_chromosome.data(), chromosome, chromosome_length);
         world->SetVerbosity(0);
 
         // Run simulation and compute fitness
-        //unique_ptr<Avida2MetaDriver> driver(new Avida2MetaDriver(world.get(), new_world.get(), god));
         Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
         current_fitness[iworld] = driver->Run(fs, iworld);
 

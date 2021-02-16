@@ -59,7 +59,7 @@ cWorld::cWorld(cAvidaConfig* cfg, const cString& wd)
 cWorld* cWorld::Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* mappings)
 {
   cWorld* world = new cWorld(cfg, working_dir);
-  if (!world->setup(new_world, feedback, mappings, NULL, 0)) { // MODIFIED: added dummy arguments since we changed setup() arguments
+  if (!world->setup(new_world, feedback, mappings, NULL, NULL, 0)) { // MODIFIED: added dummy arguments since we changed setup() arguments
     delete world;
     world = NULL;
   }

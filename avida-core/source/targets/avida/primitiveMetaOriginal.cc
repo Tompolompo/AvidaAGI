@@ -64,10 +64,9 @@ int main(int argc, char **argv)  {
     double max_fitness;
     
     // Save settings
-    std::vector<double> Phi_0 = std::vector<double>(chromosome_length, 0);
-    Phi_0[0]=2;Phi_0[1]=2;Phi_0[2]=4;Phi_0[3]=4;Phi_0[4]=-6;Phi_0[5]=6;Phi_0[6]=8;Phi_0[7]=-8;Phi_0[8]=10;
+    std::vector<double> ref_chromosome{1, 1, 2, 2, 3, 3, 4, 4, 5}; // Phi0 hat
     FileSystem fs = FileSystem(0);
-    fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, Phi_0, chromosome_length);
+    fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
     fs.InitMetaData(chromosome_length);
 
     // Initialise Avida
@@ -99,7 +98,7 @@ int main(int argc, char **argv)  {
 
             // Set up world and controller 
             double *chromosome = controllers[iworld].data();
-            world->setup(new_world, &feedback, &defs, chromosome, chromosome_length);
+            world->setup(new_world, &feedback, &defs, ref_chromosome.data(), chromosome, chromosome_length);
             world->SetVerbosity(0);
 
             // Run simulation and compute fitness
