@@ -71,16 +71,16 @@ cWorld::~cWorld()
   // m_actlib is not owned by cWorld, DO NOT DELETE
   
   // These must be deleted first
-  // delete m_analyze; m_analyze = NULL;
+  delete m_analyze; m_analyze = NULL;
   
   // Forcefully clean up population before classification manager
-  // m_pop = Apto::SmartPtr<cPopulation, Apto::InternalRCObject>();
+  m_pop = Apto::SmartPtr<cPopulation, Apto::InternalRCObject>();
   
-  // delete m_env; m_env = NULL;
-  // delete m_event_list; m_event_list = NULL;
-  // delete m_hw_mgr; m_hw_mgr = NULL;
+  delete m_env; m_env = NULL;
+  delete m_event_list; m_event_list = NULL;
+  delete m_hw_mgr; m_hw_mgr = NULL;
 
-  // delete m_mig_mat; 
+  delete m_mig_mat; 
   
   // Delete Last
   // delete m_conf; m_conf = NULL; // MODIFIED: config "owned" by primitiveMeta.cc
@@ -88,8 +88,8 @@ cWorld::~cWorld()
   // cleanup driver object, if needed
   if (m_own_driver) { delete m_driver; m_driver = NULL; }
   
-  // delete m_ctx;
-  // delete m_new_world;
+  delete m_ctx;
+  delete m_new_world;
 }
 
 
