@@ -2,7 +2,7 @@
 #include <fstream>
 #include <algorithm>
 #include <chrono>
-#include <omp.h>
+// #include <omp.h>
 #include "mpi.h"
 
 #include "AvidaTools.h"
@@ -68,9 +68,7 @@ int main(int argc, char **argv)  {
 
     // Initialise starting conditions
     cGod* god = new cGod(universe_settings);
-    std::vector<double> best_chromosome(chromosome_length, 0);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
-    double max_fitness;
     
     // Save settings
     std::vector<double> ref_chromosome{1, 1, 2, 2, 3, 3, 4, 4, 5}; // Phi0 hat
@@ -85,9 +83,9 @@ int main(int argc, char **argv)  {
     Avida::Util::ProcessCmdLineArgs(argc_avida, argv_avida, cfg, defs);
 
     // Timing
-    auto start = std::chrono::high_resolution_clock::now(); 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::minutes>(end - start); 
+    auto start_time = std::chrono::high_resolution_clock::now(); 
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::minutes>(end_time - start_time); 
 
     // Main loop over meta generations
     for (size_t imeta = 0; imeta < num_meta_generations; imeta++)   {
@@ -98,6 +96,10 @@ int main(int argc, char **argv)  {
 
         if (rank < num_procs) { // In worker process
             // std::cout << "Running process " << rank << "/" << num_procs-1 << std::endl;
+
+            // Receive new controllers
+            // if (imeta > 0)
+            //     MPI_Recv(&controllers[0], num_worlds*chromosome_length, MPI_DOUBLE, num_procs, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             // Find our working interval
             int rank_num = rank+1;
@@ -122,7 +124,6 @@ int main(int argc, char **argv)  {
 
                 // Clean up
                 delete driver;
-
             }
 
             // Send fitness to master process
@@ -136,29 +137,11 @@ int main(int argc, char **argv)  {
             std::vector<double> buffer(num_worlds, 0);
 
             for (int i=0; i<num_procs; i++) {
-                // std::cout << "recieve from worker " << i << std::endl;
                 MPI_Recv(&buffer[0], num_worlds, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-                // std::cout << "buffer: ";
-                for (int j = 0; j < num_worlds; j++) {
-                    fitnesses[i][j] = buffer[j];
-                    // std::cout << buffer[j] << " ";
-                }
-                // std::cout << std::endl;
                 
+                for (int j = 0; j < num_worlds; j++)
+                    fitnesses[i][j] = buffer[j];
             }
-
-            // std::cout << "fitnesses:" << std::endl;
-            // for (int i = 0; i < num_procs; i++) {
-            //     for (int j = 0; j < num_worlds; j++) {
-            //         // fitnesses[i][j] = fitness[j];
-            //         std::cout << fitnesses[i][j] << " ";
-            //     }
-            //     std::cout << std::endl;
-            // }
-            // std::cout << std::endl;
-
-
             // Sum up fitness
             for (size_t i=0; i<num_worlds; i++) {
                 double colsum = 0;
@@ -176,8 +159,8 @@ int main(int argc, char **argv)  {
         
             // Update best results so far
             int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();
-            best_chromosome = controllers[imax];
-            max_fitness = current_fitness[imax];
+            std::vector<double> best_chromosome = controllers[imax];
+            double max_fitness = current_fitness[imax];
 
             // Selection
             std::vector<std::vector<double> > new_controllers = controllers;
@@ -211,10 +194,14 @@ int main(int argc, char **argv)  {
 
             //Elitism
             controllers[0] = best_chromosome;
+            
+            // Send out new controller population
+            // for (size_t j=0; j<num_procs; j++)
+            //     MPI_Send(&controllers[0], num_worlds*chromosome_length, MPI_DOUBLE, j, 1, MPI_COMM_WORLD);
 
             // Print progress
-            end = std::chrono::high_resolution_clock::now(); 
-            duration = std::chrono::duration_cast<std::chrono::minutes>(end - start);
+            end_time = std::chrono::high_resolution_clock::now(); 
+            duration = std::chrono::duration_cast<std::chrono::minutes>(end_time - start_time);
                 if (imeta%1 == 0)  {
                 cout << "Meta Generation: " << imeta << ", Fitness: " << max_fitness << ", Best chromosome: [";
                 for (size_t task = 0; task < chromosome_length; task++){
