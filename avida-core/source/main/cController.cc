@@ -9,15 +9,18 @@ cController::cController() {
     Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
     m_chromosome[0]=1;m_chromosome[1]=1;m_chromosome[2]=2;m_chromosome[3]=2;m_chromosome[4]=3;
     m_chromosome[5]=3;m_chromosome[6]=4;m_chromosome[7]=4;m_chromosome[8]=5;
+    m_chromosome_length = 9;
 }
 
 void cController::SetChromosome(double chromosome[], int len){
+    m_chromosome_length = len;
     for (int i=0; i<len; i++){
         m_chromosome[i]=chromosome[i];
     }
 }
 
 void cController::SetRefChromosome(double chromosome[], int len){
+    m_chromosome_length = len;
     for (int i=0; i<len; i++){
         Phi_0[i]=chromosome[i];
     }
