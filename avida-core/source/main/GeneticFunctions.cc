@@ -6,16 +6,18 @@
 std::random_device rd;
 std::mt19937 e(rd());
 static std::uniform_real_distribution<> dis_r(0, 1);
-static std::uniform_real_distribution<> dis_i(0, 1);
+static std::uniform_int_distribution<> dis_i(0, 1);
 
 /* Generate a uniform random real number */
 double RandomNumber(double min, double max)
 {
+    //std::cout << "(0) max " << max << ", min " << min << ", dis: " << dis_r(e) << std::endl;
     return dis_r(e) * (max - min) + min;
 }
 
 int RandomNumber(int min, int max)
 {
+    //std::cout << "max " << max << ", min " << min << ", dis: " << dis_i(e) << std::endl;
     return dis_i(e) * (max - min) + min;
 }
 

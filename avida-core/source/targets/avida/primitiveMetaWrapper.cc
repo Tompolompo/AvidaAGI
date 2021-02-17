@@ -32,8 +32,8 @@ int main(int argc, char **argv)  {
     // Genetic parameters
     //double gene_min = -5; 
     //double gene_max = +5;
-    int gene_min = 1; 
-    int gene_max = 7;
+    int gene_min = 0; 
+    int gene_max = 1;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
     int num_updates = universe_settings[2];
@@ -62,7 +62,7 @@ int main(int argc, char **argv)  {
     std::vector<double> current_fitness(num_worlds, 0);
     
     // Save settings
-    std::vector<double> ref_chromosome{1, 1, 2, 2, 3, 3, 4, 4, 5}; // Phi0 hat
+    std::vector<double> ref_chromosome{1, 0, 1, 0, 1, 0, 1, 0, 1}; // Phi0 hat
     FileSystem fs = FileSystem(imeta);
     if (imeta == 0) {
         fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
