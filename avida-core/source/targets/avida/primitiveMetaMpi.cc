@@ -22,6 +22,12 @@
 
 using namespace std;
 
+/* Såhär kör man: X är antal processer. Bör vara jämnt tal och mindre än 100
+    module load mpi (Behöver bara köras en gång)
+    ./mpirun -np X ./avida -nN -mM -uU
+*/
+
+
 // Global parameters
 int universe_settings[4] = {5, 3, 4, 0};
 int argc_avida;
@@ -124,6 +130,7 @@ int main(int argc, char **argv)  {
 
             // Clean up
             delete driver;
+            delete world;
             
         }
 
