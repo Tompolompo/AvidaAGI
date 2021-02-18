@@ -79,8 +79,11 @@ int main(int argc, char **argv)  {
     // Save settings
     std::vector<double> ref_chromosome{1, 1, 2, 2, 3, 3, 4, 4, 5}; // Phi0 hat
     FileSystem fs = FileSystem(0);
-    fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
-    fs.InitMetaData(chromosome_length);
+
+    if (rank == root)   {
+        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
+        fs.InitMetaData(chromosome_length);
+    }
 
     // Initialise Avida
     Avida::Initialize();
@@ -98,7 +101,9 @@ int main(int argc, char **argv)  {
 
         std::vector<double> current_fitness(num_worlds);
         cfg->RANDOM_SEED.Set(0);
-        fs.InitUpdateDirectory(imeta);
+
+        if (rank == root)
+            fs.InitUpdateDirectory(imeta);
 
         // Receive controllers
         for (int i=0; i<num_worlds; i++) {
@@ -126,7 +131,8 @@ int main(int argc, char **argv)  {
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
-            current_fitness[iworld] = driver->Run(fs, iworld);
+            bool save = (rank == root) ? true : false;
+            current_fitness[iworld] = driver->Run(fs, save, iworld);
 
             // Clean up
             delete driver;
@@ -134,7 +140,7 @@ int main(int argc, char **argv)  {
             
         }
 
-        // Send fitness to master process
+        // Send fitness to root process
         MPI_Send(&current_fitness[0], num_worlds, MPI_DOUBLE, root, 0, MPI_COMM_WORLD);
 
         if (rank == root)    {

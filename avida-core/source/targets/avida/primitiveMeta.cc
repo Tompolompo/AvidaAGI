@@ -102,7 +102,8 @@ int main(int argc, char **argv)  {
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
-            current_fitness[iworld] = driver->Run(fs, iworld);
+            bool save = (iworld == 0) ? true : false;
+            current_fitness[iworld] = driver->Run(fs, save, iworld);
 
             // Clean up
             delete driver;
@@ -119,9 +120,9 @@ int main(int argc, char **argv)  {
 
             // Select a pair of chromosomes
             int ix1 = TournamentSelect(current_fitness, tournament_probability);
-            int ix2=-1;
+            int ix2 =- 1;
             do { ix2 = TournamentSelect(current_fitness, tournament_probability); }
-            while (ix2==ix1);
+            while (ix2 == ix1);
             
             new_controllers[iworld] = controllers[ix1];
             new_controllers[iworld+1] = controllers[ix2];

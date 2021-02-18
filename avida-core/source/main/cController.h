@@ -11,6 +11,7 @@ namespace Controller{
         cController();
         double Phi_0[9];
         double m_chromosome[9];
+        int m_chromosome_length;
         void SetChromosome(double chromosome[], int len);
         void SetRefChromosome(double chromosome[], int len);
         Avida::Genome controll_genome(Avida::Genome* genome);
