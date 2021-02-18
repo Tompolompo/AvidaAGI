@@ -62,7 +62,7 @@ int main(int argc, char **argv)  {
     std::vector<double> current_fitness(num_worlds, 0);
     
     // Save settings
-    std::vector<double> ref_chromosome{1, 0, 1, 0, 1, 0, 1, 0, 1}; // Phi0 hat
+    std::vector<double> ref_chromosome{1, -1, 1, -1, 1, -1, 1, -1, 1}; // Phi0 hat
     FileSystem fs = FileSystem(imeta);
     if (imeta == 0) {
         fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
@@ -98,7 +98,8 @@ int main(int argc, char **argv)  {
 
         // Run simulation and compute fitness
         Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
-        current_fitness[iworld] = driver->Run(fs, iworld);
+        bool save = (iworld == 0) ? true : false;
+        current_fitness[iworld] = driver->Run(fs, save, iworld);
 
         // Clean up
         delete driver;
