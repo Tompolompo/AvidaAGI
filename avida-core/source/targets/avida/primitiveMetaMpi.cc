@@ -64,23 +64,19 @@ int main(int argc, char **argv)  {
     double min_creep = 100000*(gene_max-gene_min)/25.0;
 
     // MPI params
-    int root = num_procs-1;
+    int root = 0;
     int limit = num_worlds/num_procs;
-
-    if (rank == root)  {
-        // cout << "Running with " << num_procs << " processes, " << limit << " worlds per process" << endl;
-        std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
-    }
 
     // Initialise starting conditions
     cGod* god = new cGod(universe_settings);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
-    
-    // Save settings
     std::vector<double> ref_chromosome{1, 1, 2, 2, 3, 3, 4, 4, 5}; // Phi0 hat
     FileSystem fs = FileSystem(0);
 
-    if (rank == root)   {
+    if (rank == root)  {
+        std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
+    
+        // Save settings
         fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
         fs.InitMetaData(chromosome_length);
     }
@@ -131,7 +127,7 @@ int main(int argc, char **argv)  {
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
-            bool save = (rank == root) ? true : false;
+            bool save = (iworld == 0) ? true : false;
             current_fitness[iworld] = driver->Run(fs, save, iworld);
 
             // Clean up
