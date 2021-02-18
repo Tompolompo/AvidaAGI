@@ -33,8 +33,8 @@ int main(int argc, char **argv)  {
     // Genetic parameters
     //double gene_min = -5; 
     //double gene_max = +5;
-    int gene_min = -15; 
-    int gene_max = 15;
+    int gene_min = 0; 
+    int gene_max = 1;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
     int num_updates = universe_settings[2];
@@ -47,8 +47,8 @@ int main(int argc, char **argv)  {
     double min_mutation_constant = 0.5;
     double creep_rate = (gene_max-gene_min)/3.0;
     double creep_probability = 1;
-    double creep_decay = 0.98;
-    double min_creep = 100000*(gene_max-gene_min)/25.0;
+    double creep_decay = 0.98; 
+    double min_creep = 100000*(gene_max-gene_min)/25.0; // does not matter when using ints
 
     // Set number of threads
     size_t n_threads = omp_get_max_threads();
@@ -63,7 +63,7 @@ int main(int argc, char **argv)  {
     double max_fitness;
     
     // Save settings
-    std::vector<double> ref_chromosome{1, 1, 2, 2, 3, 3, 4, 4, 5}; // Phi0 hat
+    std::vector<double> ref_chromosome{1, -1, 1, -1, 1, -1, 1, -1, 1}; // Phi0 hat
     FileSystem fs = FileSystem(0);
     fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
     fs.InitMetaData(chromosome_length);
@@ -83,7 +83,7 @@ int main(int argc, char **argv)  {
     for (size_t imeta = 0; imeta < num_meta_generations; imeta++)   {
 
         std::vector<double> current_fitness(num_worlds, 0);
-        cfg->RANDOM_SEED.Set(0);
+        cfg->RANDOM_SEED.Set(imeta);
         fs.InitUpdateDirectory(imeta);
 
         // Run for each controller
