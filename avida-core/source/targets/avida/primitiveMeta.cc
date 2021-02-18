@@ -31,9 +31,9 @@ int main(int argc, char **argv)  {
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
 
     // Genetic parameters
-    //double gene_min = -5; 
-    //double gene_max = +5;
-    int gene_min = 0; 
+    // double gene_min = -5; 
+    // double gene_max = +5;
+    int gene_min = -1; 
     int gene_max = 1;
     int num_worlds = universe_settings[0];
     int num_meta_generations = universe_settings[1];
