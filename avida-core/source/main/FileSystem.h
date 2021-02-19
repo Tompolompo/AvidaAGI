@@ -27,9 +27,9 @@ class FileSystem{
         void SaveChromosomes(std::vector<std::vector<double> > chromosomes, int num_worlds, int chromosome_length);
 
         // Save settings of simulaion to file in m_root_dir as "settings.csv"
-        void SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, std::vector<double> Phi_0, int chromosome_length);
+        void SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int chromosome_length);
         
-        void SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, int gene_min, int gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, std::vector<double> Phi_0, int chromosome_length);
+        void SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, int gene_min, int gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int chromosome_length);
         
         // Initialize file for saving data over the meta evolution: "metarun.csv"
         void InitMetaData(int chromosome_length);
@@ -41,7 +41,7 @@ class FileSystem{
         void InitUpdateDirectory(int meta_generation); //update current meta_dir
 
         // create file "N[%n_world].csv" for world
-        void InitUpdateData(int n_world); 
+        void InitUpdateData(int n_world, int chromosome_length); 
 
         // Save data for updates
         void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int chromosome_length);

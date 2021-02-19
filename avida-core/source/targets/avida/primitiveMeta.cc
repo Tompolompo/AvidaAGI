@@ -64,6 +64,7 @@ int main(int argc, char **argv)  {
 
     // Control settings
     std::vector<double> ref_chromosome = Str2DoubleVector(reader.Get("control", "ref_chromosome", "1 1 2 2 3 3 4 4 5"));
+    bool binary = reader.GetBoolean("control", "binary_chromosome", false);
     int dangerous_op = reader.GetInteger("control", "dangerous_op", -1);
 
     // Iteration limits
@@ -88,7 +89,8 @@ int main(int argc, char **argv)  {
     int chromosome_length = ref_chromosome.size();
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
-    double min_creep = 100000*(gene_max-gene_min)/25.0;
+    double min_creep = (gene_max-gene_min)/25.0;
+    if (binary) creep_probability = 1;
 
     // MPI params
     int root = 0;
@@ -96,14 +98,14 @@ int main(int argc, char **argv)  {
 
     // Initialise starting conditions
     cGod* god = new cGod(universe_settings);
-    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max);
+    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary);
     FileSystem fs = FileSystem(0);
 
     if (rank == root)  {
         std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
     
         // Save settings
-        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);
+        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome.data(), chromosome_length);
         fs.InitMetaData(chromosome_length);
     }
 
@@ -154,7 +156,8 @@ int main(int argc, char **argv)  {
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
             bool save = (iworld == 0) ? true : false;
-            current_fitness[iworld] = driver->Run(fs, save, iworld);
+            save=true;
+            current_fitness[iworld] = driver->Run(fs, save, iworld, chromosome_length);
 
             // Clean up
             delete driver;
@@ -218,7 +221,7 @@ int main(int argc, char **argv)  {
             creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
             for (size_t iworld = 0; iworld < num_worlds; iworld++) {
                 std::vector<double> chromosome = new_controllers[iworld];
-                controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max);
+                controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max, binary);
             }
 
             //Elitism

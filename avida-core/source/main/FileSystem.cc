@@ -99,7 +99,7 @@ FileSystem::FileSystem(int imeta)
             
 }
 
-void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, std::vector<double> Phi_0, int chromosome_length){
+void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int chromosome_length){
 
     char settings_filename[80] = "./";
     strcat(settings_filename, root_dir);
@@ -118,7 +118,7 @@ void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_
     fclose(file_settings);
 }
 
-void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, int gene_min, int gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, std::vector<double> Phi_0, int chromosome_length){
+void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, int gene_min, int gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int chromosome_length){
 
     char settings_filename[80] = "./";
     strcat(settings_filename, root_dir);
@@ -227,7 +227,7 @@ void FileSystem::InitUpdateDirectory(int meta_generation){
     }
 }
 
-void FileSystem::InitUpdateData(int n_world){
+void FileSystem::InitUpdateData(int n_world, int chromosome_length){
     std::string str = current_meta_dir;
     str +="/N";
     str += to_string(n_world);
@@ -236,7 +236,11 @@ void FileSystem::InitUpdateData(int n_world){
     char char_array[n + 1];
     strcpy(char_array, str.c_str());
     FILE *file_N = fopen(char_array, "w");
-    fprintf(file_N, "UD,Gen,phi_i,phi_0,orgs,task0,task1,task2,task3,task4,task5,task6,task7,task8\n");
+    fprintf(file_N, "UD,Gen,phi_i,phi_0,orgs");
+    for (int task = 0; task < chromosome_length; task++){
+        fprintf(file_N, ",task%d", task);
+    }
+    fprintf(file_N, "\n");
     fclose(file_N);
 
 }

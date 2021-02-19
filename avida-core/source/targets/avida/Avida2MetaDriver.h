@@ -59,7 +59,7 @@ public:
 
   
   // Actions
-  double Run(FileSystem fs, bool save, int iworld);
+  double Run(FileSystem fs, bool save, int iworld, int chromosome_length);
 
   void Finish() { m_done = true; }
   void Pause() { return; }
