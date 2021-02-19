@@ -18,14 +18,15 @@ double RandomNumber(double min, double max)
 int RandomNumber(int min, int max)
 {
     //std::cout << "max " << max << ", min " << min << ", dis: " << dis_i(e) << std::endl;
-    return (int) (dis_i(e) * (max - min) + min);
+    return (int) (dis_i(e) * (max + 1 - min) + min);
 }
 
 /* Generates a population of chromosomes that contain the genomes for the controllers */
-std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, double gene_min, double gene_max)
+std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, double gene_min, double gene_max, bool binary)
 {
     // Initialize the array of chromosomes
     std::vector<std::vector<double> > population = std::vector<std::vector<double> >(num_worlds, std::vector<double>(chromosome_length, 0));
+    
     // Generation of gene values
     for (int i = 0; i < population.size(); i++)
     {
@@ -40,17 +41,29 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
 }
 
 // takes integers
-std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, int gene_min, int gene_max)
+std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, int gene_min, int gene_max, bool binary)
 {
     // Initialize the array of chromosomes
     std::vector<std::vector<double> > population = std::vector<std::vector<double> >(num_worlds, std::vector<double>(chromosome_length, 0));
     // Generation of gene values
+    static std::uniform_int_distribution<> dis_init(gene_min, gene_max);
     for (int i = 0; i < population.size(); i++)
     {
         for (int j = 0; j < population[i].size(); j++)
         {
             // Random gene value generation
-            population[i][j] = RandomNumber(gene_min, gene_max);
+            if (binary){
+                if (RandomNumber(0.0,1.0) > 0.5){
+                    population[i][j] = gene_max;
+                }
+                else{
+                    population[i][j] = gene_min;
+                }
+            }
+            else{
+                population[i][j] = dis_init(e);
+            }
+            
         }
     }   
     return population;
@@ -112,7 +125,7 @@ std::vector<std::vector<double> > Cross(std::vector<double> chromosome1, std::ve
 }
 
 /* Mutates each gene in a chromosome with a certain probability and returns the mutated chromosome */
-std::vector<double> Mutate(std::vector<double> chromosome, double mutation_probability, double creep_rate, double creep_probability, double gene_min, double gene_max) {
+std::vector<double> Mutate(std::vector<double> chromosome, double mutation_probability, double creep_rate, double creep_probability, double gene_min, double gene_max, bool binary) {
     int chromosome_length = chromosome.size();
     double x=0; 
     double r;
@@ -139,7 +152,7 @@ std::vector<double> Mutate(std::vector<double> chromosome, double mutation_proba
 }
 
 // int
-std::vector<double> Mutate(std::vector<double> chromosome, double mutation_probability, double creep_rate, double creep_probability, int gene_min, int gene_max) {
+std::vector<double> Mutate(std::vector<double> chromosome, double mutation_probability, double creep_rate, double creep_probability, int gene_min, int gene_max, bool binary) {
     int chromosome_length = chromosome.size();
     double x=0; 
     double r;
@@ -148,20 +161,32 @@ std::vector<double> Mutate(std::vector<double> chromosome, double mutation_proba
         if ( r < mutation_probability) {
             if (RandomNumber(0.0, 1.0) < creep_probability) {
 
-                if (RandomNumber(0.0, 1.0) >0.5){
-                    chromosome[i] += 1;
+                if (binary){
+                if (RandomNumber(0.0,1.0) > 0.5){
+                    chromosome[i] = gene_max;
                 }
                 else{
-                    chromosome[i] -= 1;
+                    chromosome[i] = gene_min;
                 }
+                }
+                else{
                 
-                if (chromosome[i] > gene_max){
-                    chromosome[i]=gene_max;
-                }
-                else if (chromosome[i] < gene_min){
-                    chromosome[i]=gene_min;
+                    if (RandomNumber(0.0, 1.0) > 0.5){
+                        chromosome[i] += 1;
+                    }
+                    else{
+                        chromosome[i] -= 1;
+                    }
+                    
+                    if (chromosome[i] > gene_max){
+                        chromosome[i]=gene_max;
+                    }
+                    else if (chromosome[i] < gene_min){
+                        chromosome[i]=gene_min;
+                    }
                 }
             }
+
             else{
                 chromosome[i] = RandomNumber(gene_min, gene_max);
             } 

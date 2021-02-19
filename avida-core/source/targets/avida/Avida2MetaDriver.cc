@@ -61,7 +61,7 @@ Avida2MetaDriver::~Avida2MetaDriver()
 }
 
 // MODIFIED: was void function
-double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
+double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld, int chromosome_length)
 { 
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
     cout << "In analyze mode!!" << endl;
@@ -93,7 +93,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
   // MODIFIED
   int updates = m_god->m_updates;
   m_phi_0_sum = 0;
-  if (save) m_fs.InitUpdateData(m_iworld);
+  if (save) m_fs.InitUpdateData(m_iworld, chromosome_length);
 
   int u = 0;
   while (!m_done) {
@@ -131,7 +131,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
 		m_world->ProcessPostUpdate(ctx);
 
     // MODIFIED
-    int chromosome_length = m_world->m_ctx->m_controller.m_chromosome_length;
+    //int chromosome_length = m_world->m_ctx->m_controller.m_chromosome_length;
 
     std::vector<int> task_count = std::vector<int>(chromosome_length, 0);
     for (int j=0;j<chromosome_length;j++){
