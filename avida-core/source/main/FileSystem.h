@@ -4,7 +4,14 @@
 #include <string>
 #include <vector>
 
+// Read and parse program arguments and return avid aarguments
 char **ParseArgs(int argc, char **argv, int *universe_settings, int &argc_avida);
+
+// Convert string of integers to vector
+std::vector<int> Str2IntVector(std::string input);
+
+// Convert string of doubles to vector
+std::vector<double> Str2DoubleVector(std::string input);
 
 class FileSystem{
     public:

@@ -17,11 +17,12 @@
 #include "GeneticFunctions.h"
 #include "FileSystem.h"
 #include "cGod.h"
+#include "INIReader.h"
 
 using namespace std;
 
 // Global parameters
-int universe_settings[4] = {5, 3, 4, 0};
+int universe_settings[4] = {-1, -1, -1, -1};
 int argc_avida;
 
 int main(int argc, char **argv)  {
@@ -29,25 +30,49 @@ int main(int argc, char **argv)  {
     // Read cmd-line arguments and set parameters
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
 
+    // Load parameters and settings from meta config
+    INIReader reader("metaconfig.ini");
+    if (reader.ParseError() < 0) {
+        std::cout << "Can't load 'metaconfig.ini'\n";
+        return 1;
+    }
+
     // Genetic parameters
-    //double gene_min = -5; 
-    //double gene_max = +5;
-    int gene_min = -1; 
-    int gene_max = 1;
-    int num_worlds = universe_settings[0];
-    int num_meta_generations = universe_settings[1];
-    int num_updates = universe_settings[2];
-    int imeta = universe_settings[3];
-    int chromosome_length = 9;
-    double tournament_probability = 0.8;
-    double crossover_probability = 0.3;
-    double mutation_probability_constant = 3.0;
+    int gene_min = reader.GetInteger("genetic", "gene_min", -10);
+    int gene_max = reader.GetInteger("genetic", "gene_max", 10);
+    double tournament_probability = reader.GetReal("genetic", "tournament_probability", 0.8);
+    double crossover_probability = reader.GetReal("genetic", "crossover_probability", 0.3);
+    double mutation_probability_constant = reader.GetReal("genetic", "mutation_probability_constant", 3);
+    double mutation_decay = reader.GetReal("genetic", "mutation_decay", 0.95);
+    double min_mutation_constant = reader.GetReal("genetic", "mutation_decay", 0.5);
+    double creep_probability = reader.GetReal("genetic", "mutation_decay", 0.95);
+    double creep_decay = reader.GetReal("genetic", "mutation_decay", 0.98);
+
+    // Control settings
+    std::vector<double> ref_chromosome = Str2DoubleVector(reader.Get("control", "ref_chromosome", "1 1 2 2 3 3 4 4 5"));
+    int dangerous_op = reader.GetInteger("control", "dangerous_op", -1);
+
+    // Iteration limits
+    int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
+    int num_meta_generations = reader.GetInteger("iterations", "num_meta_generations", 5);
+    int num_updates = reader.GetInteger("iterations", "num_updates", 100);
+
+    // General settings
+    bool save_updates = reader.GetBoolean("general", "save_updates", true);
+    std::string save_folder = reader.Get("general", "save_folder_name", "run");
+
+    // Overwrite configfile params with cmdline arguments
+    num_worlds = (universe_settings[0] != -1) ? universe_settings[0] : num_worlds;
+    num_meta_generations = (universe_settings[1] != -1) ? universe_settings[1] : num_meta_generations;
+    num_updates = (universe_settings[2] != -1) ? universe_settings[2] : num_updates;
+    universe_settings[0] = num_worlds;
+    universe_settings[1] = num_meta_generations;
+    universe_settings[2] = num_updates;
+
+    // Derived params
+    int chromosome_length = ref_chromosome.size();
     double mutation_probability = mutation_probability_constant/chromosome_length;
-    double mutation_decay = 0.95;
-    double min_mutation_constant = 0.5;
     double creep_rate = (gene_max-gene_min)/3.0;
-    double creep_probability = 1;
-    double creep_decay = 0.98;
     double min_creep = 100000*(gene_max-gene_min)/25.0;
 
     // Set number of threads
@@ -60,9 +85,9 @@ int main(int argc, char **argv)  {
     std::vector<std::vector<double> > controllers;
     double max_fitness;
     std::vector<double> current_fitness(num_worlds, 0);
+    int imeta = universe_settings[3];
     
     // Save settings
-    std::vector<double> ref_chromosome{1, -1, 1, -1, 1, -1, 1, -1, 1}; // Phi0 hat
     FileSystem fs = FileSystem(imeta);
     if (imeta == 0) {
         fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome, chromosome_length);

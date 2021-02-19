@@ -5,9 +5,9 @@
 #include <sys/types.h> 
 #include <ctime>
 #include <fstream>
-#include <vector>
 #include <string>
 #include <unistd.h>
+#include <sstream>
 
 using namespace std;
 
@@ -42,6 +42,21 @@ char **ParseArgs(int argc, char **argv, int *universe_settings, int &argc_avida)
         argv_new[i] = argv[index];
 
     return argv_new;        
+}
+
+std::vector<int> Str2IntVector(std::string input) 
+{
+    std::istringstream is( input );
+    std::vector<int> output( ( std::istream_iterator<int>( is ) ), ( std::istream_iterator<int>() ) );   
+    
+    return output;
+}
+std::vector<double> Str2DoubleVector(std::string input) 
+{
+    std::istringstream is( input );
+    std::vector<double> output( ( std::istream_iterator<double>( is ) ), ( std::istream_iterator<double>() ) );   
+    
+    return output;
 }
 
 FileSystem::FileSystem(int imeta)
