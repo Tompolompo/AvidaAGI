@@ -1,0 +1,4 @@
+1. Lägg till flagga -pg till kompileringen
+2. Kör avida: ./avida -nN -mM -uU
+3. Kör gprof och skicka till gprof2dot: gprof ./avida | gprof2dot | dot -Tpng -o output.png
+4. Titta på resultatet i output.png

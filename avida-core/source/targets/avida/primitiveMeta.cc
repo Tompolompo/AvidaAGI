@@ -23,14 +23,14 @@
 
 using namespace std;
 
-/* Såhär kör man: X är antal processer. Bör vara jämnt tal och mindre än 100
+/* Såhär kör man: X är antal processer.
     module load mpi (Behöver bara köras en gång)
     mpirun -np X ./avida -nN -mM -uU
 */
 
 
 // Global parameters
-int universe_settings[4] = {-1, -1, -1, -1};
+int universe_settings[4] = {-1, -1, -1, -1}; // Denna måste se ut såhär om cmdline args ska overrida configfilen
 int argc_avida;
 
 int main(int argc, char **argv)  {
@@ -44,8 +44,8 @@ int main(int argc, char **argv)  {
     // Read cmd-line arguments and set parameters
     char **argv_avida = ParseArgs(argc, argv, universe_settings, argc_avida);
 
-    // Load parameters and settings from meta config
-    INIReader reader("metaconfig.ini");
+    // Load parameters and settings from meta config. 
+    INIReader reader("metaconfig.ini"); // Filen ligger i root-dir för att komma med i git men ska ligga i work för att hittas
     if (reader.ParseError() < 0) {
         std::cout << "Can't load 'metaconfig.ini'\n";
         return 1;
@@ -161,8 +161,7 @@ int main(int argc, char **argv)  {
 
             // Clean up
             delete driver;
-            delete world;
-            
+            delete world; 
         }
 
         // Send fitness to root process
