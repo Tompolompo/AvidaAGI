@@ -61,7 +61,7 @@ Avida2MetaDriver::~Avida2MetaDriver()
 }
 
 // MODIFIED: was void function
-double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld, int chromosome_length)
+double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
 { 
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
     cout << "In analyze mode!!" << endl;
@@ -71,6 +71,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld, int chrom
     return 0; // MODIFIED
   }
   
+
   cPopulation& population = m_world->GetPopulation();
   cStats& stats = m_world->GetStats();
   
@@ -89,6 +90,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld, int chrom
   Avida::Context new_ctx(this, &m_world->GetRandom());
 
   int dangerous_count = 0;
+  int chromosome_length = m_world->m_controller->m_chromosome_length;
   
   // MODIFIED
   int updates = m_god->m_updates;
@@ -131,8 +133,6 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld, int chrom
 		m_world->ProcessPostUpdate(ctx);
 
     // MODIFIED
-    //int chromosome_length = m_world->m_ctx->m_controller.m_chromosome_length;
-
     std::vector<int> task_count = std::vector<int>(chromosome_length, 0);
     for (int j=0;j<chromosome_length;j++){
       task_count[j] = stats.GetTaskLastCount(j);
@@ -140,7 +140,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld, int chrom
     if (save)
       m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
     
-    dangerous_count = m_world->GetStats().GetTaskLastCount(m_god->m_dangerous_op);
+    // dangerous_count = m_world->GetStats().GetTaskLastCount(m_god->m_dangerous_op);
     /*if (dangerous_count > 100){
         return -pow(10,10);
     }*/

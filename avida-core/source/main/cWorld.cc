@@ -49,8 +49,8 @@
 using namespace AvidaTools;
 
 
-cWorld::cWorld(cAvidaConfig* cfg, const cString& wd)
-  : m_working_dir(wd), m_analyze(NULL), m_conf(cfg), m_ctx(NULL)
+cWorld::cWorld(cAvidaConfig* cfg, const cString& wd, cController* controller)
+  : m_working_dir(wd), m_analyze(NULL), m_conf(cfg), m_ctx(NULL), m_controller(controller)
   , m_env(NULL), m_event_list(NULL), m_hw_mgr(NULL), m_pop(NULL), m_stats(NULL), m_mig_mat(NULL), m_driver(NULL), m_data_mgr(NULL)
   , m_own_driver(false)
 {
@@ -58,8 +58,8 @@ cWorld::cWorld(cAvidaConfig* cfg, const cString& wd)
 
 cWorld* cWorld::Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* mappings)
 {
-  cWorld* world = new cWorld(cfg, working_dir);
-  if (!world->setup(new_world, feedback, mappings, NULL, NULL, 0)) { // MODIFIED: added dummy arguments since we changed setup() arguments
+  cWorld* world = new cWorld(cfg, working_dir, nullptr);
+  if (!world->setup(new_world, feedback, mappings)) { // MODIFIED: added dummy arguments since we changed setup() arguments
     delete world;
     world = NULL;
   }
@@ -93,21 +93,17 @@ cWorld::~cWorld()
 }
 
 
-bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* defs, double* ref_chromosome, double* chromosome, int length)
+bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Apto::String, Apto::String>* defs)
 {
   m_new_world = new_world;
   
   bool success = true;
   
   // Setup Random Number Generator
-  // MODIFIED
-  // if (m_ctx == NULL){ // (AGI - TL) such that controller won't be reinitialized. 
   m_rng.ResetSeed(m_conf->RANDOM_SEED.Get());
+
   m_ctx = new cAvidaContext(NULL, m_rng);
-  m_ctx->m_controller.SetChromosome(chromosome, length); //Load controller chromosome here
-  m_ctx->m_controller.SetRefChromosome(ref_chromosome, length); //Load controller chromosome here
   
-  // }
   
   // Initialize new API-based data structures here for now
   {
@@ -125,7 +121,6 @@ bool cWorld::setup(World* new_world, cUserFeedback* feedback, const Apto::Map<Ap
   
 
   m_env = new cEnvironment(this);
-    
   m_mig_mat = new cMigrationMatrix(); 
   
   

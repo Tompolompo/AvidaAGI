@@ -65,6 +65,7 @@ int main(int argc, char **argv)  {
     // Control settings
     std::vector<double> ref_chromosome = Str2DoubleVector(reader.Get("control", "ref_chromosome", "1 1 2 2 3 3 4 4 5"));
     bool binary = reader.GetBoolean("control", "binary_chromosome", false);
+    std::string Phi0_function = reader.Get("control", "controller_fitness", "standard");
     int dangerous_op = reader.GetInteger("control", "dangerous_op", -1);
 
     // Iteration limits
@@ -146,22 +147,29 @@ int main(int argc, char **argv)  {
             // Initialise world
             Avida::World* new_world = new Avida::World();
             cUserFeedback feedback;
-            cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()));
 
-            // Set up world and controller 
+            // Set up controller 
             double *chromosome = controllers[iworld].data();
-            world->setup(new_world, &feedback, &defs, ref_chromosome.data(), chromosome, chromosome_length);
+            cController* controller = new cController(Phi0_function, chromosome_length);
+            controller->SetRefChromosome(ref_chromosome);
+            controller->SetChromosome(controllers[iworld]);
+
+            // Set up world
+            cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);
+            world->setup(new_world, &feedback, &defs);
             world->SetVerbosity(0);
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
             bool save = (iworld == 0) ? true : false;
-            save=true;
-            current_fitness[iworld] = driver->Run(fs, save, iworld, chromosome_length);
+            // save=true;
+            current_fitness[iworld] = driver->Run(fs, save, iworld);
 
             // Clean up
             delete driver;
-            delete world; 
+            delete controller;
+            delete world;
+            
         }
 
         // Send fitness to root process

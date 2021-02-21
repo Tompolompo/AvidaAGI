@@ -785,15 +785,21 @@ void cOrganism::PrintFinalStatus(ostream& fp, int time_used, int time_allocated)
   }
 }
 
-// MODIFIED
-double cOrganism::CalcPhi0Fitness(){ // (AGI - TL) Calculate the controller fitness on Phi_0
+// MODIFIED (AGI - TL) Calculate the controller fitness on Phi_0
+double cOrganism::CalcPhi0Fitness()
+{
 
-  double calculated_bonus = 0.0;
-  for (int i = 0; i<m_world->GetEnvironment().GetNumReactions() ; i++){
-    calculated_bonus += m_world->m_ctx->m_controller.Phi_0[i] * GetPhenotype().GetLastCountForTask(i);
+  std::string fitness_function = m_world->m_controller->m_Phi0_function;
+
+  if (fitness_function == "standard") {
+
+    double calculated_bonus = 0.0;
+    for (int i = 0; i<m_world->GetEnvironment().GetNumReactions() ; i++){
+    calculated_bonus += m_world->m_controller->m_X0[i] * GetPhenotype().GetLastCountForTask(i);
+    }
+
+    return pow(2,calculated_bonus) * GetPhenotype().GetCurMeritBase() / GetPhenotype().gestation_time;
   }
-
-  return pow(2,calculated_bonus) * GetPhenotype().GetCurMeritBase() / GetPhenotype().gestation_time;
 }
 
 bool cOrganism::Divide_CheckViable(cAvidaContext& ctx)

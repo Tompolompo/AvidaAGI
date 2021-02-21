@@ -77,7 +77,7 @@ protected:
   
 public:
 
-  cWorld(cAvidaConfig* cfg, const cString& wd); // MODIFIED: Moved here from protected to be able to call new
+  cWorld(cAvidaConfig* cfg, const cString& wd, cController* controller); // MODIFIED: Moved here from protected to be able to call new
   virtual ~cWorld();
 
   static cWorld* Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback = NULL, const Apto::Map<Apto::String, Apto::String>* mappings = NULL);
@@ -89,6 +89,7 @@ public:
   // MODIFIED
   cAvidaContext* m_ctx; // not original placement (protected is original)
   cEnvironment* m_env; //not original placement (protected is original)
+  cController* m_controller;
   
   // General Object Accessors
   cAnalyze& GetAnalyze();
@@ -140,7 +141,7 @@ public:
 	virtual int CalculateUpdateSize();
 
   // MODIFIED
-  bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings, double* ref_chromosome, double* chromosome, int length); // (AGI - TL) changed from protected and added arguments
+  bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings); // (AGI - TL) changed from protected and added arguments
   
 protected:
   // Internal Methods
