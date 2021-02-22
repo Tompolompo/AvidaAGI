@@ -27,9 +27,9 @@ class FileSystem{
         void SaveChromosomes(std::vector<std::vector<double> > chromosomes, int num_worlds, int chromosome_length);
 
         // Save settings of simulaion to file in m_root_dir as "settings.csv"
-        void SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int chromosome_length);
+        void SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int chromosome_length, const char* Phi0_function, double Phi0_penalty_factor, const char* dangerous_operations, double task_perform_penalty_threshold, const char* random_meta_seed);
         
-        void SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, int gene_min, int gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int chromosome_length);
+        void SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, int gene_min, int gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int chromosome_length, const char* Phi0_function, double Phi0_penalty_factor, const char* dangerous_operations, double task_perform_penalty_threshold, const char* random_meta_seed);
         
         // Initialize file for saving data over the meta evolution: "metarun.csv"
         void InitMetaData(int chromosome_length);

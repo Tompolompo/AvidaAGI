@@ -66,8 +66,9 @@ int main(int argc, char **argv)  {
     bool binary = reader.GetBoolean("control", "binary_chromosome", false);
     std::string Phi0_function = reader.Get("control", "controller_fitness", "standard");
     double Phi0_penalty_factor = reader.GetReal("control", "Phi0_penalty_factor", 0);
+    std::string dangerous_operations_string = reader.Get("control", "dangerous_operations", "-1");
     std::vector<int> dangerous_operations = Str2IntVector(reader.Get("control", "dangerous_operations", "-1"));
-    double task_perform_penalty_threshold = reader.GetInteger("control", "task_perform_penalty_threshold", 0.05);
+    double task_perform_penalty_threshold = reader.GetReal("control", "task_perform_penalty_threshold", 0.05);
 
     // Iteration limits
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
@@ -107,10 +108,10 @@ int main(int argc, char **argv)  {
         std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
     
         // Save settings
-        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome.data(), chromosome_length);
+        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome.data(), chromosome_length, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
         fs.InitMetaData(chromosome_length);
     }
-
+    
     // Initialise Avida
     Avida::Initialize();
     Apto::Map<Apto::String, Apto::String> defs;
