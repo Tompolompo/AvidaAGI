@@ -13,12 +13,24 @@ cController::cController()
 
 }
 
-cController::cController(std::string Phi0_function, int chromosome_length)
+cController::cController(std::string Phi0_function, int chromosome_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold)
 {
     m_Phi0_function = Phi0_function;
     m_chromosome_length = chromosome_length;
+    m_task_performed_counter = std::vector<int>(m_chromosome_length, 0);
+    m_penalty_factor = penalty_factor;
+    m_dangerous_operations = dangerous_operations;
+    m_task_perform_threshold = task_perform_penalty_threshold;
 
 }
+
+// cController::cController(std::string Phi0_function, int chromosome_length)
+// {
+//     m_Phi0_function = Phi0_function;
+//     m_chromosome_length = chromosome_length;
+    
+
+// }
 
 void cController::PrintChromosome(int which) {
     for (int i=0; i<m_chromosome_length; i++){
@@ -33,6 +45,10 @@ void cController::PrintChromosome(int which) {
     std::cout << std::endl;
 }
 
+void cController::IncPerformedTask(int task_number)
+{
+    m_task_performed_counter[task_number]++;
+}
 
 
 Avida::Genome cController::controll_genome(Avida::Genome* old_genome){

@@ -120,7 +120,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     const int UD_size = m_world->CalculateUpdateSize();
     const double step_size = 1.0 / (double) UD_size;
     
-    for (int i = 0; i < UD_size; i++) {
+    for (int i = 0; i < UD_size; i++) { // NOTE: Kanske OpenMP parallellisering här?
       if(population.GetNumOrganisms() == 0) {
         break;
       }

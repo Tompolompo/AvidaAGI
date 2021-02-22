@@ -120,7 +120,7 @@ public:
   static void Initialize();
 
   // MODIFIED 
-  double CalcPhi0Fitness(); // (AGI - TL) Calculate the controller fitness on Phi_0
+  double CalcPhi0Fitness(std::string fitness_function); // (AGI - TL) Calculate the controller fitness on Phi_0
   
   
   // --------  Systematics::Unit Methods  --------
