@@ -786,23 +786,27 @@ void cOrganism::PrintFinalStatus(ostream& fp, int time_used, int time_allocated)
 }
 
 // MODIFIED (AGI - TL) Calculate the controller fitness on Phi_0
-double cOrganism::CalcPhi0Fitness()
+double cOrganism::CalcPhi0Fitness(std::string fitness_function)
 {
 
-  std::string fitness_function = m_world->m_controller->m_Phi0_function;
-
   if (fitness_function == "standard") {
+  // almost standard avida-fitness with a reference-chromosome
 
     int t;
     double calculated_bonus = 0.0;
     for (int i = 0; i<m_world->GetEnvironment().GetNumReactions() ; i++){
-      if (GetPhenotype().GetLastCountForTask(i) >= 1) int t = 1;
+      if (GetPhenotype().GetLastCountForTask(i) >= 1) {
+        int t = 1;
+        m_world->m_controller->IncPerformedTask(i);
+      }
       else t = 0;
+
       calculated_bonus += m_world->m_controller->m_X0[i] * t;
     }
 
     return pow(2,calculated_bonus) * GetPhenotype().GetCurMeritBase() / GetPhenotype().gestation_time;
   }
+
 }
 
 bool cOrganism::Divide_CheckViable(cAvidaContext& ctx)

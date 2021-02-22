@@ -2,7 +2,6 @@
 #include <fstream>
 #include <algorithm>
 #include <chrono>
-// #include <omp.h>
 #include "mpi.h"
 
 #include "AvidaTools.h"
@@ -66,7 +65,9 @@ int main(int argc, char **argv)  {
     std::vector<double> ref_chromosome = Str2DoubleVector(reader.Get("control", "ref_chromosome", "1 1 2 2 3 3 4 4 5"));
     bool binary = reader.GetBoolean("control", "binary_chromosome", false);
     std::string Phi0_function = reader.Get("control", "controller_fitness", "standard");
-    int dangerous_op = reader.GetInteger("control", "dangerous_op", -1);
+    double Phi0_penalty_factor = reader.GetReal("control", "Phi0_penalty_factor", 0);
+    std::vector<int> dangerous_operations = Str2IntVector(reader.Get("control", "dangerous_operations", "-1"));
+    double task_perform_penalty_threshold = reader.GetInteger("control", "task_perform_penalty_threshold", 0.05);
 
     // Iteration limits
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
@@ -76,6 +77,7 @@ int main(int argc, char **argv)  {
     // General settings
     bool save_updates = reader.GetBoolean("general", "save_updates", true);
     std::string save_folder = reader.Get("general", "save_folder_name", "run");
+    std::string random_meta_seed = reader.Get("general", "random_meta_seed", "imeta");
 
     // Overwrite configfile params with cmdline arguments
     num_worlds = (universe_settings[0] != -1) ? universe_settings[0] : num_worlds;
@@ -84,7 +86,6 @@ int main(int argc, char **argv)  {
     universe_settings[0] = num_worlds;
     universe_settings[1] = num_meta_generations;
     universe_settings[2] = num_updates;
-    universe_settings[3] = dangerous_op;
 
     // Derived params
     int chromosome_length = ref_chromosome.size();
@@ -125,7 +126,8 @@ int main(int argc, char **argv)  {
     for (size_t imeta = 0; imeta < num_meta_generations; imeta++)   {
 
         std::vector<double> current_fitness(num_worlds);
-        cfg->RANDOM_SEED.Set(imeta);
+        if (random_meta_seed == "0") cfg->RANDOM_SEED.Set(0);
+        else cfg->RANDOM_SEED.Set(imeta);
 
         if (rank == root)
             fs.InitUpdateDirectory(imeta);
@@ -150,7 +152,7 @@ int main(int argc, char **argv)  {
 
             // Set up controller 
             double *chromosome = controllers[iworld].data();
-            cController* controller = new cController(Phi0_function, chromosome_length);
+            cController* controller = new cController(Phi0_function, chromosome_length, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold);
             controller->SetRefChromosome(ref_chromosome);
             controller->SetChromosome(controllers[iworld]);
 
