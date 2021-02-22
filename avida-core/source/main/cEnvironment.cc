@@ -166,7 +166,8 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc, Feedba
       if (!AssertInputDouble(var_value, "value", var_type, feedback)) return false;
       // MODIFIED
       // new_process->SetValue(var_value.AsDouble()); // original
-      new_process->SetValue(m_world->m_controller->m_chromosome[var_value.AsInt()]); // new
+      
+      new_process->SetValue(m_world->m_controller->m_chromosome[reaction->GetID()]); // new
     }
     else if (var_name == "type") {
       if (var_value=="add") new_process->SetType(nReaction::PROCTYPE_ADD);

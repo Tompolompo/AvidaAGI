@@ -793,9 +793,12 @@ double cOrganism::CalcPhi0Fitness()
 
   if (fitness_function == "standard") {
 
+    int t;
     double calculated_bonus = 0.0;
     for (int i = 0; i<m_world->GetEnvironment().GetNumReactions() ; i++){
-    calculated_bonus += m_world->m_controller->m_X0[i] * GetPhenotype().GetLastCountForTask(i);
+      if (GetPhenotype().GetLastCountForTask(i) >= 1) int t = 1;
+      else t = 0;
+      calculated_bonus += m_world->m_controller->m_X0[i] * t;
     }
 
     return pow(2,calculated_bonus) * GetPhenotype().GetCurMeritBase() / GetPhenotype().gestation_time;
