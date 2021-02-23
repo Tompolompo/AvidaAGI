@@ -248,18 +248,18 @@ int main(int argc, char **argv)  {
                 cout << "] elapsed: " << duration.count() << " minutes" << endl;
             }
 
-            // Save data to file
+            // Save training data to file
             fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome);
+
+            // Save chromosomes to file (to be able to continue at last imeta)
+            fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
 
         }
 
     }
 
     if (rank == root)  {
-        std::cout << "simulation finished" << std::endl;
-        
-        // Save chromosomes to file (to be able to continue at last imeta)
-        fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
+        std::cout << "simulation finished" << std::endl;  
     }
     
     // Clean up
