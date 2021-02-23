@@ -1,7 +1,6 @@
 #include <iostream> 
 #include "cController.h" // header in local directory
 
-using namespace std;
 
 cController::cController() 
 {
@@ -47,24 +46,31 @@ void cController::PrintChromosome(int which) {
 
 void cController::IncPerformedTask(int task_number)
 {
+    if (task_number == __INT_MAX__) std::cout << "error: task_number is maxed out" << std::endl;
     m_task_performed_counter[task_number]++;
 }
 
-
-Avida::Genome cController::controll_genome(Avida::Genome* old_genome){
-    /*
-    Apto::String genome_string = old_genome->AsString();
-    //cout << genome_string << endl;
-    Apto::String sub_string_start = genome_string.Substring(0, 42);
-    Apto::String sub_string_end = genome_string.Substring(42, -1);
-    //Apto::String insert = "c";
-    //Apto::String updated_genome = sub_string_start + insert + sub_string_end;
-    Apto::String updated_genome = sub_string_start + sub_string_end;
-    //cout << updated_genome << endl;
-    Avida::Genome new_genome = Avida::Genome(updated_genome);
-    */
-    return *old_genome;
+void cController::ResetTaskCounter()
+{
+    for (size_t k=0; k<m_task_performed_counter.size(); k++)
+        m_task_performed_counter[k] = 0;
 }
+
+
+// Avida::Genome cController::controll_genome(Avida::Genome* old_genome){
+//     /*
+//     Apto::String genome_string = old_genome->AsString();
+//     //cout << genome_string << endl;
+//     Apto::String sub_string_start = genome_string.Substring(0, 42);
+//     Apto::String sub_string_end = genome_string.Substring(42, -1);
+//     //Apto::String insert = "c";
+//     //Apto::String updated_genome = sub_string_start + insert + sub_string_end;
+//     Apto::String updated_genome = sub_string_start + sub_string_end;
+//     //cout << updated_genome << endl;
+//     Avida::Genome new_genome = Avida::Genome(updated_genome);
+//     */
+//     return *old_genome;
+// }
 
 
 

@@ -3,7 +3,7 @@
 #define cController_h
 
 //genome
-#include "avida/core/Genome.h"
+// #include "avida/core/Genome.h"
 #include <vector>
 
 class cController{
@@ -26,10 +26,11 @@ public:
     void SetRefChromosome( std::vector<double> chromosome){ m_X0 = chromosome; };
 
     void IncPerformedTask(int task_number);
+    void ResetTaskCounter();
 
     void PrintChromosome(int which);
 
-    Avida::Genome controll_genome(Avida::Genome* genome);
+    // Avida::Genome controll_genome(Avida::Genome* genome);
 
 };
 
