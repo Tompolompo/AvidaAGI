@@ -23,14 +23,6 @@ cController::cController(std::string Phi0_function, int chromosome_length, doubl
 
 }
 
-// cController::cController(std::string Phi0_function, int chromosome_length)
-// {
-//     m_Phi0_function = Phi0_function;
-//     m_chromosome_length = chromosome_length;
-    
-
-// }
-
 void cController::PrintChromosome(int which) {
     for (int i=0; i<m_chromosome_length; i++){
         if (which == 1) {
