@@ -796,7 +796,7 @@ double cOrganism::CalcPhi0Fitness(std::string fitness_function)
     double calculated_bonus = 0.0;
     for (int i = 0; i<m_world->GetEnvironment().GetNumReactions() ; i++){
       if (GetPhenotype().GetLastCountForTask(i) >= 1) {
-        int t = 1;
+        t = 1;
         m_world->m_controller->IncPerformedTask(i);
       }
       else t = 0;
