@@ -63,7 +63,7 @@ int main(int argc, char **argv)  {
 
     // Control settings
     std::vector<double> ref_chromosome = Str2DoubleVector(reader.Get("control", "ref_chromosome", "1 1 2 2 3 3 4 4 5"));
-    bool binary = reader.GetBoolean("control", "binary_chromosome", false);
+    bool binary = reader.GetBoolean("genetic", "binary", false);
     std::string Phi0_function = reader.Get("control", "controller_fitness", "standard");
     double Phi0_penalty_factor = reader.GetReal("control", "Phi0_penalty_factor", 0);
     std::string dangerous_operations_string = reader.Get("control", "dangerous_operations", "-1");
@@ -130,8 +130,8 @@ int main(int argc, char **argv)  {
         if (random_meta_seed == "0") cfg->RANDOM_SEED.Set(0);
         else cfg->RANDOM_SEED.Set(imeta);
 
-        if (rank == root)
-            fs.InitUpdateDirectory(imeta);
+        //if (rank == root)
+        fs.InitUpdateDirectory(imeta);
 
         // Receive controllers
         for (int i=0; i<num_worlds; i++) {
@@ -165,7 +165,7 @@ int main(int argc, char **argv)  {
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
             bool save = (iworld == 0) ? true : false;
-            // save=true;
+            save=true;
             current_fitness[iworld] = driver->Run(fs, save, iworld);
 
             // Clean up

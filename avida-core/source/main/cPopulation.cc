@@ -6028,13 +6028,8 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   // Calculate task penalty
   if ( (m_world->m_controller->m_penalty_factor > 0) && (m_world->m_controller->m_dangerous_operations[0] > -1) )  {
     for (int k : m_world->m_controller->m_dangerous_operations) {
-      // std::cout << "k = " << k << std::endl;
-
-      // std::cout << "m_world->m_controller->m_task_performed_counter[k] = " << m_world->m_controller->m_task_performed_counter[k] << std::endl;
-      // std::cout << "live_org_list.GetSize() = " << live_org_list.GetSize() << std::endl;
-      // std::cout << "performed_task_fraction[k] = " << m_world->m_controller->m_task_performed_counter[k]/live_org_list.GetSize() << std::endl;
-
-      double performed_task_fraction = m_world->m_controller->m_task_performed_counter[k]/live_org_list.GetSize();
+      
+      double performed_task_fraction = (double) m_world->m_controller->m_task_performed_counter[k]/live_org_list.GetSize();
       if (performed_task_fraction > m_world->m_controller->m_task_perform_threshold)  {
           Phi0_fitness_sum *= m_world->m_controller->m_penalty_factor;
           // std::cout << "Phi0 = " << Phi0_fitness_sum << std::endl;
