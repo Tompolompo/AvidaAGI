@@ -37,6 +37,7 @@
 #include "cPopulationCell.h"
 #include "cStats.h"
 #include "cWorld.h"
+#include "cEnvironment.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -95,6 +96,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
   int chromosome_length = m_world->m_controller->m_chromosome_length;
   int updates = m_god->m_updates;
   int intervention_frequency = m_world->m_controller->m_intervention_frequency;
+  std::vector<double> strategy;
   m_phi_0_sum = 0;
   if (save) m_fs.InitUpdateData(m_iworld, chromosome_length);
 
@@ -163,18 +165,26 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
       cout << endl;
     }
     
-    // Get avida state
+    // Get controller fitness
     m_phi_0_sum += stats.GetPhi0Fitness();
     if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
-    std::vector<double> performed_task_fraction = std::vector<double>(chromosome_length, 0);
-    for (size_t k=0; k<chromosome_length; k++)
-      performed_task_fraction[k] = (double) m_world->m_controller->m_task_performed_counter[k]/population.GetLiveOrgList().GetSize();
-
-
-    // Controller interact with avida
+    // Controller interaction with avida
     if (u%intervention_frequency == 0)  {
       
+      // Get avida state
+      std::vector<double> performed_task_fraction = std::vector<double>(chromosome_length, 0);
+      for (size_t k=0; k<chromosome_length; k++)
+        performed_task_fraction[k] = (double) m_world->m_controller->m_task_performed_counter[k]/population.GetLiveOrgList().GetSize();
+      double phi = 10; // Tomas fixar detta
+
+      // Computation-friendly controller input
+      double delta_u = u/updates;
+      double delta_phi = phi/10000000;
+
+      // Apply controller strategy
+      strategy = m_world->m_controller->EvaluateAvida(performed_task_fraction, delta_u, delta_phi);
+      m_world->m_controller->ApplyStrategy(&m_world->GetEnvironment(), strategy);
 
     }
 

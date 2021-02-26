@@ -19,6 +19,7 @@
 #include "FileSystem.h"
 #include "cGod.h"
 #include "INIReader.h"
+#include <Eigen/Dense>
 
 using namespace std;
 
@@ -51,8 +52,8 @@ int main(int argc, char **argv)  {
     }
 
     // Genetic parameters
-    int gene_min = reader.GetInteger("genetic", "gene_min", -10);
-    int gene_max = reader.GetInteger("genetic", "gene_max", 10);
+    double gene_min = reader.GetInteger("genetic", "gene_min", 0);
+    double gene_max = reader.GetInteger("genetic", "gene_max", 1);
     double tournament_probability = reader.GetReal("genetic", "tournament_probability", 0.8);
     double crossover_probability = reader.GetReal("genetic", "crossover_probability", 0.3);
     double mutation_probability_constant = reader.GetReal("genetic", "mutation_probability_constant", 3);
@@ -152,10 +153,9 @@ int main(int argc, char **argv)  {
             cUserFeedback feedback;
 
             // Set up controller 
-            double *chromosome = controllers[iworld].data();
-            cController* controller = new cController(Phi0_function, chromosome_length, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold);
-            controller->SetRefChromosome(ref_chromosome);
-            controller->SetChromosome(controllers[iworld]);
+            cController* controller = new cController(Phi0_function, chromosome_length, ref_chromosome, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold);
+            // controller->SetRefChromosome(ref_chromosome);
+            // controller->SetChromosome(controllers[iworld]);
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);
@@ -240,7 +240,7 @@ int main(int argc, char **argv)  {
             // Print progress
             end_time = std::chrono::high_resolution_clock::now(); 
             duration = std::chrono::duration_cast<std::chrono::minutes>(end_time - start_time);
-            
+
             cout << "Meta Generation: " << imeta << ", Fitness: " << max_fitness << ", Best chromosome: [";
             for (size_t task = 0; task < chromosome_length; task++){
                 cout << best_chromosome[task] << ", ";
