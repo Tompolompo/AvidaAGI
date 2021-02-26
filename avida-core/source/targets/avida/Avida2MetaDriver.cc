@@ -38,6 +38,8 @@
 #include "cStats.h"
 #include "cWorld.h"
 #include "cEnvironment.h"
+#include "cReactionProcess.h"
+#include <vector>
 
 #include <cstdio>
 #include <cstdlib>
@@ -133,6 +135,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     population.ProcessPostUpdate(ctx);
     
 		m_world->ProcessPostUpdate(ctx);
+    
 
     // MODIFIED
     std::vector<int> task_count = std::vector<int>(chromosome_length, 0);
@@ -176,7 +179,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
       std::vector<double> performed_task_fraction = std::vector<double>(chromosome_length, 0);
       for (size_t k=0; k<chromosome_length; k++)
         performed_task_fraction[k] = (double) m_world->m_controller->m_task_performed_counter[k]/population.GetLiveOrgList().GetSize();
-      double phi = 10; // Tomas fixar detta
+      double phi = stats.GetAveFitness();
 
       // Computation-friendly controller input
       double delta_u = u/updates;
@@ -184,7 +187,8 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
 
       // Apply controller strategy
       strategy = m_world->m_controller->EvaluateAvida(performed_task_fraction, delta_u, delta_phi);
-      m_world->m_controller->ApplyStrategy(&m_world->GetEnvironment(), strategy);
+      for (size_t j=0; j<chromosome_length; j++)
+        m_world->GetEnvironment().vec_reactions[j]->SetValue(strategy[j]);
 
     }
 
@@ -209,6 +213,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     u++;
     if (u == updates) m_done = true;
 
+    
   }
 
   // MODIFIED

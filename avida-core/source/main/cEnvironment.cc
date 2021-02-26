@@ -141,7 +141,8 @@ bool cEnvironment::AssertInputValid(void* input, const cString& name, const cStr
 
 bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc, Feedback& feedback)
 {
-  cReactionProcess* new_process = reaction->AddProcess();
+  cReactionProcess* new_process = reaction->AddProcess(); // gör om till global variabel och ändra SetValue
+  vec_reactions.push_back(new_process);
 
   // Loop through all entries in description.
   while (desc.GetSize() > 0) {
@@ -756,6 +757,7 @@ bool cEnvironment::LoadCell(cString desc, Feedback& feedback)
 
   return true;
 }
+
 
 bool cEnvironment::LoadReaction(cString desc, Feedback& feedback)
 {
