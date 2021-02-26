@@ -141,9 +141,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
       m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
     
     // dangerous_count = m_world->GetStats().GetTaskLastCount(m_god->m_dangerous_op);
-    /*if (dangerous_count > 100){
-        return -pow(10,10);
-    }*/
+    
         
     // No viewer; print out status for this update....
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
@@ -169,6 +167,9 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     }
     
     // MODIFIED
+    if (stats.GetPhi0Fitness() < 0.0000000000001){
+        return 0;
+    }
     m_phi_0_sum += stats.GetPhi0Fitness();
 
     // Do Point Mutations
