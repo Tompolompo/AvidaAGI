@@ -6020,11 +6020,6 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     organism->GetPhenotype().IncAge();
   }
   // MODIFIED
-
-  // std::cout << "m_penalty_factor = " << m_world->m_controller->m_penalty_factor << std::endl;
-  // std::cout << "m_dangerous_operations[0] = " << m_world->m_controller->m_dangerous_operations[0] << std::endl;
-  // std::cout << "m_task_perform_threshold = " << m_world->m_controller->m_task_perform_threshold << std::endl;
-  
   // Calculate task penalty
   if ( (m_world->m_controller->m_penalty_factor > 0) && (m_world->m_controller->m_dangerous_operations[0] > -1) )  {
     for (int k : m_world->m_controller->m_dangerous_operations) {
@@ -6032,7 +6027,6 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
       double performed_task_fraction = (double) m_world->m_controller->m_task_performed_counter[k]/live_org_list.GetSize();
       if (performed_task_fraction > m_world->m_controller->m_task_perform_threshold)  {
           Phi0_fitness_sum *= m_world->m_controller->m_penalty_factor;
-          // std::cout << "Phi0 = " << Phi0_fitness_sum << std::endl;
       }
     }
   }

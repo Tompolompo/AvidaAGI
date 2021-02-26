@@ -240,13 +240,12 @@ int main(int argc, char **argv)  {
             // Print progress
             end_time = std::chrono::high_resolution_clock::now(); 
             duration = std::chrono::duration_cast<std::chrono::minutes>(end_time - start_time);
-                if (imeta%1 == 0)  {
-                cout << "Meta Generation: " << imeta << ", Fitness: " << max_fitness << ", Best chromosome: [";
-                for (size_t task = 0; task < chromosome_length; task++){
-                    cout << best_chromosome[task] << ", ";
-                }
-                cout << "] elapsed: " << duration.count() << " minutes" << endl;
+            
+            cout << "Meta Generation: " << imeta << ", Fitness: " << max_fitness << ", Best chromosome: [";
+            for (size_t task = 0; task < chromosome_length; task++){
+                cout << best_chromosome[task] << ", ";
             }
+            cout << "] elapsed: " << duration.count() << " minutes" << endl;
 
             // Save training data to file
             fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome);

@@ -89,17 +89,17 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
   cAvidaContext& ctx = m_world->GetDefaultContext();
   Avida::Context new_ctx(this, &m_world->GetRandom());
 
-  int dangerous_count = 0;
-  int chromosome_length = m_world->m_controller->m_chromosome_length;
+  
   
   // MODIFIED
+  int chromosome_length = m_world->m_controller->m_chromosome_length;
   int updates = m_god->m_updates;
+  int intervention_frequency = m_world->m_controller->m_intervention_frequency;
   m_phi_0_sum = 0;
   if (save) m_fs.InitUpdateData(m_iworld, chromosome_length);
 
   int u = 0;
   while (!m_done) {
-  // for (int u = 0; u<updates; u++) {
 
     m_world->GetEvents(ctx);
     if(m_done == true) break;
@@ -140,10 +140,6 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     if (save)
       m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
     
-    // dangerous_count = m_world->GetStats().GetTaskLastCount(m_god->m_dangerous_op);
-    /*if (dangerous_count > 100){
-        return -pow(10,10);
-    }*/
         
     // No viewer; print out status for this update....
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
@@ -164,12 +160,22 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
         cout << "Spec: " << setw(6) << setprecision(4) << stats.GetAveSpeculative() << "  ";
         cout << "SWst: " << setw(6) << setprecision(4) << (((double)stats.GetSpeculativeWaste() / (double)m_world->CalculateUpdateSize()) * 100.0) << "%  ";
       }
-      cout << "GOD: dangerous op : " << dangerous_count;
       cout << endl;
     }
     
-    // MODIFIED
+    // Get avida state
     m_phi_0_sum += stats.GetPhi0Fitness();
+    std::vector<double> performed_task_fraction = std::vector<double>(chromosome_length, 0);
+    for (size_t k=0; k<chromosome_length; k++)  {
+      performed_task_fraction[k] = (double) m_world->m_controller->m_task_performed_counter[k]/population.GetLiveOrgList().GetSize();
+    }
+
+
+    if (u%intervention_frequency == 0)  {
+      
+
+    }
+
 
     // Do Point Mutations
     if (point_mut_prob > 0 ) {
