@@ -12,7 +12,7 @@ cController::cController()
 
 }
 
-cController::cController(std::string Phi0_function, int chromosome_length, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold)
+cController::cController(std::string Phi0_function, int chromosome_length, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency)
 {
     m_Phi0_function = Phi0_function;
     m_chromosome_length = chromosome_length;
@@ -22,6 +22,7 @@ cController::cController(std::string Phi0_function, int chromosome_length, std::
     m_penalty_factor = penalty_factor;
     m_dangerous_operations = dangerous_operations;
     m_task_perform_threshold = task_perform_penalty_threshold;
+    m_intervention_frequency = intervention_frequency;
 
 }
 
@@ -52,14 +53,17 @@ void cController::ResetTaskCounter()
 
 std::vector<double> cController::EvaluateAvida(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
 {
+    for (size_t i=0; i<m_chromosome_length; i++)    {
+
+        if (performed_task_fraction[i] > 0.5)
+            m_chromosome[i] = -1;
+
+    }
+
+
     return m_chromosome;
 }
 
-void cController::ApplyStrategy(cEnvironment* env, std::vector<double> strategy)
-{
-    // TODO
-
-}
 
 
 

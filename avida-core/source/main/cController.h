@@ -12,7 +12,7 @@ class cController{
 public:
 
     cController();
-    cController(std::string Phi0_function, int chromosome_length, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold);
+    cController(std::string Phi0_function, int chromosome_length, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency);
 
     // chromosome related
     std::vector<double> m_X0;
@@ -27,7 +27,7 @@ public:
     double m_task_perform_threshold;
 
     // controller strategy
-    int m_intervention_frequency = 30;
+    int m_intervention_frequency;
 
 
     // Accessor functions
@@ -39,7 +39,6 @@ public:
     void ResetTaskCounter();
     
     std::vector<double> EvaluateAvida(std::vector<double> performed_task_fraction, int u, double phi);
-    void ApplyStrategy(cEnvironment* env, std::vector<double> strategy);
 
     void PrintChromosome(int which);
 

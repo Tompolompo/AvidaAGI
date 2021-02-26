@@ -52,8 +52,8 @@ int main(int argc, char **argv)  {
     }
 
     // Genetic parameters
-    double gene_min = reader.GetInteger("genetic", "gene_min", 0);
-    double gene_max = reader.GetInteger("genetic", "gene_max", 1);
+    double gene_min = reader.GetInteger("genetic", "gene_min", -5);
+    double gene_max = reader.GetInteger("genetic", "gene_max", 5);
     double tournament_probability = reader.GetReal("genetic", "tournament_probability", 0.8);
     double crossover_probability = reader.GetReal("genetic", "crossover_probability", 0.3);
     double mutation_probability_constant = reader.GetReal("genetic", "mutation_probability_constant", 3);
@@ -70,6 +70,7 @@ int main(int argc, char **argv)  {
     std::string dangerous_operations_string = reader.Get("control", "dangerous_operations", "-1");
     std::vector<int> dangerous_operations = Str2IntVector(reader.Get("control", "dangerous_operations", "-1"));
     double task_perform_penalty_threshold = reader.GetReal("control", "task_perform_penalty_threshold", 0.05);
+    int intervention_frequency = reader.GetInteger("control", "intervention_frequency", 100);
 
     // Iteration limits
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
@@ -153,9 +154,7 @@ int main(int argc, char **argv)  {
             cUserFeedback feedback;
 
             // Set up controller 
-            cController* controller = new cController(Phi0_function, chromosome_length, ref_chromosome, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold);
-            // controller->SetRefChromosome(ref_chromosome);
-            // controller->SetChromosome(controllers[iworld]);
+            cController* controller = new cController(Phi0_function, chromosome_length, ref_chromosome, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency);
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);

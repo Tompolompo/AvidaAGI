@@ -46,6 +46,7 @@
 #include <ctime>
 #include <iostream>
 #include <iomanip>
+#include <math.h>
 
 using namespace Avida;
 using namespace std;
@@ -99,6 +100,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
   int updates = m_god->m_updates;
   int intervention_frequency = m_world->m_controller->m_intervention_frequency;
   std::vector<double> strategy;
+  double phi, old_phi=0;
   m_phi_0_sum = 0;
   if (save) m_fs.InitUpdateData(m_iworld, chromosome_length);
 
@@ -179,14 +181,13 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
       std::vector<double> performed_task_fraction = std::vector<double>(chromosome_length, 0);
       for (size_t k=0; k<chromosome_length; k++)
         performed_task_fraction[k] = (double) m_world->m_controller->m_task_performed_counter[k]/population.GetLiveOrgList().GetSize();
-      double phi = stats.GetAveFitness();
+      phi = log10(stats.GetAveFitness());
+      double delta_phi = phi - old_phi;
+      old_phi = phi;
 
-      // Computation-friendly controller input
-      double delta_u = u/updates;
-      double delta_phi = phi/10000000;
 
       // Apply controller strategy
-      strategy = m_world->m_controller->EvaluateAvida(performed_task_fraction, delta_u, delta_phi);
+      strategy = m_world->m_controller->EvaluateAvida(performed_task_fraction, u/updates, delta_phi);
       for (size_t j=0; j<chromosome_length; j++)
         m_world->GetEnvironment().vec_reactions[j]->SetValue(strategy[j]);
 
