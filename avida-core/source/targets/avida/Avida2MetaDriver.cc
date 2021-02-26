@@ -165,12 +165,14 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     
     // Get avida state
     m_phi_0_sum += stats.GetPhi0Fitness();
+    if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
+
     std::vector<double> performed_task_fraction = std::vector<double>(chromosome_length, 0);
-    for (size_t k=0; k<chromosome_length; k++)  {
+    for (size_t k=0; k<chromosome_length; k++)
       performed_task_fraction[k] = (double) m_world->m_controller->m_task_performed_counter[k]/population.GetLiveOrgList().GetSize();
-    }
 
 
+    // Controller interact with avida
     if (u%intervention_frequency == 0)  {
       
 

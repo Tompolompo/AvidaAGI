@@ -6021,7 +6021,7 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   }
   // MODIFIED
   // Calculate task penalty
-  if ( (m_world->m_controller->m_penalty_factor > 0) && (m_world->m_controller->m_dangerous_operations[0] > -1) )  {
+  if ( (m_world->m_controller->m_dangerous_operations[0] > -1) )  {
     for (int k : m_world->m_controller->m_dangerous_operations) {
       
       double performed_task_fraction = (double) m_world->m_controller->m_task_performed_counter[k]/live_org_list.GetSize();
