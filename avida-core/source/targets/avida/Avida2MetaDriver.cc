@@ -37,6 +37,9 @@
 #include "cPopulationCell.h"
 #include "cStats.h"
 #include "cWorld.h"
+#include "cEnvironment.h"
+#include "cReactionProcess.h"
+#include <vector>
 
 #include <cstdio>
 #include <cstdlib>
@@ -131,6 +134,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     population.ProcessPostUpdate(ctx);
     
 		m_world->ProcessPostUpdate(ctx);
+    
 
     // MODIFIED
     std::vector<int> task_count = std::vector<int>(chromosome_length, 0);
@@ -191,6 +195,17 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     // MODIFIED
     u++;
     if (u == updates) m_done = true;
+
+    for (int r=0; r<5; r++){
+      //std::cout <<" reaction " << r << ", value= " <<  m_world->GetEnvironment().vec_reactions[r]->GetValue() << std::endl;
+    }
+
+    if (u % 1000 == 0){
+      std::cout <<" reaction " << 0 << ", value= " <<  m_world->GetEnvironment().vec_reactions[0]->GetValue() << std::endl;
+      m_world->GetEnvironment().vec_reactions[0]->SetValue(u/1000);
+    }
+
+    
 
   }
 

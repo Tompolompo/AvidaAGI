@@ -35,6 +35,8 @@
 
 #include <set>
 
+#include <vector>
+
 
 namespace Avida {
   class Feedback;
@@ -93,6 +95,7 @@ public:
 
   bool Load(const cString& filename, const cString& working_dir, Feedback& feedback, const Apto::Map<Apto::String, Apto::String>* defs = NULL);
   bool LoadLine(cString line, Feedback& feedback);  // Reads in a single environment configuration line
+  std::vector<cReactionProcess*> vec_reactions;
 
   // Interaction with the organisms
   void SetupInputs(cAvidaContext& ctx, Apto::Array<int>& input_array, bool random = true) const;
