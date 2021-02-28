@@ -154,7 +154,7 @@ int main(int argc, char **argv)  {
             cUserFeedback feedback;
 
             // Set up controller 
-            cController* controller = new cController(Phi0_function, chromosome_length, ref_chromosome, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency);
+            cController* controller = new cController(Phi0_function, ref_chromosome, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency);
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);

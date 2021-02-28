@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <algorithm>
+#include <Eigen/Dense>
 
 
 std::random_device rd;
@@ -69,15 +70,55 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
     return population;
 }
 
-/* Test function for fitness of a controller */
-double EvaluateController(double *chromosome, int length)   {
+/* Translate a chromosome into weight matrices for neural network controller */
+std::vector<Eigen::MatrixXf> DecodeChromosome(std::vector<double> chromosome, int num_output_nodes, double weight_range=1)
+{
+    int num_weights = chromosome.size();
+    int num_input_nodes = num_output_nodes + 2; // Vi använder bonusvektorn + phi + u som input
+    
+    // cout << "num_weights = " << num_weights << endl;
+    // cout << "num_input_nodes = " << num_input_nodes << endl;
+    // cout << "num_output_nodes = " << num_output_nodes << endl;
 
-    double sum = 0;
-    for (size_t i=0; i<length; i++) {
-        sum += chromosome[i];
+    // for (int i=0; i<num_weights; i++)  {
+    //     chromosome[i] = -weight_range + 2*weight_range*chromosome[i];
+    //     // std::cout << chromosome[i] << ", " << std::endl;
+    // }
+
+    int num_hidden_rows = num_input_nodes + 1;
+    int num_hidden_nodes = (num_weights - num_output_nodes)/(num_input_nodes + num_output_nodes + 1);
+    int num_output_rows = num_hidden_nodes + 1;
+
+    // cout << "num_hidden_rows = " << num_hidden_rows << endl;
+    // cout << "num_hidden_nodes = " << num_hidden_nodes << endl;
+    // cout << "num_output_rows = " << num_output_rows << endl;
+
+    std::vector<Eigen::MatrixXf> weights(2);
+    weights[0].resize(num_hidden_rows, num_hidden_nodes);
+    weights[1].resize(num_output_rows, num_output_nodes);
+
+    size_t k = 0;
+    for (size_t i=0; i<num_hidden_rows; i++)  {
+        for (size_t j=0; j<num_hidden_nodes; j++) {
+            weights[0](i,j) = chromosome[k];
+            // std::cout << "k=" << k << ", w(" << i << "," << j << ")=" << weights[0](i,j) << endl;
+            k += 1;
+        }
     }
-    return sum;
+    for (size_t i=0; i<num_output_rows; i++)  {
+        for (size_t j=0; j<num_output_nodes; j++) {
+            weights[1](i,j) = chromosome[k];
+            // std::cout << "k=" << k << ", w(" << i << "," << j << ")=" << weights[1](i,j) << endl;
+            k += 1;
+        }
+    }
+    
+//   std::cout << "hidden_weights:\n" << weights[0] << std::endl;
+//   std::cout << "output_weights:\n" << weights[1] << std::endl;
+  return weights;
 }
+
+
 
 /* Compute tournament selection indices (with replacement) using the population fitness */
 size_t TournamentSelect(std::vector<double> fitness, double tournament_probability)   {

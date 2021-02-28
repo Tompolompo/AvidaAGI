@@ -2,6 +2,7 @@
 #define GeneticFunctions_h
 
 #include <vector>
+#include <Eigen/Dense>
 
 double RandomNumber(double min, double max);
 int RandomNumber(int min, int max);
@@ -10,6 +11,8 @@ int RandomNumber(int min, int max);
 
 std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, double gene_min, double gene_max, bool binary);
 std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, int gene_min, int gene_max, bool binary);
+
+std::vector<Eigen::MatrixXf> DecodeChromosome(std::vector<double> chromosome, int num_output_nodes, double weight_range=1);
 
 double EvaluateController(double *chromosome, int length);
 

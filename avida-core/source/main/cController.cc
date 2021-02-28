@@ -1,4 +1,5 @@
 #include <iostream> 
+#include <Eigen/Dense>
 #include "cController.h" // header in local directory
 
 
@@ -12,10 +13,10 @@ cController::cController()
 
 }
 
-cController::cController(std::string Phi0_function, int chromosome_length, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency)
+cController::cController(std::string Phi0_function, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency)
 {
     m_Phi0_function = Phi0_function;
-    m_chromosome_length = chromosome_length;
+    m_chromosome_length = chromosome.size();
     m_chromosome = chromosome;
     m_X0 = ref_chromosome;
     m_task_performed_counter = std::vector<int>(m_chromosome_length, 0);
@@ -33,15 +34,14 @@ void cController::PrintChromosome(int which) {
         }
         else    {
             std::cout << m_chromosome[i] << " ";
-        }
-        
+        }  
     }
     std::cout << std::endl;
 }
 
 void cController::IncPerformedTask(int task_number)
 {
-    if (task_number == __INT_MAX__) std::cout << "error: task_number is maxed out" << std::endl;
+    // if (task_number == __INT_MAX__) std::cout << "error: task_number is maxed out" << std::endl;
     m_task_performed_counter[task_number]++;
 }
 
@@ -49,6 +49,18 @@ void cController::ResetTaskCounter()
 {
     for (size_t k=0; k<m_task_performed_counter.size(); k++)
         m_task_performed_counter[k] = 0;
+}
+
+Eigen::MatrixXf sigmoid(Eigen::MatrixXf matrix)
+{
+  for (size_t i=0; i<matrix.rows(); i++)   {
+    for (size_t j=0; j<matrix.cols(); j++)   {
+    //   double before = matrix(i,j);
+      matrix(i,j) = 1 / (1 + exp(-matrix(i,j)));
+    //   std::cout << "before: " << before << ", after: " << matrix(i,j) << std::endl;
+    }
+  }
+  return matrix;
 }
 
 std::vector<double> cController::EvaluateAvida(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
@@ -59,9 +71,13 @@ std::vector<double> cController::EvaluateAvida(std::vector<double> performed_tas
             m_chromosome[i] = -1;
 
     }
-
-
     return m_chromosome;
+
+
+
+
+
+
 }
 
 

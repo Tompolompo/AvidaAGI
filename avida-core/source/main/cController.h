@@ -7,12 +7,13 @@ class cEnvironment;
 
 // #include "avida/core/Genome.h"
 #include <vector>
+#include <Eigen/Dense>
 
 class cController{
 public:
 
     cController();
-    cController(std::string Phi0_function, int chromosome_length, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency);
+    cController(std::string Phi0_function, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency);
 
     // chromosome related
     std::vector<double> m_X0;
@@ -30,6 +31,7 @@ public:
     int m_intervention_frequency;
 
 
+
     // Accessor functions
     void SetPhi0Function(std::string func_name){ m_Phi0_function = func_name; }
     void SetChromosome(std::vector<double> chromosome){ m_chromosome = chromosome; }
@@ -38,7 +40,9 @@ public:
     void IncPerformedTask(int task_number);
     void ResetTaskCounter();
     
+    // ANN controller
     std::vector<double> EvaluateAvida(std::vector<double> performed_task_fraction, int u, double phi);
+    Eigen::MatrixXf sigmoid(Eigen::MatrixXf matrix);
 
     void PrintChromosome(int which);
 
