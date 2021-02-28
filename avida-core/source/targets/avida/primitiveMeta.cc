@@ -17,7 +17,6 @@
 
 #include "GeneticFunctions.h"
 #include "FileSystem.h"
-#include "cGod.h"
 #include "INIReader.h"
 #include <Eigen/Dense>
 
@@ -63,7 +62,7 @@ int main(int argc, char **argv)  {
     double creep_decay = reader.GetReal("genetic", "mutation_decay", 0.98);
 
     // Control settings
-    std::vector<double> ref_chromosome = Str2DoubleVector(reader.Get("control", "ref_chromosome", "1 1 2 2 3 3 4 4 5"));
+    std::vector<double> ref_bonus = Str2DoubleVector(reader.Get("control", "ref_bonus", "1 1 2 2 3 3 4 4 5"));
     bool binary = reader.GetBoolean("genetic", "binary", false);
     std::string Phi0_function = reader.Get("control", "controller_fitness", "standard");
     double Phi0_penalty_factor = reader.GetReal("control", "Phi0_penalty_factor", 0);
@@ -71,6 +70,7 @@ int main(int argc, char **argv)  {
     std::vector<int> dangerous_operations = Str2IntVector(reader.Get("control", "dangerous_operations", "-1"));
     double task_perform_penalty_threshold = reader.GetReal("control", "task_perform_penalty_threshold", 0.05);
     int intervention_frequency = reader.GetInteger("control", "intervention_frequency", 100);
+    int num_hidden_nodes = reader.GetInteger("control", "num_hidden_nodes", 10);
 
     // Iteration limits
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
@@ -91,7 +91,9 @@ int main(int argc, char **argv)  {
     universe_settings[2] = num_updates;
 
     // Derived params
-    int chromosome_length = ref_chromosome.size();
+    int num_tasks = ref_bonus.size();
+    int num_input_nodes = num_tasks + 2; // bonusvektorn + u + phi som controller input
+    int chromosome_length = num_hidden_nodes*(1 + num_input_nodes) + num_tasks*(1 + num_hidden_nodes);
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
     double min_creep = (gene_max-gene_min)/25.0;
@@ -102,7 +104,7 @@ int main(int argc, char **argv)  {
     int limit = num_worlds/num_procs;
 
     // Initialise starting conditions
-    cGod* god = new cGod(universe_settings);
+    // cGod* god = new cGod(universe_settings);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary);
     FileSystem fs = FileSystem(0);
 
@@ -110,8 +112,8 @@ int main(int argc, char **argv)  {
         std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
     
         // Save settings
-        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_chromosome.data(), chromosome_length, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
-        fs.InitMetaData(chromosome_length);
+        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_bonus.data(), num_tasks, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
+        fs.InitMetaData(num_tasks);
     }
     
     // Initialise Avida
@@ -154,7 +156,8 @@ int main(int argc, char **argv)  {
             cUserFeedback feedback;
 
             // Set up controller 
-            cController* controller = new cController(Phi0_function, ref_chromosome, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency);
+            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency);
+            controller->SetWeights(DecodeChromosome(controllers[iworld], num_tasks));
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);
@@ -162,10 +165,9 @@ int main(int argc, char **argv)  {
             world->SetVerbosity(0);
 
             // Run simulation and compute fitness
-            Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
+            Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world);
             bool save = (iworld == 0) ? true : false;
-            save=true;
-            current_fitness[iworld] = driver->Run(fs, save, iworld);
+            current_fitness[iworld] = driver->Run(num_updates, fs, save, iworld);
 
             // Clean up
             delete driver;
@@ -240,14 +242,16 @@ int main(int argc, char **argv)  {
             end_time = std::chrono::high_resolution_clock::now(); 
             duration = std::chrono::duration_cast<std::chrono::minutes>(end_time - start_time);
 
-            cout << "Meta Generation: " << imeta << ", Fitness: " << max_fitness << ", Best chromosome: [";
-            for (size_t task = 0; task < chromosome_length; task++){
-                cout << best_chromosome[task] << ", ";
-            }
-            cout << "] elapsed: " << duration.count() << " minutes" << endl;
+            cout << "Meta Generation: " << imeta
+                 << ", Fitness: " << max_fitness 
+                //  << ", Best chromosome: [";
+                // for (size_t task = 0; task < chromosome_length; task++)
+                //     cout << best_chromosome[task] << ", ";
+                << ", Elapsed: " << duration.count() << " minutes" << endl;
 
             // Save training data to file
-            fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome);
+            std::vector<double> placeholder_bonus(num_tasks, 1);
+            fs.SaveMetaData(num_tasks, imeta, max_fitness, placeholder_bonus);
 
             // Save chromosomes to file (to be able to continue at last imeta)
             fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
@@ -262,7 +266,7 @@ int main(int argc, char **argv)  {
     
     // Clean up
     delete[] argv_avida;
-    delete god, cfg;
+    delete cfg;
 
     MPI_Finalize();
 

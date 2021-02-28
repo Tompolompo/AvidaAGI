@@ -30,7 +30,6 @@
 #include "avida/core/WorldDriver.h"
 
 // MODIFIED
-#include "cGod.h" // added this
 #include "FileSystem.h" // added this
 
 class cWorld;
@@ -39,7 +38,6 @@ class Avida2MetaDriver : public Avida::WorldDriver
 {
 protected:
   cWorld* m_world;
-  cGod* m_god; // MODIFIED: added this
   Avida::World* m_new_world;
   bool m_done;
   
@@ -51,7 +49,7 @@ protected:
   } m_feedback;
   
 public:
-  Avida2MetaDriver(cWorld* world, Avida::World* new_world, cGod* God);
+  Avida2MetaDriver(cWorld* world, Avida::World* new_world);
   ~Avida2MetaDriver();  
 
   // MODIFIED
@@ -59,7 +57,7 @@ public:
 
   
   // Actions
-  double Run(FileSystem fs, bool save, int iworld);
+  double Run(int num_updates, FileSystem fs, bool save, int iworld);
 
   void Finish() { m_done = true; }
   void Pause() { return; }

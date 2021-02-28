@@ -12,14 +12,15 @@ class cEnvironment;
 class cController{
 public:
 
-    cController();
-    cController(std::string Phi0_function, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency);
+    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency);
 
     // chromosome related
     std::vector<double> m_X0;
     std::vector<double> m_chromosome;
     int m_chromosome_length;
+    int m_num_tasks;
     std::string m_Phi0_function;
+    std::vector<Eigen::MatrixXf> m_weight_matrices;
 
     // dangerous operations
     std::vector<int> m_task_performed_counter;
@@ -32,19 +33,22 @@ public:
 
 
 
+
     // Accessor functions
     void SetPhi0Function(std::string func_name){ m_Phi0_function = func_name; }
     void SetChromosome(std::vector<double> chromosome){ m_chromosome = chromosome; }
-    void SetRefChromosome(std::vector<double> chromosome){ m_X0 = chromosome; };
+    void SetRefChromosome(std::vector<double> chromosome){ m_X0 = chromosome; }
+    void SetWeights(std::vector<Eigen::MatrixXf> weights){ m_weight_matrices = weights; }
 
     void IncPerformedTask(int task_number);
     void ResetTaskCounter();
     
-    // ANN controller
-    std::vector<double> EvaluateAvida(std::vector<double> performed_task_fraction, int u, double phi);
+    // controller functions
+    std::vector<double> EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int u, double phi);
+    std::vector<double> EvaluateAvidaANN(std::vector<double> performed_task_fraction, int delta_u, double delta_phi);
     Eigen::MatrixXf sigmoid(Eigen::MatrixXf matrix);
 
-    void PrintChromosome(int which);
+    void PrintArray(std::vector<double> array);
 
     // Avida::Genome controll_genome(Avida::Genome* genome);
 

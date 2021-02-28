@@ -3,23 +3,14 @@
 #include "cController.h" // header in local directory
 
 
-cController::cController() 
-{
-    // Phi_0[0]=1;Phi_0[1]=1;Phi_0[2]=2;Phi_0[3]=2;Phi_0[4]=3;
-    // Phi_0[5]=3;Phi_0[6]=4;Phi_0[7]=4;Phi_0[8]=5;
-    // m_chromosome[0]=1;m_chromosome[1]=1;m_chromosome[2]=2;m_chromosome[3]=2;m_chromosome[4]=3;
-    // m_chromosome[5]=3;m_chromosome[6]=4;m_chromosome[7]=4;m_chromosome[8]=5;
-    // m_chromosome_length = 9;
-
-}
-
-cController::cController(std::string Phi0_function, std::vector<double> ref_chromosome, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency)
 {
     m_Phi0_function = Phi0_function;
     m_chromosome_length = chromosome.size();
     m_chromosome = chromosome;
-    m_X0 = ref_chromosome;
-    m_task_performed_counter = std::vector<int>(m_chromosome_length, 0);
+    m_X0 = ref_bonus;
+    m_num_tasks = ref_bonus.size();
+    m_task_performed_counter = std::vector<int>(m_num_tasks, 0);
     m_penalty_factor = penalty_factor;
     m_dangerous_operations = dangerous_operations;
     m_task_perform_threshold = task_perform_penalty_threshold;
@@ -27,15 +18,9 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_chro
 
 }
 
-void cController::PrintChromosome(int which) {
-    for (int i=0; i<m_chromosome_length; i++){
-        if (which == 1) {
-            std::cout << m_X0[i] << " ";
-        }
-        else    {
-            std::cout << m_chromosome[i] << " ";
-        }  
-    }
+void cController::PrintArray(std::vector<double> array) {
+    for (int i=0; i<array.size(); i++)
+        std::cout << array[i] << " ";
     std::cout << std::endl;
 }
 
@@ -63,20 +48,23 @@ Eigen::MatrixXf sigmoid(Eigen::MatrixXf matrix)
   return matrix;
 }
 
-std::vector<double> cController::EvaluateAvida(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
+
+std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
 {
-    for (size_t i=0; i<m_chromosome_length; i++)    {
+
+
+}
+
+std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
+{
+    std::vector<double> bonus(m_num_tasks);
+    for (size_t i=0; i<m_num_tasks; i++)    {
 
         if (performed_task_fraction[i] > 0.5)
-            m_chromosome[i] = -1;
+            bonus[i] = -1;
 
     }
-    return m_chromosome;
-
-
-
-
-
+    return bonus;
 
 }
 

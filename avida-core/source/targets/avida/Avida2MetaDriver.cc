@@ -52,7 +52,7 @@ using namespace Avida;
 using namespace std;
 
 
-Avida2MetaDriver::Avida2MetaDriver(cWorld* world, World* new_world, cGod* God) : m_world(world), m_new_world(new_world), m_god(God), m_done(false)
+Avida2MetaDriver::Avida2MetaDriver(cWorld* world, World* new_world) : m_world(world), m_new_world(new_world), m_done(false)
 {
   GlobalObjectManager::Register(this);
   world->SetDriver(this);
@@ -65,7 +65,7 @@ Avida2MetaDriver::~Avida2MetaDriver()
 }
 
 // MODIFIED: was void function
-double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
+double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_iworld)
 { 
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
     cout << "In analyze mode!!" << endl;
@@ -96,13 +96,12 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
   
   
   // MODIFIED
-  int chromosome_length = m_world->m_controller->m_chromosome_length;
-  int updates = m_god->m_updates;
+  int num_tasks = m_world->m_controller->m_num_tasks;
   int intervention_frequency = m_world->m_controller->m_intervention_frequency;
   std::vector<double> strategy;
   double phi, old_phi=0;
   m_phi_0_sum = 0;
-  if (save) m_fs.InitUpdateData(m_iworld, chromosome_length);
+  if (save) m_fs.InitUpdateData(m_iworld, num_tasks);
 
   int u = 0;
   while (!m_done) {
@@ -140,12 +139,12 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     
 
     // MODIFIED
-    std::vector<int> task_count = std::vector<int>(chromosome_length, 0);
-    for (int j=0;j<chromosome_length;j++){
+    std::vector<int> task_count = std::vector<int>(num_tasks, 0);
+    for (int j=0;j<num_tasks;j++){
       task_count[j] = stats.GetTaskLastCount(j);
     }
     if (save)
-      m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, chromosome_length);
+      m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, num_tasks);
     
         
     // No viewer; print out status for this update....
@@ -178,17 +177,17 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
     if (u%intervention_frequency == 0)  {
       
       // Get avida state
-      std::vector<double> performed_task_fraction = std::vector<double>(chromosome_length, 0);
-      for (size_t k=0; k<chromosome_length; k++)
+      std::vector<double> performed_task_fraction = std::vector<double>(num_tasks, 0);
+      for (size_t k=0; k<num_tasks; k++)
         performed_task_fraction[k] = (double) m_world->m_controller->m_task_performed_counter[k]/population.GetLiveOrgList().GetSize();
       phi = log10(stats.GetAveFitness());
-      double delta_phi = phi - old_phi;
+      double delta_phi = phi / (old_phi+0.01);
       old_phi = phi;
 
 
       // Apply controller strategy
-      strategy = m_world->m_controller->EvaluateAvida(performed_task_fraction, u/updates, delta_phi);
-      for (size_t j=0; j<chromosome_length; j++)
+      strategy = m_world->m_controller->EvaluateAvidaFas1(performed_task_fraction, (double)u/num_updates, delta_phi);
+      for (size_t j=0; j<num_tasks; j++)
         m_world->GetEnvironment().vec_reactions[j]->SetValue(strategy[j]);
 
     }
@@ -212,7 +211,7 @@ double Avida2MetaDriver::Run(FileSystem m_fs, bool save, int m_iworld)
 		}
     // MODIFIED
     u++;
-    if (u == updates) m_done = true;
+    if (u == num_updates) m_done = true;
 
     
   }
