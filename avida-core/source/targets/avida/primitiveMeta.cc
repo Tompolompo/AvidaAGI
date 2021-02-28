@@ -104,7 +104,6 @@ int main(int argc, char **argv)  {
     int limit = num_worlds/num_procs;
 
     // Initialise starting conditions
-    // cGod* god = new cGod(universe_settings);
     std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary);
     FileSystem fs = FileSystem(0);
 

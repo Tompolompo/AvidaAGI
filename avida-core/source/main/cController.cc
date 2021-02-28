@@ -36,7 +36,7 @@ void cController::ResetTaskCounter()
         m_task_performed_counter[k] = 0;
 }
 
-Eigen::MatrixXf sigmoid(Eigen::MatrixXf matrix)
+Eigen::MatrixXf cController::sigmoid(Eigen::MatrixXf matrix)
 {
   for (size_t i=0; i<matrix.rows(); i++)   {
     for (size_t j=0; j<matrix.cols(); j++)   {
@@ -51,17 +51,53 @@ Eigen::MatrixXf sigmoid(Eigen::MatrixXf matrix)
 
 std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
 {
+    int num_outputs = performed_task_fraction.size();
+    int num_inputs = num_outputs + 2; 
+    Eigen::MatrixXf input_layer(1, num_inputs + 1);
+
+    for (int i=0; i<num_outputs; i++)
+        input_layer(0,i) = performed_task_fraction[i];
+    input_layer(0, num_inputs-3) = delta_u;
+    input_layer(0, num_inputs-2) = delta_phi;
+    input_layer(0, num_inputs-1) = 1;
+    // std::cout << "input_layer: " << input_layer << std::endl;
+
+    Eigen::MatrixXf middle_layer = input_layer*m_weight_matrices[0];
+    // std::cout << "middle_layer = " << middle_layer << std::endl;
+    middle_layer = sigmoid(middle_layer);
+    // std::cout << "middle_layer activated = " << middle_layer << std::endl;
+    middle_layer.conservativeResize(Eigen::NoChange, middle_layer.cols()+1);
+    // std::cout << "middle_layer new1 = " << middle_layer << std::endl;
+    Eigen::VectorXf ones = Eigen::VectorXf::LinSpaced(middle_layer.cols(), 1, 1);
+    // std::cout << "ones = " << ones << std::endl;
+    // std::cout << "cols = " << middle_layer.cols()-1 << std::endl;
+    // std::cout << "middle_layer(cols) = " << middle_layer(0, middle_layer.cols()-1) << std::endl;
+    middle_layer(0, middle_layer.cols()-1) = 1;
+    // std::cout << "middle_layer new2 = " << middle_layer << std::endl;
+
+    Eigen::MatrixXf output_layer = middle_layer*m_weight_matrices[1];
+    // std::cout << "output_layer = " << output_layer << std::endl;
+    output_layer = sigmoid(output_layer);
+    // std::cout << "output_layer activated = " << output_layer << std::endl;
+
+    std::vector<double> bonus(m_num_tasks, 1);
+    float* eigMatptr = output_layer.data();
+    for (size_t i=0; i<m_num_tasks; i++)    {
+        bonus[i] = eigMatptr[i];
+
+    }
+    return bonus;
 
 
 }
 
 std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
 {
-    std::vector<double> bonus(m_num_tasks);
+    std::vector<double> bonus(m_num_tasks, 1);
     for (size_t i=0; i<m_num_tasks; i++)    {
 
         if (performed_task_fraction[i] > 0.5)
-            bonus[i] = -1;
+            bonus[i] +=1;
 
     }
     return bonus;
