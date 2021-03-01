@@ -112,7 +112,7 @@ int main(int argc, char **argv)  {
     
         // Save settings
         fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_bonus.data(), num_tasks, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
-        fs.InitMetaData(num_tasks);
+        fs.InitMetaData(chromosome_length);
     }
     
     // Initialise Avida

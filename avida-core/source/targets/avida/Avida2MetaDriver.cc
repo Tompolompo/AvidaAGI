@@ -135,16 +135,6 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     population.ProcessPostUpdate(ctx);
     
 		m_world->ProcessPostUpdate(ctx);
-    
-
-    // MODIFIED
-    std::vector<int> task_count = std::vector<int>(num_tasks, 0);
-    for (int j=0;j<num_tasks;j++){
-      task_count[j] = stats.GetTaskLastCount(j);
-    }
-    if (save)
-      m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, num_tasks);
-    
         
     // No viewer; print out status for this update....
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
@@ -188,8 +178,16 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
       m_strategy = m_world->m_controller->EvaluateAvidaANN(performed_task_fraction, (double)u/num_updates, delta_phi);
       for (size_t j=0; j<num_tasks; j++)
         m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
-
     }
+
+    // MODIFIED
+    std::vector<int> task_count = std::vector<int>(num_tasks, 0);
+    for (int j=0;j<num_tasks;j++){
+      task_count[j] = stats.GetTaskLastCount(j);
+    }
+
+    if (save)
+      m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, num_tasks);
 
 
     // Do Point Mutations
