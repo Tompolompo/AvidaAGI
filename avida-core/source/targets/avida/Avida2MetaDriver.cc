@@ -186,7 +186,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
 
 
       // Apply controller strategy
-      strategy = m_world->m_controller->EvaluateAvidaFas1(performed_task_fraction, (double)u/num_updates, delta_phi);
+      strategy = m_world->m_controller->EvaluateAvidaANN(performed_task_fraction, (double)u/num_updates, delta_phi);
       for (size_t j=0; j<num_tasks; j++)
         m_world->GetEnvironment().vec_reactions[j]->SetValue(strategy[j]);
 

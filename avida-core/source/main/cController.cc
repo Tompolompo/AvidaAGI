@@ -81,25 +81,30 @@ std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_
     // std::cout << "output_layer activated = " << output_layer << std::endl;
 
     std::vector<double> bonus(m_num_tasks, 1);
-    float* eigMatptr = output_layer.data();
+    float* flat_matrix = output_layer.data();
+    // std::cout << "bonus: " << std::endl;
     for (size_t i=0; i<m_num_tasks; i++)    {
-        bonus[i] = eigMatptr[i];
-
+        bonus[i] = flat_matrix[i];
+        // std::cout << bonus[i] << ", ";
     }
-    return bonus;
+    // std::cout << std::endl;
 
+    return bonus;
 
 }
 
 std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
 {
     std::vector<double> bonus(m_num_tasks, 1);
+
     for (size_t i=0; i<m_num_tasks; i++)    {
 
         if (performed_task_fraction[i] > 0.5)
-            bonus[i] +=1;
-
+            bonus[i] -= 1;
+        else
+            bonus[i] += 1;
     }
+
     return bonus;
 
 }
