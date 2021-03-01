@@ -28,6 +28,7 @@
 #include "avida/core/Feedback.h"
 #include "avida/core/Types.h"
 #include "avida/core/WorldDriver.h"
+#include <vector>
 
 // MODIFIED
 #include "FileSystem.h" // added this
@@ -40,6 +41,7 @@ protected:
   cWorld* m_world;
   Avida::World* m_new_world;
   bool m_done;
+  std::vector<double> m_strategy;
   
   class StdIOFeedback : public Avida::Feedback
   {
@@ -58,6 +60,8 @@ public:
   
   // Actions
   double Run(int num_updates, FileSystem fs, bool save, int iworld);
+
+  std::vector<double> GetCurrentStrategy() { return m_strategy; }
 
   void Finish() { m_done = true; }
   void Pause() { return; }

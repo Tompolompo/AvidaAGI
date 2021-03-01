@@ -51,8 +51,8 @@ int main(int argc, char **argv)  {
     }
 
     // Genetic parameters
-    double gene_min = reader.GetInteger("genetic", "gene_min", -5);
-    double gene_max = reader.GetInteger("genetic", "gene_max", 5);
+    double gene_min = reader.GetInteger("genetic", "gene_min", -1);
+    double gene_max = reader.GetInteger("genetic", "gene_max", 1);
     double tournament_probability = reader.GetReal("genetic", "tournament_probability", 0.8);
     double crossover_probability = reader.GetReal("genetic", "crossover_probability", 0.3);
     double mutation_probability_constant = reader.GetReal("genetic", "mutation_probability_constant", 3);
@@ -129,7 +129,8 @@ int main(int argc, char **argv)  {
     // Main loop over meta generations
     for (size_t imeta = 0; imeta < num_meta_generations; imeta++)   {
 
-        std::vector<double> current_fitness(num_worlds);
+        std::vector<double> current_fitness(num_worlds, 0);
+        std::vector< std::vector<double> > current_bonus(num_worlds, std::vector<double>(num_tasks, 0));
         if (random_meta_seed == "0") cfg->RANDOM_SEED.Set(0);
         else cfg->RANDOM_SEED.Set(imeta);
 
@@ -167,6 +168,7 @@ int main(int argc, char **argv)  {
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world);
             bool save = (iworld == 0) ? true : false;
             current_fitness[iworld] = driver->Run(num_updates, fs, save, iworld);
+            current_bonus[iworld] = driver->GetCurrentStrategy();
 
             // Clean up
             delete driver;
@@ -177,18 +179,31 @@ int main(int argc, char **argv)  {
 
         // Send fitness to root process
         MPI_Send(&current_fitness[0], num_worlds, MPI_DOUBLE, root, 0, MPI_COMM_WORLD);
+        for (size_t i=0; i<num_worlds; i++) {
+            std::vector<double> bonus_buffer = current_bonus[i];
+            MPI_Send(&bonus_buffer[0], num_tasks, MPI_DOUBLE, root, 1, MPI_COMM_WORLD);
+        }
 
         if (rank == root)    {
 
-            std::vector<std::vector<double> > fitnesses = std::vector<std::vector<double> >(num_procs, std::vector<double>(num_worlds));
-            std::vector<double> buffer(num_worlds);
+            std::vector<std::vector<std::vector<double>>> bonuses = std::vector<std::vector<std::vector<double>>>(num_procs, std::vector<std::vector<double>>(num_worlds, std::vector<double>(num_tasks)));
 
-            // Receive all fitness scores
+            std::vector<std::vector<double> > fitnesses = std::vector<std::vector<double> >(num_procs, std::vector<double>(num_worlds));
+            std::vector<double> fitness_buffer(num_worlds);
+
+            // Receive all fitness scores and bonuses
             for (int i=0; i<num_procs; i++) {
-                MPI_Recv(&buffer[0], num_worlds, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                
-                for (int j = 0; j < num_worlds; j++)
-                    fitnesses[i][j] = buffer[j];
+                MPI_Recv(&fitness_buffer[0], num_worlds, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+                std::vector<double> bonus_buffer(num_tasks);                
+                for (int j = 0; j < num_worlds; j++)    {
+                    fitnesses[i][j] = fitness_buffer[j];
+
+                    MPI_Recv(&bonus_buffer[0], num_tasks, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    for (int k=0; k<num_tasks; k++) {
+                        bonuses[i][j][k] = bonus_buffer[k];
+                    }
+                }
             }
             // Sum up fitness
             for (size_t i=0; i<num_worlds; i++) {
@@ -198,11 +213,26 @@ int main(int argc, char **argv)  {
                 }
                 current_fitness[i] = colsum;
             }
+
+            // Sum up bonuses
+            for (size_t i=0; i<num_worlds; i++) {
+                std::vector< std::vector<double> > bonus_matrix = std::vector< std::vector<double> >(num_worlds, std::vector<double>(num_tasks, 0));
+
+                for (size_t k=0; k<num_tasks; k++) {
+                    double bonus_sum = 0;
+                    for (size_t j=0; j<num_procs; j++) {
+                        bonus_sum += bonuses[j][i][k];
+                    }
+                    bonus_matrix[i][k] = bonus_sum;
+                }
+            }
+      
         
             // Update best results so far
             int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();
             std::vector<double> best_chromosome = controllers[imax];
             double max_fitness = current_fitness[imax];
+            std::vector<double> best_bonus = current_bonus[imax];
 
             // Selection
             std::vector<std::vector<double> > new_controllers = controllers;
@@ -249,8 +279,7 @@ int main(int argc, char **argv)  {
                 << ", Elapsed: " << duration.count() << " minutes" << endl;
 
             // Save training data to file
-            std::vector<double> placeholder_bonus(num_tasks, 1);
-            fs.SaveMetaData(num_tasks, imeta, max_fitness, placeholder_bonus);
+            fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome);
 
             // Save chromosomes to file (to be able to continue at last imeta)
             fs.SaveChromosomes(controllers, num_worlds, chromosome_length);

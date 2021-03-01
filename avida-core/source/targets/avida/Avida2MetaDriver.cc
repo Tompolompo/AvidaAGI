@@ -98,7 +98,6 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   // MODIFIED
   int num_tasks = m_world->m_controller->m_num_tasks;
   int intervention_frequency = m_world->m_controller->m_intervention_frequency;
-  std::vector<double> strategy;
   double phi, old_phi=0;
   m_phi_0_sum = 0;
   if (save) m_fs.InitUpdateData(m_iworld, num_tasks);
@@ -186,9 +185,9 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
 
 
       // Apply controller strategy
-      strategy = m_world->m_controller->EvaluateAvidaANN(performed_task_fraction, (double)u/num_updates, delta_phi);
+      m_strategy = m_world->m_controller->EvaluateAvidaANN(performed_task_fraction, (double)u/num_updates, delta_phi);
       for (size_t j=0; j<num_tasks; j++)
-        m_world->GetEnvironment().vec_reactions[j]->SetValue(strategy[j]);
+        m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
 
     }
 
@@ -219,6 +218,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   // MODIFIED
   return m_phi_0_sum;
 }
+
 
 void Avida2MetaDriver::Abort(Avida::AbortCondition condition)
 {
@@ -253,3 +253,4 @@ void Avida2MetaDriver::StdIOFeedback::Notify(const char* fmt, ...)
   va_end(args);
   printf("\n");
 }
+
