@@ -43,7 +43,7 @@ class FileSystem{
         void InitUpdateData(int n_world, int num_tasks); 
 
         // Save data for updates
-        void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks);
+        void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy);
             
 };
 

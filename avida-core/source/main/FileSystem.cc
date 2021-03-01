@@ -108,12 +108,12 @@ void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_
     fprintf(file_settings, "N,M,U, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max, creep_rate, creep_probability, creep_decay, min_creep");
     for (int task = 0; task < num_tasks; task++)
       fprintf(file_settings, ",hatPhi_0[%d]", task);
-    fprintf(file_settings, ",Phi0_function,Phi0_penalty_factor,dangerous_operations,task_perform_penalty_threshold,random_meta_seed");
+    fprintf(file_settings, ",num_tasks,Phi0_function,Phi0_penalty_factor,dangerous_operations,task_perform_penalty_threshold,random_meta_seed");
     fprintf(file_settings, "\n");
     fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep);
     for (int task = 0; task < num_tasks; task++)
       fprintf(file_settings, ",%f", Phi_0[task]);
-    fprintf(file_settings, ",%s,%.12f,%s,%9f,%s", Phi0_function, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, random_meta_seed);
+    fprintf(file_settings, ",%d,%s,%.12f,%s,%9f,%s", num_tasks, Phi0_function, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, random_meta_seed);
     fprintf(file_settings, "\n");
     fclose(file_settings);
 }
@@ -128,12 +128,12 @@ void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_
     fprintf(file_settings, "N,M,U, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max, creep_rate, creep_probability, creep_decay, min_creep");
     for (int task = 0; task < num_tasks; task++)
       fprintf(file_settings, ",hatPhi_0[%d]", task);
-    fprintf(file_settings, ",Phi0_function,Phi0_penalty_factor,dangerous_operations,task_perform_penalty_threshold,random_meta_seed");
+    fprintf(file_settings, ",num_tasks,Phi0_function,Phi0_penalty_factor,dangerous_operations,task_perform_penalty_threshold,random_meta_seed");
     fprintf(file_settings, "\n");
     fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f,%f,%d,%d,%f,%f,%f,%f", num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep);
     for (int task = 0; task < num_tasks; task++)
       fprintf(file_settings, ",%f", Phi_0[task]);
-    fprintf(file_settings, ",%s,%.12f,%s,%9f,%s", Phi0_function, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, random_meta_seed);
+    fprintf(file_settings, ",%d,%s,%.12f,%s,%9f,%s", num_tasks, Phi0_function, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, random_meta_seed);
     fprintf(file_settings, "\n");
     fclose(file_settings);
 }
@@ -238,15 +238,18 @@ void FileSystem::InitUpdateData(int n_world, int num_tasks){
     strcpy(char_array, str.c_str());
     FILE *file_N = fopen(char_array, "w");
     fprintf(file_N, "UD,Gen,phi_i,phi_0,orgs");
-    for (int task = 0; task < num_tasks; task++){
+    for (int task = 0; task < num_tasks; task++)
         fprintf(file_N, ",task%d", task);
-    }
+    for (int i = 0; i < num_tasks; i++)
+        fprintf(file_N, ",strategy%d", i);
+
+
     fprintf(file_N, "\n");
     fclose(file_N);
 
 }
 
-void FileSystem::SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks){
+void FileSystem::SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy){
     std::string str = current_meta_dir;
     str +="/N";
     str += to_string(n_world);
@@ -256,9 +259,11 @@ void FileSystem::SaveUpdateData(int n_world, int update, double generation, doub
     strcpy(char_array, str.c_str());
     FILE *file_N = fopen(char_array, "a");
     fprintf(file_N, "%d,%f,%f,%f,%d", update, generation, phi_i, phi_0, n_orgs);
-    for (int task = 0; task < num_tasks; task++){ 
+    for (int task = 0; task < num_tasks; task++)
       fprintf(file_N, ",%d", tasks[task]);
-    }
+    for (double value : strategy)
+      fprintf(file_N, ",%f", value);
+
     fprintf(file_N, "\n");
     fclose(file_N);
 }

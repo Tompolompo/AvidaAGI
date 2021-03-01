@@ -187,7 +187,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     }
 
     if (save)
-      m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, num_tasks);
+      m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, num_tasks, m_strategy);
 
 
     // Do Point Mutations
