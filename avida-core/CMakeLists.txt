@@ -37,7 +37,7 @@ SET(LIBRARY_OUTPUT_PATH
 )
 
 # Support for OpenMP parallellisation of meta evolution
-find_package(OpenMP)
+#find_package(OpenMP)
 
 # This section defines default builtin compiler options
 # ------------------------------------------------------------------------------
