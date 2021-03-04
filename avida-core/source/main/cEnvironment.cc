@@ -141,7 +141,8 @@ bool cEnvironment::AssertInputValid(void* input, const cString& name, const cStr
 
 bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc, Feedback& feedback)
 {
-  cReactionProcess* new_process = reaction->AddProcess();
+  cReactionProcess* new_process = reaction->AddProcess(); // gör om till global variabel och ändra SetValue
+  vec_reactions.push_back(new_process);
 
   // Loop through all entries in description.
   while (desc.GetSize() > 0) {
@@ -164,7 +165,10 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc, Feedba
     }
     else if (var_name == "value") {
       if (!AssertInputDouble(var_value, "value", var_type, feedback)) return false;
-      new_process->SetValue(var_value.AsDouble());
+      // MODIFIED
+      // new_process->SetValue(var_value.AsDouble()); // original
+      
+      new_process->SetValue(m_world->m_controller->m_chromosome[reaction->GetID()]); // new
     }
     else if (var_name == "type") {
       if (var_value=="add") new_process->SetType(nReaction::PROCTYPE_ADD);
@@ -753,6 +757,7 @@ bool cEnvironment::LoadCell(cString desc, Feedback& feedback)
 
   return true;
 }
+
 
 bool cEnvironment::LoadReaction(cString desc, Feedback& feedback)
 {

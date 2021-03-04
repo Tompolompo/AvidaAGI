@@ -5881,6 +5881,11 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   double min_fitness = FLT_MAX;
   int min_gestation_time = INT_MAX;
   int min_genome_length = INT_MAX;
+
+  // MODIFIED
+  double Phi0_fitness_sum = 0; //(AGI - TL)
+  std::string function_name = m_world->m_controller->m_Phi0_function;
+  m_world->m_controller->ResetTaskCounter();
   
   for (int i = 0; i < live_org_list.GetSize(); i++) {  
     cOrganism* organism = live_org_list[i];
@@ -6008,9 +6013,31 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     stats.SumMemSize().Add(hardware.GetMemory().GetSize());
     num_threads += hardware.GetNumThreads();
     
+    // MODIFIED
+    Phi0_fitness_sum += organism->CalcPhi0Fitness(function_name); // (AGI - TL) calculate Phi_0
+
     // Increment the age of this organism.
     organism->GetPhenotype().IncAge();
   }
+  // MODIFIED
+
+  // std::cout << "m_penalty_factor = " << m_world->m_controller->m_penalty_factor << std::endl;
+  // std::cout << "m_dangerous_operations[0] = " << m_world->m_controller->m_dangerous_operations[0] << std::endl;
+  // std::cout << "m_task_perform_threshold = " << m_world->m_controller->m_task_perform_threshold << std::endl;
+  
+  // Calculate task penalty
+  if ( (m_world->m_controller->m_dangerous_operations[0] > -1) )  {
+    for (int k : m_world->m_controller->m_dangerous_operations) {
+      
+      double performed_task_fraction = (double) m_world->m_controller->m_task_performed_counter[k]/live_org_list.GetSize();
+      if (performed_task_fraction > m_world->m_controller->m_task_perform_threshold)  {
+          Phi0_fitness_sum *= m_world->m_controller->m_penalty_factor;
+          // std::cout << "Phi0 = " << Phi0_fitness_sum << std::endl;
+      }
+    }
+  }
+
+  stats.SetPhi0Fitness(Phi0_fitness_sum/live_org_list.GetSize());// (AGI - TL)
   
   stats.SetBreedTrueCreatures(num_breed_true);
   stats.SetNumNoBirthCreatures(num_no_birth);

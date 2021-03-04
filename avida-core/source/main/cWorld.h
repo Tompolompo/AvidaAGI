@@ -58,8 +58,6 @@ protected:
   
   cAnalyze* m_analyze;
   cAvidaConfig* m_conf;
-  cAvidaContext* m_ctx;
-  cEnvironment* m_env;
   cEventList* m_event_list;
   cHardwareManager* m_hw_mgr;
   Apto::SmartPtr<cPopulation, Apto::InternalRCObject> m_pop;
@@ -76,16 +74,22 @@ protected:
   
   bool m_own_driver;      // specifies whether this world object should manage its driver object
 
-  cWorld(cAvidaConfig* cfg, const cString& wd);
-  
   
 public:
-  static cWorld* Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback = NULL, const Apto::Map<Apto::String, Apto::String>* mappings = NULL);
+
+  cWorld(cAvidaConfig* cfg, const cString& wd, cController* controller); // MODIFIED: Moved here from protected to be able to call new
   virtual ~cWorld();
+
+  static cWorld* Initialize(cAvidaConfig* cfg, const cString& working_dir, World* new_world, cUserFeedback* feedback = NULL, const Apto::Map<Apto::String, Apto::String>* mappings = NULL);
   
   void SetDriver(WorldDriver* driver, bool take_ownership = false);
   
   const cString& GetWorkingDir() const { return m_working_dir; }
+
+  // MODIFIED
+  cAvidaContext* m_ctx; // not original placement (protected is original)
+  cEnvironment* m_env; //not original placement (protected is original)
+  cController* m_controller;
   
   // General Object Accessors
   cAnalyze& GetAnalyze();
@@ -135,10 +139,12 @@ public:
 	
 	//! Calculate the size (in virtual CPU cycles) of the current update.
 	virtual int CalculateUpdateSize();
+
+  // MODIFIED
+  bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings); // (AGI - TL) changed from protected and added arguments
   
 protected:
   // Internal Methods
-  bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings);
 
 };
 

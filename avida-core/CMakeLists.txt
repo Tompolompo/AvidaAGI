@@ -1,7 +1,11 @@
 PROJECT(AVIDA)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+# Modern Cmake required for OpenMP support
+CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
 
+# Modern c++ syntax used in meta evolution
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 IF(COMMAND cmake_policy)
   CMAKE_POLICY(SET CMP0003 NEW)
@@ -32,7 +36,8 @@ SET(LIBRARY_OUTPUT_PATH
   "Built libraries are placed here before installation."
 )
 
-
+# Support for OpenMP parallellisation of meta evolution
+find_package(OpenMP)
 
 # This section defines default builtin compiler options
 # ------------------------------------------------------------------------------
@@ -62,14 +67,14 @@ IF(UNIX)
     IF (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang.*")
       SET(HAVE_FUSED_MADD FALSE)
     ELSE (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang.*")
-      SET(CMAKE_REQUIRED_FLAGS "-mno-fused-madd")
+      SET(CMAKE_REQUIRED_FLAGS "-ffp-contract=on")
       CHECK_C_SOURCE_COMPILES("int main() { return 0; }" HAVE_FUSED_MADD)
     ENDIF (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang.*")
   ENDIF (CMAKE_CXX_COMPILER MATCHES ".*icpc.*")
   SET(CMAKE_REQUIRED_FLAGS "")
 
   IF(HAVE_FUSED_MADD)
-    SET(COMPILER_OPTIMIZATION_FLAGS "-mno-fused-madd ${COMPILER_OPTIMIZATION_FLAGS}")
+    SET(COMPILER_OPTIMIZATION_FLAGS "-ffp-contract=on ${COMPILER_OPTIMIZATION_FLAGS}")
   ENDIF(HAVE_FUSED_MADD)
 
   # Four types of c++ compilations:
@@ -78,7 +83,7 @@ IF(UNIX)
   # - release (Release)
   # - release with debug info (RelWithDebInfo)
   SET(CMAKE_CXX_FLAGS_DEBUG
-    "-g ${COMPILER_WARNING_FLAGS} -DDEBUG"
+    "-O1 -g ${COMPILER_WARNING_FLAGS} -DDEBUG -w"
     CACHE STRING "Flags used by the compiler during debug builds." FORCE)
   SET(CMAKE_CXX_FLAGS_MINSIZEREL
     "-Os ${COMPILER_WARNING_FLAGS} -DNDEBUG"
@@ -87,7 +92,7 @@ IF(UNIX)
     "-O2 -g ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DDEBUG"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
   SET(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG"
+    "-O3 ${COMPILER_OPTIMIZATION_FLAGS} ${COMPILER_WARNING_FLAGS} -DNDEBUG -w -march=native"
     CACHE STRING "Flags used by the compiler during release builds." FORCE)
 ENDIF(UNIX)
 
@@ -234,6 +239,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cBirthSelectionHandler.cc
   ${MAIN_DIR}/cBirthMatingTypeGlobalHandler.cc
   ${MAIN_DIR}/cContextPhenotype.cc
+  ${MAIN_DIR}/cController.cc
   ${MAIN_DIR}/cDeme.cc
   ${MAIN_DIR}/cDemeNetwork.cc
   ${MAIN_DIR}/cDemeCellEvent.cc
@@ -267,6 +273,8 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cStats.cc
   ${MAIN_DIR}/cTaskLib.cc
   ${MAIN_DIR}/cWorld.cc
+  ${MAIN_DIR}/GeneticFunctions.cc
+  ${MAIN_DIR}/FileSystem.cc
 )
 SOURCE_GROUP(main FILES ${MAIN_SOURCES})
 LIST(APPEND AVIDA_CORE_SOURCES ${MAIN_SOURCES})
@@ -428,7 +436,7 @@ OPTION(AVD_CMDLINE
 )
 IF(AVD_CMDLINE)
   SET(AVIDA_CMDLINE_DIR source/targets/avida)
-  SET(AVIDA_CMDLINE_SOURCES ${AVIDA_CMDLINE_DIR}/primitive.cc ${AVIDA_CMDLINE_DIR}/Avida2Driver.cc)
+  SET(AVIDA_CMDLINE_SOURCES ${AVIDA_CMDLINE_DIR}/primitiveMeta.cc ${AVIDA_CMDLINE_DIR}/Avida2MetaDriver.cc ${AVIDA_CMDLINE_DIR}/cGod.cc)
   SOURCE_GROUP(target\\avida FILES ${AVIDA_CMDLINE_SOURCES})
   ADD_EXECUTABLE(avida ${AVIDA_CMDLINE_SOURCES})
 
@@ -439,8 +447,12 @@ IF(AVD_CMDLINE)
   IF(NOT MSVC)
     LIST(APPEND AVIDA_CMDLINE_LIBS pthread)
   ENDIF(NOT MSVC)
+  # Build with OpenMP if it is available
+  if(OpenMP_CXX_FOUND)
+    LIST(APPEND AVIDA_CMDLINE_LIBS OpenMP::OpenMP_CXX)
+    target_compile_options(avida PRIVATE "${OpenMP_CXX_FLAGS}")
+  endif()
   TARGET_LINK_LIBRARIES(avida ${AVIDA_CMDLINE_LIBS})
-  
   INSTALL_TARGETS(/work avida)
 ENDIF(AVD_CMDLINE)
 
