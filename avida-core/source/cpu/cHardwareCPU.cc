@@ -743,7 +743,11 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("exit-germline", &cHardwareCPU::Inst_ExitGermline, INST_CLASS_LIFECYCLE, nInstFlag::STALL),
     tInstLibEntry<tMethod>("repair-on", &cHardwareCPU::Inst_RepairPointMutOn, INST_CLASS_LIFECYCLE, nInstFlag::STALL),
     tInstLibEntry<tMethod>("repair-off", &cHardwareCPU::Inst_RepairPointMutOff, INST_CLASS_LIFECYCLE, nInstFlag::STALL),
-    
+
+    // AGI instructions
+    tInstLibEntry<tMethod>("read-bonus-vector", &cHardwareCPU::Inst_ReadBonusVector),
+
+
     // Must always be the last instruction in the array
     tInstLibEntry<tMethod>("NULL", &cHardwareCPU::Inst_Nop, INST_CLASS_NOP, 0, "True no-operation instruction: does nothing"),
   };
@@ -11033,3 +11037,11 @@ bool cHardwareCPU::Inst_SetMatePreferenceHighestMerit(cAvidaContext& ctx) { retu
 bool cHardwareCPU::Inst_SetMatePreferenceLowestDisplayA(cAvidaContext& ctx) { return Inst_SetMatePreference(ctx, MATE_PREFERENCE_LOWEST_DISPLAY_A); }
 bool cHardwareCPU::Inst_SetMatePreferenceLowestDisplayB(cAvidaContext& ctx) { return Inst_SetMatePreference(ctx, MATE_PREFERENCE_LOWEST_DISPLAY_B); }
 bool cHardwareCPU::Inst_SetMatePreferenceLowestMerit(cAvidaContext& ctx) { return Inst_SetMatePreference(ctx, MATE_PREFERENCE_LOWEST_MERIT); }
+
+// -------- AGI instructions --------
+bool cHardwareCPU::Inst_ReadBonusVector(cAvidaContext& ctx)
+{
+  const int reg_used = FindModifiedRegister(REG_BX);
+  GetRegister(reg_used) = m_world->m_test_AGI[0];
+  return true;
+}
