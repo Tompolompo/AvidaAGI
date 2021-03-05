@@ -11042,6 +11042,7 @@ bool cHardwareCPU::Inst_SetMatePreferenceLowestMerit(cAvidaContext& ctx) { retur
 bool cHardwareCPU::Inst_ReadBonusVector(cAvidaContext& ctx)
 {
   const int reg_used = FindModifiedRegister(REG_BX);
-  GetRegister(reg_used) = m_world->m_test_AGI[0];
+  GetRegister(reg_used) = m_world->m_controller->m_X0[0];
+  //m_organism.m_phenotype.m_bonus
   return true;
 }

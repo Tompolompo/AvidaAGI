@@ -609,8 +609,11 @@ cPopulation::~cPopulation()
 
 inline void cPopulation::AdjustSchedule(const cPopulationCell& cell, const cMerit& merit)
 {
+  //std::cout << "merit = " << merit.GetDouble() << std::endl;
   const int deme_id = cell.GetDemeID();
   const cDeme& deme = deme_array[deme_id];
+  //cell.GetOrganism().
+  //std::cout << "merit = " << merit.GetDouble();
   m_scheduler->AdjustPriority(cell.GetID(), deme.HasDemeMerit() ? (merit.GetDouble() * deme.GetDemeMerit().GetDouble()) : merit.GetDouble());
 }
 
@@ -7340,6 +7343,7 @@ void cPopulation::ResetInputs(cAvidaContext& ctx)
 
 void cPopulation::BuildTimeSlicer()
 {
+
   switch (m_world->GetConfig().SLICING_METHOD.Get()) {
     case SLICE_CONSTANT:
       m_scheduler = new Apto::Scheduler::RoundRobin(cell_array.GetSize());

@@ -20,6 +20,12 @@
 #include "cGod.h"
 #include "INIReader.h"
 
+// fas 3
+#include "cInstLib.h"
+#include "cInstSet.h"
+#include "cHardwareManager.h"
+
+
 using namespace std;
 
 /* Såhär kör man: X är antal processer.
@@ -160,7 +166,18 @@ int main(int argc, char **argv)  {
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);
             world->setup(new_world, &feedback, &defs);
-            world->SetVerbosity(0);
+            //world->SetVerbosity(0);
+
+            // Test fas 3
+            /*
+            std::cout << "Inst set 1 " << world->m_hw_mgr->GetInstSet(0).m_name << std::endl;
+            std::cout << "Inst set 2 " << world->m_hw_mgr->GetInstSet(1).m_name << std::endl;
+
+            for (int t=0;t<world->m_hw_mgr->GetInstSet(1).GetSize();t++ ){
+                world->m_hw_mgr->GetInstSetAGI(1).SetCost(t, 1);
+                world->m_hw_mgr->GetInstSetAGI(1).SetRedundancy(t, 1);
+                std::cout << "instruction " << t << " Cost " << world->m_hw_mgr->GetInstSet(1).m_lib_name_map[t].cost << " Redundancy " << world->m_hw_mgr->GetInstSet(1).m_lib_name_map[t].redundancy <<  std::endl;
+            }*/
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world, god);
