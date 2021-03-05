@@ -72,6 +72,7 @@ public:
   inline const cInstSet& GetInstSet(const Apto::String& name) const;
   inline cInstSet& GetInstSet(const Apto::String& name);
   const cInstSet& GetInstSet(int i) const { return *m_inst_sets[i]; }
+  cInstSet& GetInstSetAGI(int i) { return *m_inst_sets[i]; }
   
   const cInstSet& GetDefaultInstSet() const { return *m_inst_sets[0]; }
   

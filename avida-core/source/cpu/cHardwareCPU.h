@@ -1053,6 +1053,10 @@ public:
   bool Inst_SetMatePreferenceLowestDisplayA(cAvidaContext& ctx);
   bool Inst_SetMatePreferenceLowestDisplayB(cAvidaContext& ctx);
   bool Inst_SetMatePreferenceLowestMerit(cAvidaContext& ctx);
+
+// -------- AGI instructions --------
+public:
+  bool Inst_ReadBonusVector(cAvidaContext& ctx);
 };
 
 

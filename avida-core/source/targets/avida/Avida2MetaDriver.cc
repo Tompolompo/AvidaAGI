@@ -102,8 +102,22 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   m_phi_0_sum = 0;
   if (save) m_fs.InitUpdateData(m_iworld, num_tasks);
 
+  std::cout << "Inst set 1 " << m_world->m_hw_mgr->GetInstSet(0).m_name << std::endl;
+  std::cout << "Inst set 2 " << m_world->m_hw_mgr->GetInstSet(1).m_name << std::endl;
+  int cost = 0;
+
   int u = 0;
   while (!m_done) {
+
+    /*
+    if (u % 100 ==0){
+      cost += 10;
+      for (int t=0;t<m_world->m_hw_mgr->GetInstSet(1).GetSize();t++ ){
+          //m_world->m_hw_mgr->GetInstSetAGI(1).SetCost(2, cost);
+          m_world->m_hw_mgr->GetInstSetAGI(1).SetRedundancy(25, cost);
+          std::cout << "instruction " << t << " Cost " << m_world->m_hw_mgr->GetInstSet(1).m_lib_name_map[t].cost << " Redundancy " << m_world->m_hw_mgr->GetInstSet(1).m_lib_name_map[t].redundancy <<  std::endl;
+      }
+    }*/
 
     m_world->GetEvents(ctx);
     if(m_done == true) break;
@@ -123,6 +137,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     // query the world to calculate the exact size of this update:
     const int UD_size = m_world->CalculateUpdateSize();
     const double step_size = 1.0 / (double) UD_size;
+    //std::cout << "update size = " << UD_size << " step size = " << step_size << std::endl;
     
     for (int i = 0; i < UD_size; i++) { // NOTE: Kanske OpenMP parallellisering här?
       if(population.GetNumOrganisms() == 0) {
@@ -208,7 +223,14 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
 		}
     // MODIFIED
     u++;
-    if (u == num_updates) m_done = true;
+    if (u == updates) m_done = true;
+
+  /*
+    if (u % 1000 == 0){
+      std::cout <<" reaction " << 0 << ", value= " <<  m_world->GetEnvironment().vec_reactions[0]->GetValue() << std::endl;
+      m_world->GetEnvironment().vec_reactions[0]->SetValue(u/1000);
+    }
+    */
 
     
   }

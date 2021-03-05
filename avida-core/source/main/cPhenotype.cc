@@ -32,6 +32,7 @@
 #include "tList.h"
 
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -103,6 +104,9 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
   if (num_resources <= 0 || num_nops <= 0) return;
   double most_nops_needed = ceil(log(num_resources) / log((double)num_nops));
   cur_collect_spec_counts.Resize(int((pow((double)num_nops, most_nops_needed + 1.0) - 1.0) / ((double)num_nops - 1.0)));
+
+  m_AGI_bonus_vector = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}; // (AGI - TL) fas 3
+  m_human_bonus_vector = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}; // (AGI - TL) fas 3
 }
 
 cPhenotype::~cPhenotype()
@@ -1643,6 +1647,16 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
   
   // Update the merit bonus
   cur_bonus *= result.GetMultBonus();
+  /*if (cur_bonus > 1){
+    cur_bonus=1;
+    
+    for (int i = 0; i < num_tasks; i++) {
+      std::cout << " task " << i << ": " << result.TaskDone(i);
+      cur_bonus *= (int) result.TaskDone(i) * m_AGI_bonus_vector[i];
+    }
+    std::cout << "cur bonus = " << cur_bonus << std::endl;
+  }
+  std::cout << std::endl;*/
   cur_bonus += result.GetAddBonus();
   
   // update the germline propensity
@@ -1668,6 +1682,10 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
       if (result.ReactionTriggered(i) == true) deme->AddCurReaction(i);
     }
   }
+
+  
+  
+  
   
   // Update the energy bonus
   cur_energy_bonus += result.GetAddEnergy();

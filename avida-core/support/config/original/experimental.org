@@ -1,12 +1,13 @@
-#inst_set heads_sex
-#hw_type 0
+#instset experimental
+#hw_type 3
 
 h-alloc    # Allocate space for child
 h-search   # Locate the end of the organism
-nop-C      #
+nop-D      #
 nop-A      #
 mov-head   # Place write-head at beginning of offspring.
 nop-C      #
+add
 nop-C      #
 nop-C      #
 nop-C      #
@@ -19,7 +20,6 @@ nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
-sense-resource-id     #
 nop-C      #
 nop-C      #
 nop-C      #
@@ -29,19 +29,14 @@ nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
-retrieve-msg      #
-nop-C      #
-nop-C      #
-read-bonus-vector      #
-send-msg
-read-bonus-vector   
-set-opinion      #
 nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
-get-opinion 
-send-msg      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
@@ -97,9 +92,12 @@ nop-C      #
 h-search   # Mark the beginning of the copy loop
 h-copy     # Do the copy
 if-label   # If we're done copying....
-nop-C      #
+nop-D      #
 nop-A      #
-divide-sex #    ...divide (with sex...)!
+h-divide   #    ...divide!
 mov-head   # Otherwise, loop back to the beginning of the copy loop.
-nop-A      # End label.
+nop-A      #
+add        # neutral separator (terminates mov-head)
+label
+nop-A      # End Label
 nop-B      #

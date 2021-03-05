@@ -59,7 +59,7 @@ protected:
   cAnalyze* m_analyze;
   cAvidaConfig* m_conf;
   cEventList* m_event_list;
-  cHardwareManager* m_hw_mgr;
+  //cHardwareManager* m_hw_mgr;
   Apto::SmartPtr<cPopulation, Apto::InternalRCObject> m_pop;
   Apto::SmartPtr<cStats, Apto::InternalRCObject> m_stats;
   cMigrationMatrix* m_mig_mat;  
@@ -90,6 +90,7 @@ public:
   cAvidaContext* m_ctx; // not original placement (protected is original)
   cEnvironment* m_env; //not original placement (protected is original)
   cController* m_controller;
+  cHardwareManager* m_hw_mgr; //not original placement (protected is original)
   
   // General Object Accessors
   cAnalyze& GetAnalyze();

@@ -1,4 +1,4 @@
-#inst_set heads_sex
+#inst_set heads_default
 #hw_type 0
 
 h-alloc    # Allocate space for child
@@ -19,7 +19,6 @@ nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
-sense-resource-id     #
 nop-C      #
 nop-C      #
 nop-C      #
@@ -29,19 +28,18 @@ nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
-retrieve-msg      #
-nop-C      #
-nop-C      #
-read-bonus-vector      #
-send-msg
-read-bonus-vector   
-set-opinion      #
 nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
-get-opinion 
-send-msg      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
@@ -99,7 +97,7 @@ h-copy     # Do the copy
 if-label   # If we're done copying....
 nop-C      #
 nop-A      #
-divide-sex #    ...divide (with sex...)!
+h-divide   #    ...divide!
 mov-head   # Otherwise, loop back to the beginning of the copy loop.
 nop-A      # End label.
 nop-B      #
