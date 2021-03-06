@@ -3,7 +3,7 @@
 #include "cController.h" // header in local directory
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy)
 {
     m_Phi0_function = Phi0_function;
     m_chromosome_length = chromosome.size();
@@ -15,6 +15,9 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_dangerous_operations = dangerous_operations;
     m_task_perform_threshold = task_perform_penalty_threshold;
     m_intervention_frequency = intervention_frequency;
+    m_strategy_min = strategy_min;
+    m_strategy_max = strategy_max;
+    m_discrete_strategy = discrete_strategy;
 
 }
 
@@ -48,6 +51,63 @@ Eigen::MatrixXf cController::sigmoid(Eigen::MatrixXf matrix)
   return matrix;
 }
 
+Eigen::MatrixXf cController::Activation(Eigen::MatrixXf matrix, std::string method)
+{
+    if (method == "tanh")   {
+        for (size_t i=0; i<matrix.rows(); i++)   {
+            for (size_t j=0; j<matrix.cols(); j++)   {
+                //   double before = matrix(i,j);
+                matrix(i,j) = tanh(matrix(i,j));
+                //   std::cout << "before: " << before << ", after: " << matrix(i,j) << std::endl;
+            }
+        }
+    }
+    else if (method == "sigmoid")   {
+        for (size_t i=0; i<matrix.rows(); i++)   {
+            for (size_t j=0; j<matrix.cols(); j++)   {
+                //   double before = matrix(i,j);
+                matrix(i,j) = 1 / (1 + exp(-matrix(i,j)));
+                //   std::cout << "before: " << before << ", after: " << matrix(i,j) << std::endl;
+            }
+        }
+
+    }
+
+  return matrix;
+}
+
+std::vector<double> cController::ScaleVector(std::vector<double> arr, double low, double high)
+{   // TODO: Varning! Denna funktion ballar ur om man inte har [-1,1] intervall i input vektorn. Denna borde generaliseras.
+
+    for (int i=0; i<arr.size(); i++)
+        arr[i] = high*arr[i];
+
+}
+
+std::vector<double> cController::DiscretiseVector(std::vector<double> arr, std::string method)
+{   // TODO: Vaarning! inte så generell ännu.
+
+    // double min = *min_element(arr.begin(), arr.end());
+    // double max = *max_element(arr.begin(), arr.end());
+
+
+    if (method == "binary") {
+        for (int i=0; i<arr.size(); i++)    {
+            if (arr[i] <= 0) arr[i] = 0;
+            else arr[i] = 1;
+        }
+    }
+    else if (method == "discrete")  {
+        
+        for (int i=0; i<arr.size(); i++)    {
+            arr[i] = std::round(arr[i]);
+        }
+
+    }
+
+    return arr;
+}
+
 
 std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
 {
@@ -64,7 +124,7 @@ std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_
 
     Eigen::MatrixXf middle_layer = input_layer*m_weight_matrices[0];
     // std::cout << "middle_layer = " << middle_layer << std::endl;
-    middle_layer = sigmoid(middle_layer);
+    middle_layer = Activation(middle_layer, m_activation_method);
     // std::cout << "middle_layer activated = " << middle_layer << std::endl;
     middle_layer.conservativeResize(Eigen::NoChange, middle_layer.cols()+1);
     // std::cout << "middle_layer new1 = " << middle_layer << std::endl;
@@ -77,7 +137,7 @@ std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_
 
     Eigen::MatrixXf output_layer = middle_layer*m_weight_matrices[1];
     // std::cout << "output_layer = " << output_layer << std::endl;
-    output_layer = sigmoid(output_layer);
+    output_layer = Activation(output_layer, m_activation_method);
     // std::cout << "output_layer activated = " << output_layer << std::endl;
 
     std::vector<double> bonus(m_num_tasks, 1);
@@ -89,9 +149,15 @@ std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_
     }
     // std::cout << std::endl;
 
+    // bonus = ScaleVector(bonus, m_strategy_min, m_strategy_max);
+
+    if (m_discrete_strategy != "real")
+        bonus = DiscretiseVector(bonus, m_discrete_strategy);
+
     return bonus;
 
 }
+
 
 std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
 {

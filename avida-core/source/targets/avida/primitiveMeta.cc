@@ -53,6 +53,7 @@ int main(int argc, char **argv)  {
     // Genetic parameters
     double gene_min = reader.GetInteger("genetic", "gene_min", -1);
     double gene_max = reader.GetInteger("genetic", "gene_max", 1);
+    bool binary_genes = reader.GetBoolean("genetic", "binary_genes", false);
     double tournament_probability = reader.GetReal("genetic", "tournament_probability", 0.8);
     double crossover_probability = reader.GetReal("genetic", "crossover_probability", 0.3);
     double mutation_probability_constant = reader.GetReal("genetic", "mutation_probability_constant", 3);
@@ -63,7 +64,9 @@ int main(int argc, char **argv)  {
 
     // Control settings
     std::vector<double> ref_bonus = Str2DoubleVector(reader.Get("control", "ref_bonus", "1 1 2 2 3 3 4 4 5"));
-    bool binary = reader.GetBoolean("genetic", "binary", false);
+    double strategy_min = reader.GetReal("control", "strategy_min", -10);
+    double strategy_max = reader.GetReal("control", "strategy_max", 10);
+    std::string discrete_strategy = reader.Get("control", "discrete_strategy", "real");
     std::string Phi0_function = reader.Get("control", "controller_fitness", "standard");
     double Phi0_penalty_factor = reader.GetReal("control", "Phi0_penalty_factor", 0);
     std::string dangerous_operations_string = reader.Get("control", "dangerous_operations", "-1");
@@ -97,14 +100,14 @@ int main(int argc, char **argv)  {
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
     double min_creep = (gene_max-gene_min)/25.0;
-    if (binary) creep_probability = 1;
+    if (binary_genes) creep_probability = 1;
 
     // MPI params
     int root = 0;
     int limit = num_worlds/num_procs;
 
     // Initialise starting conditions
-    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary);
+    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes);
     FileSystem fs = FileSystem(0);
 
     if (rank == root)  {
@@ -156,7 +159,7 @@ int main(int argc, char **argv)  {
             cUserFeedback feedback;
 
             // Set up controller 
-            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency);
+            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy);
             controller->SetWeights(DecodeChromosome(controllers[iworld], num_tasks));
 
             // Set up world
@@ -261,7 +264,7 @@ int main(int argc, char **argv)  {
             creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
             for (size_t iworld = 0; iworld < num_worlds; iworld++) {
                 std::vector<double> chromosome = new_controllers[iworld];
-                controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max, binary);
+                controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max, binary_genes);
             }
 
             //Elitism

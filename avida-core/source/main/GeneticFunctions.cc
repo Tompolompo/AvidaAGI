@@ -71,7 +71,7 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
 }
 
 /* Translate a chromosome into weight matrices for neural network controller */
-std::vector<Eigen::MatrixXf> DecodeChromosome(std::vector<double> chromosome, int num_output_nodes, double weight_range=1)
+std::vector<Eigen::MatrixXf> DecodeChromosome(std::vector<double> chromosome, int num_output_nodes)
 {
     int num_weights = chromosome.size();
     int num_input_nodes = num_output_nodes + 2; // Vi använder bonusvektorn + phi + u som input
@@ -79,11 +79,6 @@ std::vector<Eigen::MatrixXf> DecodeChromosome(std::vector<double> chromosome, in
     // cout << "num_weights = " << num_weights << endl;
     // cout << "num_input_nodes = " << num_input_nodes << endl;
     // cout << "num_output_nodes = " << num_output_nodes << endl;
-
-    // for (int i=0; i<num_weights; i++)  {
-    //     chromosome[i] = -weight_range + 2*weight_range*chromosome[i];
-    //     // std::cout << chromosome[i] << ", " << std::endl;
-    // }
 
     int num_hidden_rows = num_input_nodes + 1;
     int num_hidden_nodes = (num_weights - num_output_nodes)/(num_input_nodes + num_output_nodes + 1);

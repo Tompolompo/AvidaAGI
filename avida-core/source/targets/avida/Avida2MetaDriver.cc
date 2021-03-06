@@ -169,7 +169,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
       std::vector<double> performed_task_fraction = std::vector<double>(num_tasks, 0);
       for (size_t k=0; k<num_tasks; k++)
         performed_task_fraction[k] = (double) m_world->m_controller->m_task_performed_counter[k]/population.GetLiveOrgList().GetSize();
-      phi = log10(stats.GetAveFitness());
+      phi = log10(stats.GetAveFitness()+1);
       double delta_phi = phi / (old_phi+0.01);
       old_phi = phi;
 
