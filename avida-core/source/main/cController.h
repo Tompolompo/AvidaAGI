@@ -12,7 +12,7 @@ class cEnvironment;
 class cController{
 public:
 
-    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency);
+    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, int num_instructions);
 
     // chromosome related
     std::vector<double> m_X0;
@@ -31,7 +31,8 @@ public:
     // controller strategy
     int m_intervention_frequency;
 
-
+    // fas 3
+    int m_num_instructions;
 
 
     // Accessor functions
@@ -45,6 +46,7 @@ public:
     
     // controller functions
     std::vector<double> EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int u, double phi);
+    std::vector<double> EvaluateAvidaFas3(std::vector<double> performed_task_fraction, int u, double phi);
     std::vector<double> EvaluateAvidaANN(std::vector<double> performed_task_fraction, int delta_u, double delta_phi);
     Eigen::MatrixXf sigmoid(Eigen::MatrixXf matrix);
 

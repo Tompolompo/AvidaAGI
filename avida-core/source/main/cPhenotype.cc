@@ -105,8 +105,8 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
   double most_nops_needed = ceil(log(num_resources) / log((double)num_nops));
   cur_collect_spec_counts.Resize(int((pow((double)num_nops, most_nops_needed + 1.0) - 1.0) / ((double)num_nops - 1.0)));
 
-  m_AGI_bonus_vector = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}; // (AGI - TL) fas 3
-  m_human_bonus_vector = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}; // (AGI - TL) fas 3
+  //m_AGI_bonus_vector = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}; // (AGI - TL) fas 3
+  //m_human_bonus_vector = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}; // (AGI - TL) fas 3
 }
 
 cPhenotype::~cPhenotype()

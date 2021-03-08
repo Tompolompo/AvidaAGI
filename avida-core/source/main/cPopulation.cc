@@ -598,8 +598,6 @@ bool cPopulation::IsValidArgument(const Data::DataID& data_id, Data::Argument ar
 }
 
 
-
-
 cPopulation::~cPopulation()
 {
   for (int i = 0; i < cell_array.GetSize(); i++) delete cell_array[i].GetOrganism(); 
@@ -616,8 +614,6 @@ inline void cPopulation::AdjustSchedule(const cPopulationCell& cell, const cMeri
   //std::cout << "merit = " << merit.GetDouble();
   m_scheduler->AdjustPriority(cell.GetID(), deme.HasDemeMerit() ? (merit.GetDouble() * deme.GetDemeMerit().GetDouble()) : merit.GetDouble());
 }
-
-
 
 // Activate the child, given information from the parent.
 // Return true if parent lives through this process.

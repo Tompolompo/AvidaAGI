@@ -102,8 +102,8 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   m_phi_0_sum = 0;
   if (save) m_fs.InitUpdateData(m_iworld, num_tasks);
 
-  std::cout << "Inst set 1 " << m_world->m_hw_mgr->GetInstSet(0).m_name << std::endl;
-  std::cout << "Inst set 2 " << m_world->m_hw_mgr->GetInstSet(1).m_name << std::endl;
+  //std::cout << "Inst set 1 " << m_world->m_hw_mgr->GetInstSet(0).m_name << std::endl;
+
   int cost = 0;
 
   int u = 0;
@@ -137,7 +137,6 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     // query the world to calculate the exact size of this update:
     const int UD_size = m_world->CalculateUpdateSize();
     const double step_size = 1.0 / (double) UD_size;
-    //std::cout << "update size = " << UD_size << " step size = " << step_size << std::endl;
     
     for (int i = 0; i < UD_size; i++) { // NOTE: Kanske OpenMP parallellisering här?
       if(population.GetNumOrganisms() == 0) {
@@ -150,7 +149,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     population.ProcessPostUpdate(ctx);
     
 		m_world->ProcessPostUpdate(ctx);
-        
+
     // No viewer; print out status for this update....
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
       cout.setf(ios::left);
@@ -178,7 +177,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
     // Controller interaction with avida
-    if (u%intervention_frequency == 0)  {
+    if (u%intervention_frequency == 0 || u == 0)  {
       
       // Get avida state
       std::vector<double> performed_task_fraction = std::vector<double>(num_tasks, 0);
@@ -188,11 +187,12 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
       double delta_phi = phi / (old_phi+0.01);
       old_phi = phi;
 
-
       // Apply controller strategy
-      m_strategy = m_world->m_controller->EvaluateAvidaANN(performed_task_fraction, (double)u/num_updates, delta_phi);
-      for (size_t j=0; j<num_tasks; j++)
-        m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
+      m_strategy = m_world->m_controller->EvaluateAvidaFas3(performed_task_fraction, (double)u/num_updates, delta_phi);
+      for (size_t j=0; j<m_world->m_controller->m_num_instructions; j++){
+        //m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
+        m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) m_strategy[j]);
+      }
     }
 
     // MODIFIED
@@ -223,7 +223,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
 		}
     // MODIFIED
     u++;
-    if (u == updates) m_done = true;
+    if (u == num_updates) m_done = true;
 
   /*
     if (u % 1000 == 0){

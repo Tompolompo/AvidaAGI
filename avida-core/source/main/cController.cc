@@ -3,7 +3,7 @@
 #include "cController.h" // header in local directory
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, int num_instructions)
 {
     m_Phi0_function = Phi0_function;
     m_chromosome_length = chromosome.size();
@@ -15,6 +15,9 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_dangerous_operations = dangerous_operations;
     m_task_perform_threshold = task_perform_penalty_threshold;
     m_intervention_frequency = intervention_frequency;
+    
+    // fas 3
+    m_num_instructions = num_instructions;
 
 }
 
@@ -106,6 +109,18 @@ std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed
     }
 
     return bonus;
+
+}
+
+std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
+{
+    std::vector<double> redundancies(m_num_instructions, 1);
+
+    for (int i=0; i<m_num_instructions;i++){
+        redundancies[i] = m_chromosome[i];
+    }
+
+    return redundancies;
 
 }
 

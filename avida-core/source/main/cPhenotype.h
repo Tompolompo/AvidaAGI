@@ -328,8 +328,8 @@ public:
   enum energy_levels {ENERGY_LEVEL_LOW = 0, ENERGY_LEVEL_MEDIUM, ENERGY_LEVEL_HIGH};
 
   // (AGI fas 3)
-  std::vector<double> m_AGI_bonus_vector; // (AGI - TL) fas 3
-  std::vector<double> m_human_bonus_vector; // (AGI - TL) fas 3
+  //std::vector<double> m_AGI_bonus_vector; // (AGI - TL) fas 3
+  //std::vector<double> m_human_bonus_vector; // (AGI - TL) fas 3
 	
   void ResetMerit();
   void Sterilize();
