@@ -753,6 +753,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("write-bonus-vector4", &cHardwareCPU::Inst_WriteBonusVector4),
     tInstLibEntry<tMethod>("write-bonus-vectorX", &cHardwareCPU::Inst_WriteBonusVectorX),
     tInstLibEntry<tMethod>("comms-with-humans", &cHardwareCPU::Inst_CommunicateWithHumans),
+    tInstLibEntry<tMethod>("comms-with-humans1", &cHardwareCPU::Inst_CommunicateWithHumans1),
+    tInstLibEntry<tMethod>("sense-resource-id-agi", &cHardwareCPU::Inst_SenseResourceIDAGI),
 
 
     // Must always be the last instruction in the array
@@ -11125,6 +11127,36 @@ bool cHardwareCPU::Inst_CommunicateWithHumans(cAvidaContext& ctx)
   
 return true;
 }
+
+bool cHardwareCPU::Inst_CommunicateWithHumans1(cAvidaContext& ctx)
+{
+  for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
+    if (m_organism->GetPhenotype().m_AGI_sensed_resources[task_id] == 0){
+      break;
+    }
+    else{
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
+      // could add noise to this ?
+    }
+  }
+  
+return true;
+}
+
+bool cHardwareCPU::Inst_SenseResourceIDAGI(cAvidaContext& ctx)
+{
+  for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
+    if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
+      m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
+      //std::cout << "random: " << ctx.GetRandom().GetInt(21) - 10 << std::endl;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = ctx.GetRandom().GetInt(21) - 10;
+      break;
+    }
+  }
+   
+  return true;
+}
+
 
 
 

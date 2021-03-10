@@ -189,7 +189,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
       old_phi = phi;
 
       // Apply controller strategy
-      m_strategy = m_world->m_controller->EvaluateAvidaFas3(performed_task_fraction, (double)u/num_updates, delta_phi);
+      m_strategy = m_world->m_controller->EvaluateAvidaFas3(u);
       for (size_t j=0; j<m_world->m_controller->m_num_instructions; j++){
         //m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
         m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) m_strategy[j]);

@@ -1067,6 +1067,8 @@ public:
   bool Inst_WriteBonusVectorX(cAvidaContext& ctx);
 
   bool Inst_CommunicateWithHumans(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumans1(cAvidaContext& ctx);
+  bool Inst_SenseResourceIDAGI(cAvidaContext& ctx);
   
 };
 

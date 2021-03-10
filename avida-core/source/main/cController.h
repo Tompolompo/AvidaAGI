@@ -46,7 +46,7 @@ public:
     
     // controller functions
     std::vector<double> EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int u, double phi);
-    std::vector<double> EvaluateAvidaFas3(std::vector<double> performed_task_fraction, int u, double phi);
+    std::vector<double> EvaluateAvidaFas3(int u);
     std::vector<double> EvaluateAvidaANN(std::vector<double> performed_task_fraction, int delta_u, double delta_phi);
     Eigen::MatrixXf sigmoid(Eigen::MatrixXf matrix);
 

@@ -112,14 +112,24 @@ std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed
 
 }
 
-std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
+std::vector<double> cController::EvaluateAvidaFas3(int u)
 {
+
     std::vector<double> redundancies(m_num_instructions, 1);
 
-    for (int i=0; i<m_num_instructions;i++){
-        redundancies[i] = m_chromosome[i];
+    if (u < 1000){
+        for (int i=0; i<m_num_instructions;i++){
+            redundancies[i] = m_chromosome[i];
+        }
     }
-    //redundancies[m_num_instructions-1]=2;
+    else{
+        for (int i=m_num_instructions; i<2*m_num_instructions;i++){
+            redundancies[i-m_num_instructions] = m_chromosome[i];
+        }
+    }
+    //std::cout << " redundanceides ssize: " << redundancies.size() << std::endl;
+    //redundancies[m_num_instructions-1]=0;
+    //redundancies[m_num_instructions-2]=10;
 
     return redundancies;
 
