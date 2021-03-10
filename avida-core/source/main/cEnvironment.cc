@@ -168,7 +168,7 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc, Feedba
       // MODIFIED
       // new_process->SetValue(var_value.AsDouble()); // original
       
-      new_process->SetValue(m_world->m_controller->m_chromosome[reaction->GetID()]); // new
+      new_process->SetValue(m_world->m_controller->m_X0[reaction->GetID()]); // new
     }
     else if (var_name == "type") {
       if (var_value=="add") new_process->SetType(nReaction::PROCTYPE_ADD);
@@ -1732,6 +1732,7 @@ void cEnvironment::DoProcesses(cAvidaContext& ctx, const tList<cReactionProcess>
     result.MarkReaction(reaction_id);
 
     double bonus = consumed * cur_process->GetValue();
+    //std::cout << "cur_process->GetValue() = " << cur_process->GetValue() << std::endl;
     
     if (!cur_process->GetIsGermline())
     {

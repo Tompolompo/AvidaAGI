@@ -104,7 +104,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
 
   //std::cout << "Inst set 1 " << m_world->m_hw_mgr->GetInstSet(0).m_name << std::endl;
 
-  int cost = 0;
+  double controller_fitness = 0;
 
   int u = 0;
   while (!m_done) {
@@ -174,6 +174,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     
     // Get controller fitness
     m_phi_0_sum += stats.GetPhi0Fitness();
+    controller_fitness  = stats.GetPhi0Fitness() * 1/(1+abs(log( stats.GetPhi0Fitness() / stats.GetAveFitness() ) ) );
     if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
     // Controller interaction with avida
@@ -236,7 +237,12 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   }
 
   // MODIFIED
-  return m_phi_0_sum;
+
+
+   
+
+  return controller_fitness;
+  //return m_phi_0_sum;
 }
 
 

@@ -97,7 +97,7 @@ int main(int argc, char **argv)  {
     universe_settings[2] = num_updates;
 
     // fas 3 settings
-    int num_instructions = 26;
+    int num_instructions = 26 + 0;
     int chromosome_length = num_instructions;
 
     // Derived params
@@ -175,11 +175,16 @@ int main(int argc, char **argv)  {
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);
             world->setup(new_world, &feedback, &defs);
-            world->SetVerbosity(0);
+            if (world->m_controller->m_num_instructions != num_instructions){
+                cout << "number of instructions does not match" << endl;
+            }
+            //world->SetVerbosity(0);
+            //cout << world->m_controller->m_X0[0] << ", " << world->m_controller->m_X0[1] << ", " << world->m_controller->m_X0[2] << ", " << world->m_controller->m_X0[3] << ", " << world->m_controller->m_X0[4] << ", " << endl; 
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world);
             bool save = (iworld == 0) ? true : false;
+            save=true;
             current_fitness[iworld] = driver->Run(num_updates, fs, save, iworld);
             // current_bonus[iworld] = driver->GetCurrentStrategy();
 

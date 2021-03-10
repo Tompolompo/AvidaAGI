@@ -119,6 +119,7 @@ std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed
     for (int i=0; i<m_num_instructions;i++){
         redundancies[i] = m_chromosome[i];
     }
+    //redundancies[m_num_instructions-1]=2;
 
     return redundancies;
 

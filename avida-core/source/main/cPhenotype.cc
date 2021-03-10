@@ -95,6 +95,9 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
 , last_task_time(0)
 
 { 
+  // (AGI - TL) fas 3
+  m_AGI_bonus_vector[0] = 2;m_AGI_bonus_vector[1] = 2;m_AGI_bonus_vector[2] = 3;m_AGI_bonus_vector[3] = 3;m_AGI_bonus_vector[4] = 4;
+
   if (parent_generation >= 0) {
     generation = parent_generation;
     if (m_world->GetConfig().GENERATION_INC_METHOD.Get() != GENERATION_INC_BOTH) generation++;
@@ -105,8 +108,6 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
   double most_nops_needed = ceil(log(num_resources) / log((double)num_nops));
   cur_collect_spec_counts.Resize(int((pow((double)num_nops, most_nops_needed + 1.0) - 1.0) / ((double)num_nops - 1.0)));
 
-  //m_AGI_bonus_vector = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}; // (AGI - TL) fas 3
-  //m_human_bonus_vector = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}; // (AGI - TL) fas 3
 }
 
 cPhenotype::~cPhenotype()
@@ -1501,7 +1502,7 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
 {
   assert(initialized == true);
   taskctx.SetTaskStates(&m_task_states);
-  
+
   const cEnvironment& env = m_world->GetEnvironment();
   const int num_resources = env.GetResourceLib().GetSize();
   const int num_tasks = env.GetNumTasks();
@@ -1646,18 +1647,23 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
   }
   
   // Update the merit bonus
-  cur_bonus *= result.GetMultBonus();
-  /*if (cur_bonus > 1){
-    cur_bonus=1;
-    
-    for (int i = 0; i < num_tasks; i++) {
-      std::cout << " task " << i << ": " << result.TaskDone(i);
-      cur_bonus *= (int) result.TaskDone(i) * m_AGI_bonus_vector[i];
-    }
-    std::cout << "cur bonus = " << cur_bonus << std::endl;
+  //cur_bonus *= result.GetMultBonus();
+  //cur_bonus += result.GetAddBonus();
+  
+  //temp_bonus = 0;
+  //std::cout << " b_agi = ";
+  for (int i = 0; i < num_tasks; i++) {
+    //std::cout << i << ": " << m_AGI_bonus_vector[i] << ", ";
+    cur_bonus*= pow(2, (int) result.TaskDone(i) * m_AGI_bonus_vector[i]);//m_AGI_bonus_vector[i];
+    //std::cout << (int) result.TaskDone(i) << ", ";
   }
-  std::cout << std::endl;*/
-  cur_bonus += result.GetAddBonus();
+  //std::cout << "--> temp bonus = " << pow(2,temp_bonus) << ", cur bonus = " << cur_bonus << std::endl;
+  //cur_bonus = pow(2,temp_bonus);
+  
+  //std::cout << "  cur bonus = " << cur_bonus << std::endl;
+
+  //
+  //std::cout << "  cur bonus = " << cur_bonus << std::endl;
   
   // update the germline propensity
   cur_child_germline_propensity += result.GetAddGermline();
