@@ -51,8 +51,8 @@ int main(int argc, char **argv)  {
     }
 
     // Genetic parameters
-    double gene_min = reader.GetInteger("genetic", "gene_min", -1);
-    double gene_max = reader.GetInteger("genetic", "gene_max", 1);
+    double gene_min = reader.GetReal("genetic", "gene_min", -1);
+    double gene_max = reader.GetReal("genetic", "gene_max", 1);
     bool binary_genes = reader.GetBoolean("genetic", "binary_genes", false);
     double tournament_probability = reader.GetReal("genetic", "tournament_probability", 0.8);
     double crossover_probability = reader.GetReal("genetic", "crossover_probability", 0.3);
@@ -101,6 +101,10 @@ int main(int argc, char **argv)  {
     double creep_rate = (gene_max-gene_min)/3.0;
     double min_creep = (gene_max-gene_min)/25.0;
     if (binary_genes) creep_probability = 1;
+    std::string activation_method;
+    if (gene_min < 0) activation_method = "tanh";
+    else activation_method = "sigmoid";
+
 
     // MPI params
     int root = 0;
@@ -159,7 +163,7 @@ int main(int argc, char **argv)  {
             cUserFeedback feedback;
 
             // Set up controller 
-            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy);
+            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method);
             controller->SetWeights(DecodeChromosome(controllers[iworld], num_tasks));
 
             // Set up world

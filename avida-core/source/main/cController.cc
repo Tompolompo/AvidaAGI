@@ -3,7 +3,7 @@
 #include "cController.h" // header in local directory
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method)
 {
     m_Phi0_function = Phi0_function;
     m_chromosome_length = chromosome.size();
@@ -18,7 +18,7 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_strategy_min = strategy_min;
     m_strategy_max = strategy_max;
     m_discrete_strategy = discrete_strategy;
-    m_activation_method = "tanh";
+    m_activation_method = activation_method;
 
 }
 
@@ -40,17 +40,6 @@ void cController::ResetTaskCounter()
         m_task_performed_counter[k] = 0;
 }
 
-Eigen::MatrixXf cController::sigmoid(Eigen::MatrixXf matrix)
-{
-  for (size_t i=0; i<matrix.rows(); i++)   {
-    for (size_t j=0; j<matrix.cols(); j++)   {
-    //   double before = matrix(i,j);
-      matrix(i,j) = 1 / (1 + exp(-matrix(i,j)));
-    //   std::cout << "before: " << before << ", after: " << matrix(i,j) << std::endl;
-    }
-  }
-  return matrix;
-}
 
 Eigen::MatrixXf cController::Activation(Eigen::MatrixXf matrix, std::string method)
 {
@@ -78,32 +67,16 @@ Eigen::MatrixXf cController::Activation(Eigen::MatrixXf matrix, std::string meth
 }
 
 std::vector<double> cController::ScaleVector(std::vector<double> arr, double low, double high)
-{   // TODO: Varning! Denna funktion ballar ur om man inte har [-1,1] intervall i input vektorn. Denna borde generaliseras.
-
-    for (int i=0; i<arr.size(); i++)
-        arr[i] = high*arr[i];
-
-}
-
-std::vector<double> cController::DiscretiseVector(std::vector<double> arr, std::string method)
-{   // TODO: Vaarning! inte så generell ännu.
-
-    // double min = *min_element(arr.begin(), arr.end());
-    // double max = *max_element(arr.begin(), arr.end());
-
-
-    if (method == "binary") {
-        for (int i=0; i<arr.size(); i++)    {
-            if (arr[i] <= 0) arr[i] = 0;
-            else arr[i] = 1;
-        }
+{
+    if (m_activation_method == "sigmoid")   {
+        // std::cout << ">=0" << std::endl;
+        for (int i=0; i<arr.size(); i++)
+            arr[i] = low + 2*high*arr[i];
     }
-    else if (method == "discrete")  {
-        
-        for (int i=0; i<arr.size(); i++)    {
-            arr[i] = std::round(arr[i]);
-        }
-
+    else if (m_activation_method == "tanh") {
+        // std::cout << "<0" << std::endl;
+        for (int i=0; i<arr.size(); i++)
+            arr[i] = high*arr[i];
     }
 
     return arr;
@@ -150,13 +123,15 @@ std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_
     }
     // std::cout << std::endl;
 
-    // bonus = ScaleVector(bonus, m_strategy_min, m_strategy_max);
 
-    if (m_discrete_strategy != "real")
-        bonus = DiscretiseVector(bonus, m_discrete_strategy);
-
+    bonus = ScaleVector(bonus, m_strategy_min, m_strategy_max);
+    if (m_discrete_strategy != "real")  {
+        // bonus = DiscretiseVector(bonus, m_discrete_strategy);
+        for (int i=0; i<bonus.size(); i++)
+                bonus[i] = std::round(bonus[i]);
+    }
+        
     return bonus;
-
 }
 
 
