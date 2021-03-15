@@ -30,7 +30,7 @@ public:
     int m_intervention_frequency;
     std::string m_Phi0_function;
     int m_num_tasks;
-    std::string m_activation_method = "tanh";
+    std::string m_activation_method;
     double m_strategy_min;
     double m_strategy_max;
     std::string m_discrete_strategy;

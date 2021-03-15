@@ -18,6 +18,7 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_strategy_min = strategy_min;
     m_strategy_max = strategy_max;
     m_discrete_strategy = discrete_strategy;
+    m_activation_method = "tanh";
 
 }
 
