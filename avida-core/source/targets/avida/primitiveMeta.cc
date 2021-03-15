@@ -97,8 +97,8 @@ int main(int argc, char **argv)  {
     universe_settings[2] = num_updates;
 
     // fas 3 settings
-    int num_AGI_instructions = 6;
-    int num_instructions = 26 + 6;
+    int num_AGI_instructions = 7;
+    int num_instructions = 26 + num_AGI_instructions;
     int phases = 1;
     int chromosome_length = phases * num_AGI_instructions;
     int phase1_length = 1000;

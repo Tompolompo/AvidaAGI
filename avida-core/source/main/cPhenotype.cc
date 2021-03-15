@@ -102,6 +102,8 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
     m_AGI_sensed_resources[i]=0;
   }
 
+
+
   if (parent_generation >= 0) {
     generation = parent_generation;
     if (m_world->GetConfig().GENERATION_INC_METHOD.Get() != GENERATION_INC_BOTH) generation++;
@@ -2473,3 +2475,21 @@ Apto::Array<int> cPhenotype::GetCumulativeReactionCount()
     return cur_reaction_count;
   }
 }
+
+
+// AGI
+
+// void cPhenotype::SetWatchedAGI(cPhenotype* agi)
+// {
+// m_watched_AGI = agi;
+// }
+
+// std::vector<double> cPhenotype::GetBonus()
+// {
+//   size_t len = sizeof(m_AGI_bonus_vector)/sizeof(m_AGI_bonus_vector[0]);
+//   std::vector<double> bonus(len);
+//   for (size_t i=0; i<len; i++)
+//     bonus[i] = m_AGI_bonus_vector[i];
+
+//   return bonus;
+// }
