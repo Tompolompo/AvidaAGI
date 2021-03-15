@@ -755,6 +755,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("comms-with-humans", &cHardwareCPU::Inst_CommunicateWithHumans),
     tInstLibEntry<tMethod>("comms-with-humans1", &cHardwareCPU::Inst_CommunicateWithHumans1),
     tInstLibEntry<tMethod>("sense-resource-id-agi", &cHardwareCPU::Inst_SenseResourceIDAGI),
+    tInstLibEntry<tMethod>("ask-agi", &cHardwareCPU::Inst_AskAGI),
+    tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
+    tInstLibEntry<tMethod>("compare-agi-1", &cHardwareCPU::Inst_CompareBonusVector1),
+    tInstLibEntry<tMethod>("compare-agi-2", &cHardwareCPU::Inst_CompareBonusVector2),
 
 
     // Must always be the last instruction in the array
@@ -11153,9 +11157,54 @@ bool cHardwareCPU::Inst_SenseResourceIDAGI(cAvidaContext& ctx)
       break;
     }
   }
-   
   return true;
 }
+
+bool cHardwareCPU::Inst_AskAGI(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  return true;
+}
+
+bool cHardwareCPU::Inst_TellAGI(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  
+  return true;
+}
+
+bool cHardwareCPU::Inst_CompareBonusVector1(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] != m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task]){
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  }
+
+  return true;
+}
+
+bool cHardwareCPU::Inst_CompareBonusVector2(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] != m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task]){
+    m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  }
+
+  return true;
+}
+
+// compare3: adjust one up towards correct direction
+// look in genome: (self inspect, inspect other) if not 
 
 
 

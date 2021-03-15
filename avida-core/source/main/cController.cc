@@ -3,7 +3,7 @@
 #include "cController.h" // header in local directory
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, int num_instructions)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, int num_instructions, int phase1_length)
 {
     m_Phi0_function = Phi0_function;
     m_chromosome_length = chromosome.size();
@@ -18,6 +18,7 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     
     // fas 3
     m_num_instructions = num_instructions;
+    m_phase1_length = phase1_length;
 
 }
 
@@ -117,16 +118,30 @@ std::vector<double> cController::EvaluateAvidaFas3(int u)
 
     std::vector<double> redundancies(m_num_instructions, 1);
 
-    if (u < 1000){
-        for (int i=0; i<m_num_instructions;i++){
+    for (int i=0; i<m_num_instructions ;i++){
+        if (i<26){
+            redundancies[i] = 1;
+        }
+        else{
+            redundancies[i] = m_chromosome[i-26];
+        }
+    }
+
+    /*
+    if (u < m_phase1_length){
+        for (int i=0; i<m_num_instructions ;i++){
             redundancies[i] = m_chromosome[i];
         }
+        //redundancies[m_num_instructions-1] = m_chromosome[0];
+        //redundancies[m_num_instructions-2] = m_chromosome[1];
     }
     else{
         for (int i=m_num_instructions; i<2*m_num_instructions;i++){
             redundancies[i-m_num_instructions] = m_chromosome[i];
         }
-    }
+        //redundancies[m_num_instructions-1] = m_chromosome[2];
+        //redundancies[m_num_instructions-2] = m_chromosome[3];
+    }*/
     //std::cout << " redundanceides ssize: " << redundancies.size() << std::endl;
     //redundancies[m_num_instructions-1]=0;
     //redundancies[m_num_instructions-2]=10;
@@ -134,16 +149,6 @@ std::vector<double> cController::EvaluateAvidaFas3(int u)
     return redundancies;
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

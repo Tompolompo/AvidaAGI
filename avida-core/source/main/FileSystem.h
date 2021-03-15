@@ -34,7 +34,7 @@ class FileSystem{
         void InitMetaData(int num_tasks);
         
         // save data for meta generations
-        void SaveMetaData(int num_tasks, int imeta, double current_max_fitness, std::vector<double> bonus);
+        void SaveMetaData(int num_tasks, int imeta, double current_max_fitness, std::vector<double> bonus, int imax);
 
         // create folder "M[%meta_generation]"
         void InitUpdateDirectory(int meta_generation); //update current meta_dir

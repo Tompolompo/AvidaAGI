@@ -12,7 +12,7 @@ class cEnvironment;
 class cController{
 public:
 
-    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, int num_instructions);
+    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, int num_instructions,int phase1_length);
 
     // chromosome related
     std::vector<double> m_X0;
@@ -33,6 +33,7 @@ public:
 
     // fas 3
     int m_num_instructions;
+    int m_phase1_length;
 
 
     // Accessor functions

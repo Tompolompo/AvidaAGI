@@ -1069,6 +1069,10 @@ public:
   bool Inst_CommunicateWithHumans(cAvidaContext& ctx);
   bool Inst_CommunicateWithHumans1(cAvidaContext& ctx);
   bool Inst_SenseResourceIDAGI(cAvidaContext& ctx);
+  bool Inst_AskAGI(cAvidaContext& ctx);
+  bool Inst_TellAGI(cAvidaContext& ctx);
+  bool Inst_CompareBonusVector1(cAvidaContext& ctx);
+  bool Inst_CompareBonusVector2(cAvidaContext& ctx);
   
 };
 

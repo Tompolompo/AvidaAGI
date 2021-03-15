@@ -97,9 +97,12 @@ int main(int argc, char **argv)  {
     universe_settings[2] = num_updates;
 
     // fas 3 settings
-    int num_instructions = 26 + 2;
-    int phases = 2;
-    int chromosome_length = phases * num_instructions;
+    int num_AGI_instructions = 6;
+    int num_instructions = 26 + 6;
+    int phases = 1;
+    int chromosome_length = phases * num_AGI_instructions;
+    int phase1_length = 1000;
+    bool meta_evo = false;
 
     // Derived params
     int num_tasks = ref_bonus.size();
@@ -116,7 +119,7 @@ int main(int argc, char **argv)  {
     int limit = num_worlds/num_procs;
 
     // Initialise starting conditions
-    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary);
+    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary, meta_evo);
     FileSystem fs = FileSystem(0);
 
     if (rank == root)  {
@@ -125,6 +128,7 @@ int main(int argc, char **argv)  {
         // Save settings
         fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_bonus.data(), num_tasks, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
         fs.InitMetaData(chromosome_length);
+        fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
     }
     
     // Initialise Avida
@@ -169,13 +173,13 @@ int main(int argc, char **argv)  {
 
             // Set up controller 
 
-            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, num_instructions);
+            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, num_instructions, phase1_length);
             //controller->SetWeights(DecodeChromosome(controllers[iworld], num_tasks));
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);
             world->setup(new_world, &feedback, &defs);
-            if (world->m_controller->m_num_instructions != num_instructions){
+            if (world->m_hw_mgr->GetInstSetAGI(0).GetSize() != num_instructions){
                 cout << "number of instructions does not match" << endl;
             }
             world->SetVerbosity(0);
@@ -252,50 +256,42 @@ int main(int argc, char **argv)  {
             double max_fitness = current_fitness[imax];
             // std::vector<double> best_bonus = current_bonus[imax];
 
-            // Selection
-            std::vector<std::vector<double> > new_controllers = controllers;
-            for (size_t iworld = 0; iworld < num_worlds-1; iworld += 2) {
+            if (meta_evo){
+                // Selection
+                std::vector<std::vector<double> > new_controllers = controllers;
+                for (size_t iworld = 0; iworld < num_worlds-1; iworld += 2) {
 
-                // Select a pair of chromosomes
-                int ix1 = TournamentSelect(current_fitness, tournament_probability);
-                int ix2=-1;
-                do { ix2 = TournamentSelect(current_fitness, tournament_probability); }
-                while (ix2==ix1);
-                
-                new_controllers[iworld] = controllers[ix1];
-                new_controllers[iworld+1] = controllers[ix2];
+                    // Select a pair of chromosomes
+                    int ix1 = TournamentSelect(current_fitness, tournament_probability);
+                    int ix2 = -1;
+                    do { ix2 = TournamentSelect(current_fitness, tournament_probability); }
+                    while (ix2==ix1);
+                    
+                    new_controllers[iworld] = controllers[ix1];
+                    new_controllers[iworld+1] = controllers[ix2];
 
-                // Crossover
-                if (RandomNumber(0.0, 1.0) < crossover_probability) {
-                    std::vector<std::vector<double> > chromosomes = Cross(controllers[ix1], controllers[ix2]);
-                    new_controllers[iworld] = chromosomes[0];
-                    new_controllers[iworld+1] = chromosomes[1];
+                    // Crossover
+                    if (RandomNumber(0.0, 1.0) < crossover_probability) {
+                        std::vector<std::vector<double> > chromosomes = Cross(controllers[ix1], controllers[ix2]);
+                        new_controllers[iworld] = chromosomes[0];
+                        new_controllers[iworld+1] = chromosomes[1];
+                    }
                 }
+
+                // Mutation
+                mutation_probability_constant = mutation_probability_constant*pow(mutation_decay,imeta)+min_mutation_constant;
+                mutation_probability = mutation_probability_constant/chromosome_length;
+                creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
+                for (size_t iworld = 0; iworld < num_worlds; iworld++) {
+                    std::vector<double> chromosome = new_controllers[iworld];
+                    controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max, binary);
+                }
+
+                //Elitism
+                controllers[0] = best_chromosome;
             }
 
-            // Mutation
-            mutation_probability_constant = mutation_probability_constant*pow(mutation_decay,imeta)+min_mutation_constant;
-            mutation_probability = mutation_probability_constant/chromosome_length;
-            creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
-            for (size_t iworld = 0; iworld < num_worlds; iworld++) {
-                std::vector<double> chromosome = new_controllers[iworld];
-                controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max, binary);
-            }
-
-            //Elitism
-            controllers[0] = best_chromosome;
-
-            cout << "Best chromosome is "<< imax << endl;
-            cout << "Phase 1: [";
-            for (int k = 0; k<num_instructions; k++){
-                cout << controllers[0][k] << ", ";
-            }
-            cout << "]" << endl;
-            cout << "Phase 2: [";
-            for (int k = num_instructions; k<2*num_instructions; k++){
-                cout << controllers[0][k] << ", ";
-            }
-            cout << "]" << endl;
+            
             
             // Print progress
             end_time = std::chrono::high_resolution_clock::now(); 
@@ -307,12 +303,24 @@ int main(int argc, char **argv)  {
                 // for (size_t task = 0; task < chromosome_length; task++)
                 //     cout << best_chromosome[task] << ", ";
                 << ", Elapsed: " << duration.count() << " minutes" << endl;
+                
+            cout << "Best chromosome is "<< imax << ": [";
+            for (int k = 0; k<chromosome_length; k++){
+                cout << best_chromosome[k] << ", ";
+            }
+            cout << "]" << endl;
+            /*
+            cout << "Phase 2: [";
+            for (int k = num_instructions; k < 2*num_instructions; k++){
+                cout << controllers[0][k] << ", ";
+            }
+            cout << "]" << endl;*/
 
             // Save training data to file
-            fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome);
+            fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome, imax);
 
             // Save chromosomes to file (to be able to continue at last imeta)
-            fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
+            //fs.SaveChromosomes(controllers, num_worlds, chromosome_length); 
 
         }
 

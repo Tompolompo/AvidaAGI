@@ -238,9 +238,6 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
 
   // MODIFIED
 
-
-   
-
   return controller_fitness;
   //return m_phi_0_sum;
 }

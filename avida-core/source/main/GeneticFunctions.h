@@ -8,9 +8,9 @@ double RandomNumber(double min, double max);
 int RandomNumber(int min, int max);
 
 
-
-std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, double gene_min, double gene_max, bool binary);
-std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, int gene_min, int gene_max, bool binary);
+bool in_population(std::vector<double> trial, std::vector<std::vector<double> > population , int pop_size);
+std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, double gene_min, double gene_max, bool binary, bool meta_evo);
+std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, int gene_min, int gene_max, bool binary, bool meta_evo);
 
 std::vector<Eigen::MatrixXf> DecodeChromosome(std::vector<double> chromosome, int num_output_nodes, double weight_range=1);
 

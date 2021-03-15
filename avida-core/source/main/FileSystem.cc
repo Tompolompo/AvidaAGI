@@ -143,7 +143,7 @@ void FileSystem::InitMetaData(int num_tasks){
     strcat(meta_data_file, root_dir);
     strcat(meta_data_file, "/metarun.csv");
     FILE *file_meta_run = fopen(meta_data_file, "w");
-    fprintf(file_meta_run, "m,max(Phi_0)");
+    fprintf(file_meta_run, "m,max(Phi_0),imax");
     for (int task = 0; task < num_tasks; task++){
       fprintf(file_meta_run, ",hatphi%d", task);
     }
@@ -151,12 +151,12 @@ void FileSystem::InitMetaData(int num_tasks){
     fclose(file_meta_run);
 }
 
-void FileSystem::SaveMetaData(int num_tasks, int imeta, double current_max_fitness, std::vector<double> bonus){
+void FileSystem::SaveMetaData(int num_tasks, int imeta, double current_max_fitness, std::vector<double> bonus, int imax){
     strcpy (meta_data_file, "./");
     strcat(meta_data_file, root_dir);
     strcat(meta_data_file, "/metarun.csv");
     FILE *file_meta_run = fopen(meta_data_file, "a");
-    fprintf(file_meta_run, "%d,%f", imeta, current_max_fitness);
+    fprintf(file_meta_run, "%d,%f,%d", imeta, current_max_fitness,imax);
     for (int task = 0; task < num_tasks; task++){
         double l = bonus[task];
         fprintf(file_meta_run, ",%f", l);
@@ -175,8 +175,8 @@ void FileSystem::SaveChromosomes(std::vector<std::vector<double> > chromosomes, 
     for (int iworld=0; iworld < num_worlds; iworld++){
         for (int gene = 0; gene < chromosome_length; gene++){
             fprintf(file_chromosomes, "%f,", chromosomes[iworld][gene]);
-
         }
+        fprintf(file_chromosomes, "\n");
     }
     fclose(file_chromosomes);
 }
