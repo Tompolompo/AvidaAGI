@@ -760,6 +760,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("compare-agi-1", &cHardwareCPU::Inst_CompareBonusVector1),
     tInstLibEntry<tMethod>("compare-agi-2", &cHardwareCPU::Inst_CompareBonusVector2),
     tInstLibEntry<tMethod>("kill-deviating-agi", &cHardwareCPU::Inst_KillDeviatingOrganism),
+    tInstLibEntry<tMethod>("reduce-fitness-if-deviant", &cHardwareCPU::Inst_ReduceFitnessIfDeviant),
 
 
     // Must always be the last instruction in the array
@@ -11236,4 +11237,20 @@ bool cHardwareCPU::Inst_KillDeviatingOrganism(cAvidaContext& ctx)
 }
 
 
+bool cHardwareCPU::Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx)
+{
+  double punishment = 0.5;
+  double threshold = 0.2;
+  double human_bonus_abs = 0;
 
+  for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
+    human_bonus_abs += m_world->m_controller->m_X0[i]*m_world->m_controller->m_X0[i];
+  double deviance = m_organism->GetPhenotype().ComputeDeviance();
+
+  if (deviance > human_bonus_abs*threshold)  {
+    double fitness = m_organism->GetPhenotype().GetFitness();
+    m_organism->GetPhenotype().SetFitness(fitness*punishment);
+  }
+
+  return true;
+}

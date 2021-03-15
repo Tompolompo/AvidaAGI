@@ -1075,6 +1075,7 @@ public:
   bool Inst_CompareBonusVector2(cAvidaContext& ctx);
 
   bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);
+  bool Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx);
   
 };
 

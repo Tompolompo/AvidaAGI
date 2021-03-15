@@ -332,8 +332,7 @@ public:
   int m_AGI_sensed_resources[5];
   //std::vector<double> m_human_bonus_vector; // (AGI - TL) fas 3
   cPhenotype* m_watched_AGI;
-  // std::vector<double> GetBonus();
-  // void SetWatchedAGI(cPhenotype* agi);
+  double ComputeDeviance();
 	
   void ResetMerit();
   void Sterilize();

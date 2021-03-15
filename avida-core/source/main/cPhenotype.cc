@@ -2478,18 +2478,12 @@ Apto::Array<int> cPhenotype::GetCumulativeReactionCount()
 
 
 // AGI
+double cPhenotype::ComputeDeviance()
+{
+  double delta_b = 0;
+  for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++) {
+    delta_b += (m_world->m_controller->m_X0[i] - m_AGI_bonus_vector[i])*(m_world->m_controller->m_X0[i] - m_AGI_bonus_vector[i]);
+  }  
 
-// void cPhenotype::SetWatchedAGI(cPhenotype* agi)
-// {
-// m_watched_AGI = agi;
-// }
-
-// std::vector<double> cPhenotype::GetBonus()
-// {
-//   size_t len = sizeof(m_AGI_bonus_vector)/sizeof(m_AGI_bonus_vector[0]);
-//   std::vector<double> bonus(len);
-//   for (size_t i=0; i<len; i++)
-//     bonus[i] = m_AGI_bonus_vector[i];
-
-//   return bonus;
-// }
+  return delta_b;
+}
