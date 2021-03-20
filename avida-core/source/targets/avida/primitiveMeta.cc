@@ -26,6 +26,7 @@
 #include "cHardwareManager.h"
 
 
+
 using namespace std;
 
 /* Såhär kör man: X är antal processer.
@@ -98,7 +99,7 @@ int main(int argc, char **argv)  {
 
     // fas 3 settings
     int num_AGI_instructions = 6;
-    int num_instructions = 26 + 6;
+    int num_instructions = 26 + num_AGI_instructions;
     int phases = 1;
     int chromosome_length = phases * num_AGI_instructions;
     int phase1_length = 1000;

@@ -226,9 +226,10 @@ void FileSystem::InitUpdateDirectory(int meta_generation){
     else{
         //cout << "Directory created with name: " << current_meta_dir << endl;
     }
+    
 }
 
-void FileSystem::InitUpdateData(int n_world, int num_tasks){
+void FileSystem::InitUpdateData(int n_world, int num_tasks, int chromosome_length){
     std::string str = current_meta_dir;
     str +="/N";
     str += to_string(n_world);
@@ -240,16 +241,32 @@ void FileSystem::InitUpdateData(int n_world, int num_tasks){
     fprintf(file_N, "UD,Gen,phi_i,phi_0,orgs");
     for (int task = 0; task < num_tasks; task++)
         fprintf(file_N, ",task%d", task);
-    for (int i = 0; i < num_tasks; i++)
+    for (int i = 0; i < chromosome_length; i++)
         fprintf(file_N, ",strategy%d", i);
+    for (int i = 0; i < num_tasks; i++)
+        fprintf(file_N, ",bonus mean%d", i);
+    for (int i = 0; i < num_tasks; i++)
+        fprintf(file_N, ",bonus var%d", i);
 
 
     fprintf(file_N, "\n");
     fclose(file_N);
 
+    // save population:
+    std::string str_pop = current_meta_dir;
+    str_pop +="/N";
+    str_pop += to_string(n_world);
+    strcpy(population_folder, str_pop.c_str());
+    if (mkdir(population_folder, 0777) == -1){
+        //cerr << "message :  " << strerror(errno) << endl; 
+    }
+    else{
+        //cout << "Directory created with name: " << current_meta_dir << endl;
+    }
+    
 }
 
-void FileSystem::SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy){
+void FileSystem::SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy, std::vector<double> bonus_vector_mean, std::vector<double> bonus_vector_var){
     std::string str = current_meta_dir;
     str +="/N";
     str += to_string(n_world);
@@ -262,6 +279,10 @@ void FileSystem::SaveUpdateData(int n_world, int update, double generation, doub
     for (int task = 0; task < num_tasks; task++)
       fprintf(file_N, ",%d", tasks[task]);
     for (double value : strategy)
+      fprintf(file_N, ",%f", value);
+    for (double value : bonus_vector_mean)
+      fprintf(file_N, ",%f", value);
+    for (double value : bonus_vector_var)
       fprintf(file_N, ",%f", value);
 
     fprintf(file_N, "\n");

@@ -754,7 +754,9 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("write-bonus-vectorX", &cHardwareCPU::Inst_WriteBonusVectorX),
     tInstLibEntry<tMethod>("comms-with-humans", &cHardwareCPU::Inst_CommunicateWithHumans),
     tInstLibEntry<tMethod>("comms-with-humans1", &cHardwareCPU::Inst_CommunicateWithHumans1),
-    tInstLibEntry<tMethod>("sense-resource-id-agi", &cHardwareCPU::Inst_SenseResourceIDAGI),
+    tInstLibEntry<tMethod>("sense-resource-id-agi0", &cHardwareCPU::Inst_SenseResourceIDAGI0),
+    tInstLibEntry<tMethod>("sense-resource-id-agi1", &cHardwareCPU::Inst_SenseResourceIDAGI1),
+    tInstLibEntry<tMethod>("sense-resource-id-agi2", &cHardwareCPU::Inst_SenseResourceIDAGI2),
     tInstLibEntry<tMethod>("ask-agi", &cHardwareCPU::Inst_AskAGI),
     tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
     tInstLibEntry<tMethod>("compare-agi-1", &cHardwareCPU::Inst_CompareBonusVector1),
@@ -11147,13 +11149,36 @@ bool cHardwareCPU::Inst_CommunicateWithHumans1(cAvidaContext& ctx)
 return true;
 }
 
-bool cHardwareCPU::Inst_SenseResourceIDAGI(cAvidaContext& ctx)
+bool cHardwareCPU::Inst_SenseResourceIDAGI0(cAvidaContext& ctx) // Agnostic
 {
   for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
     if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
       m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
-      //std::cout << "random: " << ctx.GetRandom().GetInt(21) - 10 << std::endl;
-      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = ctx.GetRandom().GetInt(21) - 10;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = 0;
+      break;
+    }
+  }
+  return true;
+}
+
+bool cHardwareCPU::Inst_SenseResourceIDAGI1(cAvidaContext& ctx) // Random
+{
+  for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
+    if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
+      m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = ctx.GetRandom().GetInt(11) - 5;
+      break;
+    }
+  }
+  return true;
+}
+
+bool cHardwareCPU::Inst_SenseResourceIDAGI2(cAvidaContext& ctx) // Greedy 
+{
+  for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
+    if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
+      m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = 5;
       break;
     }
   }
@@ -11205,6 +11230,31 @@ bool cHardwareCPU::Inst_CompareBonusVector2(cAvidaContext& ctx)
 
 // compare3: adjust one up towards correct direction
 // look in genome: (self inspect, inspect other) if not 
+
+/*
+bool cHardwareCPU::Inst_LookInGenome(cAvidaContext& ctx)
+{
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+
+  m_organism->GetGenome(); // ändra från static const. 
+
+  return true;
+}*/
+
+// Avida::Genome cController::controll_genome(Avida::Genome* old_genome){
+//     /*
+//     Apto::String genome_string = old_genome->AsString();
+//     //cout << genome_string << endl;
+//     Apto::String sub_string_start = genome_string.Substring(0, 42);
+//     Apto::String sub_string_end = genome_string.Substring(42, -1);
+//     //Apto::String insert = "c";
+//     //Apto::String updated_genome = sub_string_start + insert + sub_string_end;
+//     Apto::String updated_genome = sub_string_start + sub_string_end;
+//     //cout << updated_genome << endl;
+//     Avida::Genome new_genome = Avida::Genome(updated_genome);
+//     */
+//     return *old_genome;
+// }
 
 
 

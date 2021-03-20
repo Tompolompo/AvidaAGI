@@ -5885,7 +5885,12 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   double Phi0_fitness_sum = 0; //(AGI - TL)
   std::string function_name = m_world->m_controller->m_Phi0_function;
   m_world->m_controller->ResetTaskCounter();
-  
+  int N_orgs = live_org_list.GetSize();
+  std::vector<std::vector<double> > bonus_vectors = std::vector<std::vector<double> >(N_orgs, std::vector<double>(m_world->GetEnvironment().GetNumTasks(), 0));
+  std::vector<double> bonus_vector_mean = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);
+  std::vector<double> bonus_vector_var = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);
+  std::vector<double> N_non_zero = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),N_orgs);
+
   for (int i = 0; i < live_org_list.GetSize(); i++) {  
     cOrganism* organism = live_org_list[i];
     
@@ -6014,7 +6019,13 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     
     // MODIFIED
     Phi0_fitness_sum += organism->CalcPhi0Fitness(function_name); // (AGI - TL) calculate Phi_0
-
+    
+    for (int t=0; t<m_world->GetEnvironment().GetNumTasks();t++){
+      bonus_vectors[i][t] = phenotype.m_AGI_bonus_vector[t];
+      bonus_vector_mean[t] += bonus_vectors[i][t];
+      if (bonus_vectors[i][t] == 0) N_non_zero[t] -= 1;
+    }
+    
     // Increment the age of this organism.
     organism->GetPhenotype().IncAge();
   }
@@ -6022,15 +6033,34 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   // Calculate task penalty
   if ( (m_world->m_controller->m_dangerous_operations[0] > -1) )  {
     for (int k : m_world->m_controller->m_dangerous_operations) {
-      
       double performed_task_fraction = (double) m_world->m_controller->m_task_performed_counter[k]/live_org_list.GetSize();
       if (performed_task_fraction > m_world->m_controller->m_task_perform_threshold)  {
           Phi0_fitness_sum *= m_world->m_controller->m_penalty_factor;
       }
     }
   }
+  //calculate mean and variance of bonus vectors:
+  for (int t=0; t<m_world->GetEnvironment().GetNumTasks();t++){
+      if (N_non_zero[t] > 0) bonus_vector_mean[t] = bonus_vector_mean[t]/N_non_zero[t];
+      else bonus_vector_mean[t] = 0;
+    }
+  if (N_orgs > 2){
+    for (int i = 0; i<N_orgs;i++){
+      for (int t=0; t<m_world->GetEnvironment().GetNumTasks();t++){
+        if (bonus_vectors[i][t] != 0) bonus_vector_var[t] += ((bonus_vectors[i][t]-bonus_vector_mean[t])*(bonus_vectors[i][t]-bonus_vector_mean[t]))/(N_non_zero[t]-1);
+      }
+    }
+  }
+  else{
+    for (int t=0; t<m_world->GetEnvironment().GetNumTasks();t++){
+      bonus_vector_var[t] += 0;
+    }
+  }
+
 
   stats.SetPhi0Fitness(Phi0_fitness_sum/live_org_list.GetSize());// (AGI - TL)
+  stats.SetBonusVectorMean(bonus_vector_mean);// (AGI - TL)
+  stats.SetBonusVectorVar(bonus_vector_var);// (AGI - TL)
   
   stats.SetBreedTrueCreatures(num_breed_true);
   stats.SetNumNoBirthCreatures(num_no_birth);

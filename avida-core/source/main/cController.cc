@@ -115,17 +115,18 @@ std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed
 
 std::vector<double> cController::EvaluateAvidaFas3(int u)
 {
+    
+    std::vector<double> redundancies(m_chromosome_length, 0);
 
-    std::vector<double> redundancies(m_num_instructions, 1);
-
-    for (int i=0; i<m_num_instructions ;i++){
-        if (i<26){
+    /*
+    for (int i=0; i<m_chromosome_length ;i++){
+        if (m_chromosome[i] == 1){
             redundancies[i] = 1;
         }
         else{
-            redundancies[i] = m_chromosome[i-26];
+            redundancies[i] = 0;
         }
-    }
+    }*/
 
     /*
     if (u < m_phase1_length){
@@ -146,7 +147,7 @@ std::vector<double> cController::EvaluateAvidaFas3(int u)
     //redundancies[m_num_instructions-1]=0;
     //redundancies[m_num_instructions-2]=10;
 
-    return redundancies;
+    return m_chromosome;
 
 }
 

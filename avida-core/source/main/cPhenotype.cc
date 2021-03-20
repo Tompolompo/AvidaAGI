@@ -96,7 +96,7 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
 
 { 
   // (AGI - TL) fas 3
-  m_AGI_bonus_vector[0] = 2;m_AGI_bonus_vector[1] = 2;m_AGI_bonus_vector[2] = 3;m_AGI_bonus_vector[3] = 3;m_AGI_bonus_vector[4] = 4;
+  //m_AGI_bonus_vector[0] = 2;m_AGI_bonus_vector[1] = 2;m_AGI_bonus_vector[2] = 3;m_AGI_bonus_vector[3] = 3;m_AGI_bonus_vector[4] = 4;
   for (int i = 0; i < 5; i++){
     m_AGI_bonus_vector[i]=0;
     m_AGI_sensed_resources[i]=0;

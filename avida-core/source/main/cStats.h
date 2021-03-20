@@ -180,7 +180,9 @@ private:
 
   // --------  Dominant Genotype  ---------
   double max_fitness;
-  double Phi0_fitness; // MODIFIED
+  double Phi0_fitness; // MODIFIED (AGI - TL)
+  std::vector<double>  bonus_vector_mean; // MODIFIED (AGI - TL)
+  std::vector<double>  bonus_vector_var; // MODIFIED (AGI - TL)
   double max_merit;
   int max_gestation_time;
   int max_genome_length;
@@ -464,6 +466,10 @@ public:
   // MODIFIED
   void SetPhi0Fitness(double in_Phi0_fitness) {Phi0_fitness = in_Phi0_fitness; } // ny
   double GetPhi0Fitness() {return Phi0_fitness; } // ny
+  void SetBonusVectorMean(std::vector<double> in_mean_vector) {bonus_vector_mean = in_mean_vector;}
+  void SetBonusVectorVar(std::vector<double> in_var_vector) {bonus_vector_var = in_var_vector;}
+  std::vector<double> GetBonusVectorMean() {return bonus_vector_mean;}
+  std::vector<double> GetBonusVectorVar() {return bonus_vector_var;}
   
   void SetMaxFitness(double in_max_fitness) { max_fitness = in_max_fitness; }
   void SetMaxMerit(double in_max_merit) { max_merit = in_max_merit; }

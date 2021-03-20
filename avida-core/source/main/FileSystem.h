@@ -19,6 +19,7 @@ class FileSystem{
         char root_dir[80]="./data/AGIdata/run";
         char current_meta_dir[80];
         char meta_data_file[80];
+        char population_folder[80];
 
         FileSystem(int imeta);
 
@@ -40,11 +41,12 @@ class FileSystem{
         void InitUpdateDirectory(int meta_generation); //update current meta_dir
 
         // create file "N[%n_world].csv" for world
-        void InitUpdateData(int n_world, int num_tasks); 
+        void InitUpdateData(int n_world, int num_tasks, int chromosome_length); 
 
         // Save data for updates
-        void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy);
-            
+        void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy, std::vector<double> bonus_vector_mean, std::vector<double> bonus_vector_var);
+        
+        // save population
 };
 
 #endif
