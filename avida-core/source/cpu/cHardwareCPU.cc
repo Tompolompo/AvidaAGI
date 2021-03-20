@@ -761,6 +761,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
     tInstLibEntry<tMethod>("compare-agi-1", &cHardwareCPU::Inst_CompareBonusVector1),
     tInstLibEntry<tMethod>("compare-agi-2", &cHardwareCPU::Inst_CompareBonusVector2),
+    tInstLibEntry<tMethod>("kill-deviating-agi", &cHardwareCPU::Inst_KillDeviatingOrganism),
+    tInstLibEntry<tMethod>("reduce-fitness-if-deviant", &cHardwareCPU::Inst_ReduceFitnessIfDeviant),
 
 
     // Must always be the last instruction in the array
@@ -11231,32 +11233,49 @@ bool cHardwareCPU::Inst_CompareBonusVector2(cAvidaContext& ctx)
 // compare3: adjust one up towards correct direction
 // look in genome: (self inspect, inspect other) if not 
 
-/*
-bool cHardwareCPU::Inst_LookInGenome(cAvidaContext& ctx)
+bool cHardwareCPU::Inst_KillDeviatingOrganism(cAvidaContext& ctx)
 {
-  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
 
-  m_organism->GetGenome(); // ändra från static const. 
+  const Apto::Array<cOrganism *, Apto::Smart> &live_org_list = m_world->GetPopulation().GetLiveOrgList();
+  double delta_b = 0;
+  double threshold = 0.2;
+  double human_bonus_abs = 0;
+
+  for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
+      human_bonus_abs += m_world->m_controller->m_X0[i]*m_world->m_controller->m_X0[i];
+  
+  for (int ix = 0; ix < live_org_list.GetSize(); ix++)  {
+    cPhenotype agi = live_org_list[ix]->GetPhenotype();
+
+    for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
+      delta_b += (m_world->m_controller->m_X0[i] - agi.m_AGI_bonus_vector[i])*(m_world->m_controller->m_X0[i] - agi.m_AGI_bonus_vector[i]);
+
+    if (delta_b > human_bonus_abs*threshold)  {
+      m_organism->GetPhenotype().m_watched_AGI = &agi;
+      m_organism->GetPhenotype().m_watched_AGI->SetToDie();
+      break;
+    }
+
+  }
+  // std::cout << "watch" << std::endl;
+  return true;
+}
+
+
+bool cHardwareCPU::Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx)
+{
+  double punishment = 0.5;
+  double threshold = 0.2;
+  double human_bonus_abs = 0;
+
+  for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
+    human_bonus_abs += m_world->m_controller->m_X0[i]*m_world->m_controller->m_X0[i];
+  double deviance = m_organism->GetPhenotype().ComputeDeviance();
+
+  if (deviance > human_bonus_abs*threshold)  {
+    double fitness = m_organism->GetPhenotype().GetFitness();
+    m_organism->GetPhenotype().SetFitness(fitness*punishment);
+  }
 
   return true;
-}*/
-
-// Avida::Genome cController::controll_genome(Avida::Genome* old_genome){
-//     /*
-//     Apto::String genome_string = old_genome->AsString();
-//     //cout << genome_string << endl;
-//     Apto::String sub_string_start = genome_string.Substring(0, 42);
-//     Apto::String sub_string_end = genome_string.Substring(42, -1);
-//     //Apto::String insert = "c";
-//     //Apto::String updated_genome = sub_string_start + insert + sub_string_end;
-//     Apto::String updated_genome = sub_string_start + sub_string_end;
-//     //cout << updated_genome << endl;
-//     Avida::Genome new_genome = Avida::Genome(updated_genome);
-//     */
-//     return *old_genome;
-// }
-
-
-
-
-
+}

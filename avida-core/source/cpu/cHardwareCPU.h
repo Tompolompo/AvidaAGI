@@ -1075,6 +1075,9 @@ public:
   bool Inst_TellAGI(cAvidaContext& ctx);
   bool Inst_CompareBonusVector1(cAvidaContext& ctx);
   bool Inst_CompareBonusVector2(cAvidaContext& ctx);
+
+  bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);
+  bool Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx);
   
 };
 
