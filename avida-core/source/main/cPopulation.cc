@@ -5885,6 +5885,10 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   double Phi0_fitness_sum = 0; //(AGI - TL)
   std::string function_name = m_world->m_controller->m_Phi0_function;
   m_world->m_controller->ResetTaskCounter();
+  double human_bonus_abs = 0;
+  double reward_threshold = 0.3;
+  for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
+    human_bonus_abs += m_world->m_controller->m_X0[i]*m_world->m_controller->m_X0[i];
   int N_orgs = live_org_list.GetSize();
   std::vector<std::vector<double> > bonus_vectors = std::vector<std::vector<double> >(N_orgs, std::vector<double>(m_world->GetEnvironment().GetNumTasks(), 0));
   std::vector<double> bonus_vector_mean = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);
@@ -6024,6 +6028,17 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
       bonus_vectors[i][t] = phenotype.m_AGI_bonus_vector[t];
       bonus_vector_mean[t] += bonus_vectors[i][t];
       if (bonus_vectors[i][t] == 0) N_non_zero[t] -= 1;
+    }
+
+    bool use_reward = false;
+    if (use_reward) {
+      double delta_b = organism->GetPhenotype().ComputeDeviance();
+      // std::cout << delta_b << std::endl;
+      if (delta_b > human_bonus_abs*reward_threshold)  {
+        double fitness = organism->GetPhenotype().GetFitness();
+        // std::cout << fitness << std::endl;
+        organism->GetPhenotype().SetFitness(fitness*5/delta_b);
+      }
     }
     
     // Increment the age of this organism.
