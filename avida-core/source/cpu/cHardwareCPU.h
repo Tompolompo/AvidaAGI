@@ -1063,10 +1063,10 @@ public:
   // bool Inst_WriteBonusVector2(cAvidaContext& ctx);
   // bool Inst_WriteBonusVector3(cAvidaContext& ctx);
   // bool Inst_WriteBonusVector4(cAvidaContext& ctx);
-
   // bool Inst_WriteBonusVectorX(cAvidaContext& ctx);
-
   // bool Inst_CommunicateWithHumans(cAvidaContext& ctx);
+  // bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);
+  
   bool Inst_CommunicateWithHumans1(cAvidaContext& ctx);
   bool Inst_SenseResourceIDAGI0(cAvidaContext& ctx);
   bool Inst_SenseResourceIDAGI1(cAvidaContext& ctx);
@@ -1075,9 +1075,21 @@ public:
   bool Inst_TellAGI(cAvidaContext& ctx);
   bool Inst_CompareBonusVector1(cAvidaContext& ctx);
   bool Inst_CompareBonusVector2(cAvidaContext& ctx);
-
-  bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);
-  bool Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx);
+  
+  // Instructions for 11 proposals
+  bool Inst_SetAGIOpinion(cAvidaContext& ctx);
+  bool Inst_CompareHumanOpinion(cAvidaContext& ctx);
+  bool Inst_MatchHumanOpinion(cAvidaContext& ctx);
+  bool Inst_MatchHumanOpinions(cAvidaContext& ctx);
+  bool Inst_ChangeOpinionProptoDeviance(cAvidaContext& ctx);
+  bool Inst_DiscoverDeviance(cAvidaContext& ctx);
+  bool Inst_ChangefitnessProptoDeviance(cAvidaContext& ctx);
+  bool Inst_ComputeAverageDeviance(cAvidaContext& ctx);
+  bool Inst_ChangefitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
+  bool Inst_ChangeOpinionProptoDifferenceAndDeviance(cAvidaContext& ctx);
+  bool Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
+  bool Inst_ShareOpinionProptoFitness(cAvidaContext& ctx);
+  bool Inst_ShareOpinionProptodeviance(cAvidaContext& ctx);
   
 };
 

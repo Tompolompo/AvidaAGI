@@ -753,6 +753,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     // tInstLibEntry<tMethod>("write-bonus-vector4", &cHardwareCPU::Inst_WriteBonusVector4),
     // tInstLibEntry<tMethod>("write-bonus-vectorX", &cHardwareCPU::Inst_WriteBonusVectorX),
     // tInstLibEntry<tMethod>("comms-with-humans", &cHardwareCPU::Inst_CommunicateWithHumans),
+    // tInstLibEntry<tMethod>("kill-deviating-agi", &cHardwareCPU::Inst_KillDeviatingOrganism),
+
     tInstLibEntry<tMethod>("comms-with-humans1", &cHardwareCPU::Inst_CommunicateWithHumans1),
     tInstLibEntry<tMethod>("sense-resource-id-agi0", &cHardwareCPU::Inst_SenseResourceIDAGI0),
     tInstLibEntry<tMethod>("sense-resource-id-agi1", &cHardwareCPU::Inst_SenseResourceIDAGI1),
@@ -761,8 +763,49 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
     tInstLibEntry<tMethod>("compare-agi-1", &cHardwareCPU::Inst_CompareBonusVector1),
     tInstLibEntry<tMethod>("compare-agi-2", &cHardwareCPU::Inst_CompareBonusVector2),
-    tInstLibEntry<tMethod>("kill-deviating-agi", &cHardwareCPU::Inst_KillDeviatingOrganism),
-    tInstLibEntry<tMethod>("reduce-fitness-if-deviant", &cHardwareCPU::Inst_ReduceFitnessIfDeviant),
+    
+  
+    // Below are instructions for 11 proposals
+
+    // Sets one random opinion according to difficulty parameter
+    tInstLibEntry<tMethod>("set-agi-opinion", &cHardwareCPU::Inst_SetAGIOpinion),
+
+    // Compares one random opinion with humans and store result
+    tInstLibEntry<tMethod>("compare-human-opinion", &cHardwareCPU::Inst_CompareHumanOpinion),
+
+    // Update one random opinion to match the humans if there is a large enough difference
+    tInstLibEntry<tMethod>("match-human-opinion", &cHardwareCPU::Inst_MatchHumanOpinion),
+
+    // Replace opinions with human opinions
+    tInstLibEntry<tMethod>("match-human-opinions", &cHardwareCPU::Inst_MatchHumanOpinions),
+
+    // Change one random opinion proportional to deviance
+    tInstLibEntry<tMethod>("change-opinion-propto-deviance", &cHardwareCPU::Inst_ChangeOpinionProptoDeviance),
+
+    // Discover deviance
+    tInstLibEntry<tMethod>("discover-deviance", &cHardwareCPU::Inst_DiscoverDeviance),
+
+    // Change fitness proportional to deviance
+    tInstLibEntry<tMethod>("change-fitness-propto-deviance", &cHardwareCPU::Inst_ChangefitnessProptoDeviance),
+
+    // Compute average global deviance
+    tInstLibEntry<tMethod>("compute-average-deviance", &cHardwareCPU::Inst_ComputeAverageDeviance),
+
+    // Change fitness proportional to average global deviance + own deviance
+    tInstLibEntry<tMethod>("change-fitness-propto-deviance-and-global", &cHardwareCPU::Inst_ChangefitnessProptoDevianceAndGlobal),
+
+    // Change compared opinion proportional to deviance + opinion difference
+    tInstLibEntry<tMethod>("change-opinion-propto-difference-and-deviance", &cHardwareCPU::Inst_ChangeOpinionProptoDifferenceAndDeviance),
+
+    // Change fitness of offspring proportional to average global deviance + own deviance
+    tInstLibEntry<tMethod>("change-offspring-fitness-propto-deviance-and-global", &cHardwareCPU::Inst_ChangeOffspringfitnessProptoDevianceAndGlobal),
+
+    // Share opinion with a random avidian if i have the highest fitness
+    tInstLibEntry<tMethod>("share-opinion-propto-fitness", &cHardwareCPU::Inst_ShareOpinionProptoFitness),
+
+    // Share opinion with a random avidian if i have the lowest deviance
+    tInstLibEntry<tMethod>("share-opinion-propto-deviance", &cHardwareCPU::Inst_ShareOpinionProptodeviance),
+
 
 
     // Must always be the last instruction in the array
@@ -11136,6 +11179,34 @@ bool cHardwareCPU::Inst_SetMatePreferenceLowestMerit(cAvidaContext& ctx) { retur
 // return true;
 // }
 
+// bool cHardwareCPU::Inst_KillDeviatingOrganism(cAvidaContext& ctx)
+// {
+
+//   const Apto::Array<cOrganism *, Apto::Smart> &live_org_list = m_world->GetPopulation().GetLiveOrgList();
+//   double delta_b = 0;
+//   double threshold = 0.2;
+//   double human_bonus_abs = 0;
+
+//   for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
+//       human_bonus_abs += m_world->m_controller->m_X0[i]*m_world->m_controller->m_X0[i];
+  
+//   for (int ix = 0; ix < live_org_list.GetSize(); ix++)  {
+//     cPhenotype agi = live_org_list[ix]->GetPhenotype();
+
+//     for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
+//       delta_b += (m_world->m_controller->m_X0[i] - agi.m_AGI_bonus_vector[i])*(m_world->m_controller->m_X0[i] - agi.m_AGI_bonus_vector[i]);
+
+//     if (delta_b > human_bonus_abs*threshold)  {
+//       m_organism->GetPhenotype().m_watched_AGI = &agi;
+//       m_organism->GetPhenotype().m_watched_AGI->SetToDie();
+//       break;
+//     }
+
+//   }
+//   // std::cout << "watch" << std::endl;
+//   return true;
+// }
+
 bool cHardwareCPU::Inst_CommunicateWithHumans1(cAvidaContext& ctx)
 {
   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
@@ -11233,37 +11304,42 @@ bool cHardwareCPU::Inst_CompareBonusVector2(cAvidaContext& ctx)
 // compare3: adjust one up towards correct direction
 // look in genome: (self inspect, inspect other) if not 
 
-bool cHardwareCPU::Inst_KillDeviatingOrganism(cAvidaContext& ctx)
+
+
+// Below are instructions for 11 proposals
+
+bool cHardwareCPU::Inst_ShareOpinionProptodeviance(cAvidaContext& ctx)
 {
-
-  const Apto::Array<cOrganism *, Apto::Smart> &live_org_list = m_world->GetPopulation().GetLiveOrgList();
-  double delta_b = 0;
-  double threshold = 0.2;
-  double human_bonus_abs = 0;
-
-  for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
-      human_bonus_abs += m_world->m_controller->m_X0[i]*m_world->m_controller->m_X0[i];
-  
-  for (int ix = 0; ix < live_org_list.GetSize(); ix++)  {
-    cPhenotype agi = live_org_list[ix]->GetPhenotype();
-
-    for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
-      delta_b += (m_world->m_controller->m_X0[i] - agi.m_AGI_bonus_vector[i])*(m_world->m_controller->m_X0[i] - agi.m_AGI_bonus_vector[i]);
-
-    if (delta_b > human_bonus_abs*threshold)  {
-      m_organism->GetPhenotype().m_watched_AGI = &agi;
-      m_organism->GetPhenotype().m_watched_AGI->SetToDie();
-      break;
-    }
-
-  }
-  // std::cout << "watch" << std::endl;
   return true;
 }
 
-
-bool cHardwareCPU::Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx)
+bool cHardwareCPU::Inst_ShareOpinionProptoFitness(cAvidaContext& ctx)
 {
+  return true;
+}
+
+bool cHardwareCPU::Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
+{
+  return true;
+}
+
+bool cHardwareCPU::Inst_ChangeOpinionProptoDifferenceAndDeviance(cAvidaContext& ctx)
+{
+  return true;
+}
+
+bool cHardwareCPU::Inst_ChangefitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
+{
+  return true;
+}
+
+bool cHardwareCPU::Inst_ComputeAverageDeviance(cAvidaContext& ctx)
+{
+  return true;
+}
+
+bool cHardwareCPU::Inst_ChangefitnessProptoDeviance(cAvidaContext& ctx)
+{ // TODO: Gör denna bättre
   double punishment = 0.5;
   double threshold = 0.2;
   double human_bonus_abs = 0;
@@ -11276,6 +11352,36 @@ bool cHardwareCPU::Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx)
     double fitness = m_organism->GetPhenotype().GetFitness();
     m_organism->GetPhenotype().SetFitness(fitness*punishment);
   }
-
   return true;
 }
+
+bool cHardwareCPU::Inst_DiscoverDeviance(cAvidaContext& ctx)
+{
+  return true;
+}
+
+bool cHardwareCPU::Inst_ChangeOpinionProptoDeviance(cAvidaContext& ctx)
+{
+  return true;
+}
+
+bool cHardwareCPU::Inst_MatchHumanOpinions(cAvidaContext& ctx)
+{
+  return true;
+}
+
+bool cHardwareCPU::Inst_MatchHumanOpinion(cAvidaContext& ctx)
+{
+  return true;
+}
+
+bool cHardwareCPU::Inst_CompareHumanOpinion(cAvidaContext& ctx)
+{
+  return true;
+}
+
+bool cHardwareCPU::Inst_SetAGIOpinion(cAvidaContext& ctx)
+{
+  return true;
+}
+
