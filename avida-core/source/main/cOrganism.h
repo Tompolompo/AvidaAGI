@@ -121,7 +121,7 @@ public:
 
   // MODIFIED 
   double CalcPhi0Fitness(std::string fitness_function); // (AGI - TL) Calculate the controller fitness on Phi_0
-  
+  double m_deviance;
   
   // --------  Systematics::Unit Methods  --------
   Systematics::Source UnitSource() const { return m_src; }

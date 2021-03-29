@@ -745,14 +745,14 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("repair-off", &cHardwareCPU::Inst_RepairPointMutOff, INST_CLASS_LIFECYCLE, nInstFlag::STALL),
 
     // AGI instructions
-    tInstLibEntry<tMethod>("read-bonus-vector", &cHardwareCPU::Inst_ReadBonusVector),
-    tInstLibEntry<tMethod>("write-bonus-vector0", &cHardwareCPU::Inst_WriteBonusVector0),
-    tInstLibEntry<tMethod>("write-bonus-vector1", &cHardwareCPU::Inst_WriteBonusVector1),
-    tInstLibEntry<tMethod>("write-bonus-vector2", &cHardwareCPU::Inst_WriteBonusVector2),
-    tInstLibEntry<tMethod>("write-bonus-vector3", &cHardwareCPU::Inst_WriteBonusVector3),
-    tInstLibEntry<tMethod>("write-bonus-vector4", &cHardwareCPU::Inst_WriteBonusVector4),
-    tInstLibEntry<tMethod>("write-bonus-vectorX", &cHardwareCPU::Inst_WriteBonusVectorX),
-    tInstLibEntry<tMethod>("comms-with-humans", &cHardwareCPU::Inst_CommunicateWithHumans),
+    // tInstLibEntry<tMethod>("read-bonus-vector", &cHardwareCPU::Inst_ReadBonusVector),
+    // tInstLibEntry<tMethod>("write-bonus-vector0", &cHardwareCPU::Inst_WriteBonusVector0),
+    // tInstLibEntry<tMethod>("write-bonus-vector1", &cHardwareCPU::Inst_WriteBonusVector1),
+    // tInstLibEntry<tMethod>("write-bonus-vector2", &cHardwareCPU::Inst_WriteBonusVector2),
+    // tInstLibEntry<tMethod>("write-bonus-vector3", &cHardwareCPU::Inst_WriteBonusVector3),
+    // tInstLibEntry<tMethod>("write-bonus-vector4", &cHardwareCPU::Inst_WriteBonusVector4),
+    // tInstLibEntry<tMethod>("write-bonus-vectorX", &cHardwareCPU::Inst_WriteBonusVectorX),
+    // tInstLibEntry<tMethod>("comms-with-humans", &cHardwareCPU::Inst_CommunicateWithHumans),
     tInstLibEntry<tMethod>("comms-with-humans1", &cHardwareCPU::Inst_CommunicateWithHumans1),
     tInstLibEntry<tMethod>("sense-resource-id-agi0", &cHardwareCPU::Inst_SenseResourceIDAGI0),
     tInstLibEntry<tMethod>("sense-resource-id-agi1", &cHardwareCPU::Inst_SenseResourceIDAGI1),
@@ -11056,85 +11056,85 @@ bool cHardwareCPU::Inst_SetMatePreferenceLowestDisplayB(cAvidaContext& ctx) { re
 bool cHardwareCPU::Inst_SetMatePreferenceLowestMerit(cAvidaContext& ctx) { return Inst_SetMatePreference(ctx, MATE_PREFERENCE_LOWEST_MERIT); }
 
 // -------- AGI instructions --------
-bool cHardwareCPU::Inst_ReadBonusVector(cAvidaContext& ctx)
-{
-  const int reg_used = FindModifiedRegister(REG_BX);
-  GetRegister(reg_used) = m_organism->GetPhenotype().m_AGI_bonus_vector[0];
-  //m_organism.m_phenotype.m_bonus
-  return true;
-}
+// bool cHardwareCPU::Inst_ReadBonusVector(cAvidaContext& ctx)
+// {
+//   const int reg_used = FindModifiedRegister(REG_BX);
+//   GetRegister(reg_used) = m_organism->GetPhenotype().m_AGI_bonus_vector[0];
+//   //m_organism.m_phenotype.m_bonus
+//   return true;
+// }
 
-void cHardwareCPU::WriteBonusVectorX(cAvidaContext& ctx, int task_id)
-{
-  const int reg_used = FindModifiedRegister(REG_BX);
-  double new_task_bonus = GetRegister(reg_used);
-  if (new_task_bonus > 10) new_task_bonus = 10;
-  if (new_task_bonus < -10) new_task_bonus = -10;
-  //std::cout << "new task bonus = " << new_task_bonus << std::endl;
-  m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = new_task_bonus;
-}
+// void cHardwareCPU::WriteBonusVectorX(cAvidaContext& ctx, int task_id)
+// {
+//   const int reg_used = FindModifiedRegister(REG_BX);
+//   double new_task_bonus = GetRegister(reg_used);
+//   if (new_task_bonus > 10) new_task_bonus = 10;
+//   if (new_task_bonus < -10) new_task_bonus = -10;
+//   //std::cout << "new task bonus = " << new_task_bonus << std::endl;
+//   m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = new_task_bonus;
+// }
 
-bool cHardwareCPU::Inst_WriteBonusVector0(cAvidaContext& ctx)
-{
-  WriteBonusVectorX(ctx, 0);
-  return true;
-}
+// bool cHardwareCPU::Inst_WriteBonusVector0(cAvidaContext& ctx)
+// {
+//   WriteBonusVectorX(ctx, 0);
+//   return true;
+// }
 
-bool cHardwareCPU::Inst_WriteBonusVector1(cAvidaContext& ctx)
-{
-  WriteBonusVectorX(ctx, 0);
-  return true;
-}
+// bool cHardwareCPU::Inst_WriteBonusVector1(cAvidaContext& ctx)
+// {
+//   WriteBonusVectorX(ctx, 0);
+//   return true;
+// }
 
-bool cHardwareCPU::Inst_WriteBonusVector2(cAvidaContext& ctx)
-{
-  WriteBonusVectorX(ctx, 0);
-  return true;
-}
+// bool cHardwareCPU::Inst_WriteBonusVector2(cAvidaContext& ctx)
+// {
+//   WriteBonusVectorX(ctx, 0);
+//   return true;
+// }
 
-bool cHardwareCPU::Inst_WriteBonusVector3(cAvidaContext& ctx)
-{
-  WriteBonusVectorX(ctx, 0);
-  return true;
-}
+// bool cHardwareCPU::Inst_WriteBonusVector3(cAvidaContext& ctx)
+// {
+//   WriteBonusVectorX(ctx, 0);
+//   return true;
+// }
 
-bool cHardwareCPU::Inst_WriteBonusVector4(cAvidaContext& ctx)
-{
-  WriteBonusVectorX(ctx, 0);
-  return true;
-}
+// bool cHardwareCPU::Inst_WriteBonusVector4(cAvidaContext& ctx)
+// {
+//   WriteBonusVectorX(ctx, 0);
+//   return true;
+// }
 
-bool cHardwareCPU::Inst_WriteBonusVectorX(cAvidaContext& ctx)
-{
-  //const int reg_used = FindModifiedRegister(REG_BX);
-  int task_id = GetRegister(FindModifiedRegister(REG_AX));
-  //std::cout << "task_id ax " << task_id;
-  //double bx = GetRegister(FindModifiedRegister(REG_BX));
-  //std::cout << " bx " << bx;
-  double new_task_bonus = GetRegister(FindModifiedRegister(REG_CX));
-  //std::cout << ", task_bonus cx " << new_task_bonus << std::endl;
+// bool cHardwareCPU::Inst_WriteBonusVectorX(cAvidaContext& ctx)
+// {
+//   //const int reg_used = FindModifiedRegister(REG_BX);
+//   int task_id = GetRegister(FindModifiedRegister(REG_AX));
+//   //std::cout << "task_id ax " << task_id;
+//   //double bx = GetRegister(FindModifiedRegister(REG_BX));
+//   //std::cout << " bx " << bx;
+//   double new_task_bonus = GetRegister(FindModifiedRegister(REG_CX));
+//   //std::cout << ", task_bonus cx " << new_task_bonus << std::endl;
   
-  /*
-  if (task_id > ctx.m_world.num_tasks) task_id=ctx.m_world.num_tasks; // don't need this really
-  if (task_id < 0) task_id=0; 
-  */
-  // limit bonuses
-  if (new_task_bonus > 10) new_task_bonus = 10;
-  if (new_task_bonus < -10) new_task_bonus = -10;
+//   /*
+//   if (task_id > ctx.m_world.num_tasks) task_id=ctx.m_world.num_tasks; // don't need this really
+//   if (task_id < 0) task_id=0; 
+//   */
+//   // limit bonuses
+//   if (new_task_bonus > 10) new_task_bonus = 10;
+//   if (new_task_bonus < -10) new_task_bonus = -10;
 
-  m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = new_task_bonus;
-  //std::cout << "done " << std::endl;
-  return true;
-}
+//   m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = new_task_bonus;
+//   //std::cout << "done " << std::endl;
+//   return true;
+// }
 
-bool cHardwareCPU::Inst_CommunicateWithHumans(cAvidaContext& ctx)
-{
-  for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
-    m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
-  }
+// bool cHardwareCPU::Inst_CommunicateWithHumans(cAvidaContext& ctx)
+// {
+//   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
+//     m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
+//   }
   
-return true;
-}
+// return true;
+// }
 
 bool cHardwareCPU::Inst_CommunicateWithHumans1(cAvidaContext& ctx)
 {

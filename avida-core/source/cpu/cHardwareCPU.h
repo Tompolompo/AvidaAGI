@@ -1056,17 +1056,17 @@ public:
 
 // -------- AGI instructions --------
 public:
-  bool Inst_ReadBonusVector(cAvidaContext& ctx);
-  void WriteBonusVectorX(cAvidaContext& ctx, int task_id);
-  bool Inst_WriteBonusVector0(cAvidaContext& ctx);
-  bool Inst_WriteBonusVector1(cAvidaContext& ctx);
-  bool Inst_WriteBonusVector2(cAvidaContext& ctx);
-  bool Inst_WriteBonusVector3(cAvidaContext& ctx);
-  bool Inst_WriteBonusVector4(cAvidaContext& ctx);
+  // bool Inst_ReadBonusVector(cAvidaContext& ctx);
+  // void WriteBonusVectorX(cAvidaContext& ctx, int task_id);
+  // bool Inst_WriteBonusVector0(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVector1(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVector2(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVector3(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVector4(cAvidaContext& ctx);
 
-  bool Inst_WriteBonusVectorX(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVectorX(cAvidaContext& ctx);
 
-  bool Inst_CommunicateWithHumans(cAvidaContext& ctx);
+  // bool Inst_CommunicateWithHumans(cAvidaContext& ctx);
   bool Inst_CommunicateWithHumans1(cAvidaContext& ctx);
   bool Inst_SenseResourceIDAGI0(cAvidaContext& ctx);
   bool Inst_SenseResourceIDAGI1(cAvidaContext& ctx);
