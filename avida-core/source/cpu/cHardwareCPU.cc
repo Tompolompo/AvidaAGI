@@ -11339,19 +11339,19 @@ bool cHardwareCPU::Inst_ComputeAverageDeviance(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_ChangefitnessProptoDeviance(cAvidaContext& ctx)
 {
-  // double threshold = 0.3;
-  // double deviance = m_organism->GetPhenotype().m_deviance;
+  double threshold = 0.3;
+  double deviance = m_organism->GetPhenotype().m_deviance;
 
-  // if (deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
-  //   double fitness = m_organism->GetPhenotype().GetFitness();
-  //   m_organism->GetPhenotype().SetFitness(fitness/deviance);
-  // }
+  if (deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
+    double fitness = m_organism->GetPhenotype().GetFitness();
+    m_organism->GetPhenotype().SetFitness(fitness/deviance);
+  }
   return true;
 }
 
 bool cHardwareCPU::Inst_DiscoverDeviance(cAvidaContext& ctx)
 {
-  // m_organism->GetPhenotype().m_knows_deviance = true;
+  m_organism->GetPhenotype().m_knows_deviance = true;
 
   return true;
 }
@@ -11378,9 +11378,9 @@ bool cHardwareCPU::Inst_CompareHumanOpinion(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_SetAGIOpinion(cAvidaContext& ctx)
 { // TODO: sätt rätt gränser för bonusen
-  // int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
-  // int value = ctx.GetRandom().GetInt(-m_world->m_controller->m_num_tasks*2, m_world->m_controller->m_num_tasks*2);
-  // m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = value;
+  int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
+  int value = ctx.GetRandom().GetInt(-m_world->m_controller->m_num_tasks*2, m_world->m_controller->m_num_tasks*2);
+  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = value;
 
   return true;
 }
