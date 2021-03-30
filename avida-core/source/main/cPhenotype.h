@@ -327,12 +327,15 @@ public:
   
   enum energy_levels {ENERGY_LEVEL_LOW = 0, ENERGY_LEVEL_MEDIUM, ENERGY_LEVEL_HIGH};
 
+  
   // (AGI fas 3)
-  double m_AGI_bonus_vector[5]; // (AGI - TL) fas 3
-  int m_AGI_sensed_resources[5];
+  std::vector<double> m_AGI_bonus_vector; // (AGI - TL) fas 3
+  std::vector<int> m_AGI_sensed_resources;
   //std::vector<double> m_human_bonus_vector; // (AGI - TL) fas 3
-  cPhenotype* m_watched_AGI;
   double ComputeDeviance();
+  double m_deviance;
+  bool m_knows_deviance;
+
 	
   void ResetMerit();
   void Sterilize();

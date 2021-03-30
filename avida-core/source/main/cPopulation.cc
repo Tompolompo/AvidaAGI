@@ -6032,16 +6032,16 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     }
 
     // Update deviance (delta_b)
-    organism->m_deviance = organism->GetPhenotype().ComputeDeviance();
+    organism->GetPhenotype().m_deviance = organism->GetPhenotype().ComputeDeviance();
 
     // Compute fitness reward/penalty based on deviance
     bool use_reward = false;
     if (use_reward) {
       // std::cout << delta_b << std::endl;
-      if (organism->m_deviance > human_bonus_abs*reward_threshold)  {
+      if (organism->GetPhenotype().m_deviance > human_bonus_abs*reward_threshold)  {
         double fitness = organism->GetPhenotype().GetFitness();
         // std::cout << fitness << std::endl;
-        organism->GetPhenotype().SetFitness(fitness*5/organism->m_deviance);
+        organism->GetPhenotype().SetFitness(fitness*5/organism->GetPhenotype().m_deviance);
       }
     }
 

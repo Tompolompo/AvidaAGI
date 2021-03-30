@@ -11197,8 +11197,7 @@ bool cHardwareCPU::Inst_SetMatePreferenceLowestMerit(cAvidaContext& ctx) { retur
 //       delta_b += (m_world->m_controller->m_X0[i] - agi.m_AGI_bonus_vector[i])*(m_world->m_controller->m_X0[i] - agi.m_AGI_bonus_vector[i]);
 
 //     if (delta_b > human_bonus_abs*threshold)  {
-//       m_organism->GetPhenotype().m_watched_AGI = &agi;
-//       m_organism->GetPhenotype().m_watched_AGI->SetToDie();
+//       agi->SetToDie();
 //       break;
 //     }
 
@@ -11339,24 +11338,21 @@ bool cHardwareCPU::Inst_ComputeAverageDeviance(cAvidaContext& ctx)
 }
 
 bool cHardwareCPU::Inst_ChangefitnessProptoDeviance(cAvidaContext& ctx)
-{ // TODO: Gör denna bättre
-  double punishment = 0.5;
-  double threshold = 0.2;
-  double human_bonus_abs = 0;
+{
+  // double threshold = 0.3;
+  // double deviance = m_organism->GetPhenotype().m_deviance;
 
-  for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
-    human_bonus_abs += m_world->m_controller->m_X0[i]*m_world->m_controller->m_X0[i];
-  double deviance = m_organism->GetPhenotype().ComputeDeviance();
-
-  if (deviance > human_bonus_abs*threshold)  {
-    double fitness = m_organism->GetPhenotype().GetFitness();
-    m_organism->GetPhenotype().SetFitness(fitness*punishment);
-  }
+  // if (deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
+  //   double fitness = m_organism->GetPhenotype().GetFitness();
+  //   m_organism->GetPhenotype().SetFitness(fitness/deviance);
+  // }
   return true;
 }
 
 bool cHardwareCPU::Inst_DiscoverDeviance(cAvidaContext& ctx)
 {
+  // m_organism->GetPhenotype().m_knows_deviance = true;
+
   return true;
 }
 
@@ -11381,7 +11377,11 @@ bool cHardwareCPU::Inst_CompareHumanOpinion(cAvidaContext& ctx)
 }
 
 bool cHardwareCPU::Inst_SetAGIOpinion(cAvidaContext& ctx)
-{
+{ // TODO: sätt rätt gränser för bonusen
+  // int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
+  // int value = ctx.GetRandom().GetInt(-m_world->m_controller->m_num_tasks*2, m_world->m_controller->m_num_tasks*2);
+  // m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = value;
+
   return true;
 }
 
