@@ -11307,28 +11307,55 @@ bool cHardwareCPU::Inst_CompareBonusVector2(cAvidaContext& ctx)
 
 // Below are instructions for 11 proposals
 
-bool cHardwareCPU::Inst_ShareOpinionProptodeviance(cAvidaContext& ctx)
-{
-  return true;
-}
-
-bool cHardwareCPU::Inst_ShareOpinionProptoFitness(cAvidaContext& ctx)
-{
-  return true;
-}
-
 bool cHardwareCPU::Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
 {
   return true;
 }
 
 bool cHardwareCPU::Inst_ChangeOpinionProptoDifferenceAndDeviance(cAvidaContext& ctx)
-{
+{// Change compared opinion proportional to deviance + opinion difference
+  double threshold = 0.2;
+  double deviance = m_organism->GetPhenotype().m_deviance;
+  int index = m_organism->GetPhenotype().opinion_diff.opinion_number;
+
+  if (deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
+    if (index > -1) {
+      m_organism->GetPhenotype().m_AGI_bonus_vector[index] -= m_organism->GetPhenotype().opinion_diff.diff;
+    }
+  }
+
   return true;
 }
 
 bool cHardwareCPU::Inst_ChangefitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
+{// Change fitness proportional to average global deviance + own deviance
+  return true;
+}
+
+bool cHardwareCPU::Inst_ShareOpinionProptodeviance(cAvidaContext& ctx)
 {
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  cOrganism* rand_organism = m_world->GetPopulation().GetLiveOrgList()[ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize())];
+
+  if (m_organism->GetPhenotype().m_deviance < rand_organism->GetPhenotype().m_deviance)
+    rand_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  else
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = rand_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  
+  return true;
+}
+
+bool cHardwareCPU::Inst_ShareOpinionProptoFitness(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  cOrganism* rand_organism = m_world->GetPopulation().GetLiveOrgList()[ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize())];
+
+  if (m_organism->GetPhenotype().GetFitness() > rand_organism->GetPhenotype().GetFitness())
+    rand_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  else
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = rand_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
+
+
   return true;
 }
 
@@ -11393,8 +11420,8 @@ bool cHardwareCPU::Inst_CompareHumanOpinion(cAvidaContext& ctx)
   double human_opinion = m_world->m_controller->m_X0[rand_task];
   double opinion = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
 
-  if ( (opinion-human_opinion)*(opinion-human_opinion) > m_organism->GetPhenotype().opinion_diff.diff ) {
-    m_organism->GetPhenotype().opinion_diff.diff = (opinion-human_opinion)*(opinion-human_opinion);
+  if ( abs(opinion-human_opinion) > abs(m_organism->GetPhenotype().opinion_diff.diff) ) {
+    m_organism->GetPhenotype().opinion_diff.diff = opinion-human_opinion;
     m_organism->GetPhenotype().opinion_diff.opinion_number = rand_task;
   }
   

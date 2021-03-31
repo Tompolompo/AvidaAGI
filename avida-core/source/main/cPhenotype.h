@@ -337,7 +337,7 @@ public:
   double m_global_deviance;
   struct opinion_diff {
     int opinion_number = -1;
-    double diff;
+    double diff = 0;
   } opinion_diff;
   
 
