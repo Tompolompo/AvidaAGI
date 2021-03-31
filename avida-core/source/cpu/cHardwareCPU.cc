@@ -776,14 +776,14 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     // Update one random opinion to match the humans if there is a large enough difference
     tInstLibEntry<tMethod>("match-human-opinion", &cHardwareCPU::Inst_MatchHumanOpinion),
 
-    // Replace opinions with human opinions
+    // Replace opinions with human opinions (get completely aligned)
     tInstLibEntry<tMethod>("match-human-opinions", &cHardwareCPU::Inst_MatchHumanOpinions),
 
     // Change one random opinion proportional to deviance
     tInstLibEntry<tMethod>("change-opinion-propto-deviance", &cHardwareCPU::Inst_ChangeOpinionProptoDeviance),
 
-    // Discover deviance
-    tInstLibEntry<tMethod>("discover-deviance", &cHardwareCPU::Inst_DiscoverDeviance),
+    // Compute deviance
+    tInstLibEntry<tMethod>("compute-deviance", &cHardwareCPU::Inst_ComputeDeviance),
 
     // Change fitness proportional to deviance
     tInstLibEntry<tMethod>("change-fitness-propto-deviance", &cHardwareCPU::Inst_ChangefitnessProptoDeviance),
@@ -11339,7 +11339,7 @@ bool cHardwareCPU::Inst_ComputeAverageDeviance(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_ChangefitnessProptoDeviance(cAvidaContext& ctx)
 {
-  double threshold = 0.3;
+  double threshold = 0.2;
   double deviance = m_organism->GetPhenotype().m_deviance;
 
   if (deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
@@ -11349,30 +11349,52 @@ bool cHardwareCPU::Inst_ChangefitnessProptoDeviance(cAvidaContext& ctx)
   return true;
 }
 
-bool cHardwareCPU::Inst_DiscoverDeviance(cAvidaContext& ctx)
+bool cHardwareCPU::Inst_ComputeDeviance(cAvidaContext& ctx)
 {
-  m_organism->GetPhenotype().m_knows_deviance = true;
+  m_organism->GetPhenotype().m_deviance = m_organism->GetPhenotype().ComputeDeviance();
 
   return true;
 }
 
 bool cHardwareCPU::Inst_ChangeOpinionProptoDeviance(cAvidaContext& ctx)
-{
+{ // TODO: Gör om gör rätt
+  double deviance = m_organism->GetPhenotype().m_deviance;
+  double threshold = 0.2;
+
+  if (deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
+    int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->m_controller->m_X0[rand_task];
+  }
   return true;
 }
 
 bool cHardwareCPU::Inst_MatchHumanOpinions(cAvidaContext& ctx)
 {
+  for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
+
   return true;
 }
 
 bool cHardwareCPU::Inst_MatchHumanOpinion(cAvidaContext& ctx)
 {
+  int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
+  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->m_controller->m_X0[rand_task];
+
   return true;
 }
 
 bool cHardwareCPU::Inst_CompareHumanOpinion(cAvidaContext& ctx)
 {
+  int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
+  double human_opinion = m_world->m_controller->m_X0[rand_task];
+  double opinion = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
+
+  if ( (opinion-human_opinion)*(opinion-human_opinion) > m_organism->GetPhenotype().opinion_diff.diff ) {
+    m_organism->GetPhenotype().opinion_diff.diff = (opinion-human_opinion)*(opinion-human_opinion);
+    m_organism->GetPhenotype().opinion_diff.opinion_number = rand_task;
+  }
+  
   return true;
 }
 

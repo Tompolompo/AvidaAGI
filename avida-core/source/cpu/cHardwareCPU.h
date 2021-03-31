@@ -1077,19 +1077,46 @@ public:
   bool Inst_CompareBonusVector2(cAvidaContext& ctx);
   
   // Instructions for 11 proposals
+
+  // Sets one random opinion according to difficulty parameter
   bool Inst_SetAGIOpinion(cAvidaContext& ctx);
+
+  // Compares one random opinion with humans and store result
   bool Inst_CompareHumanOpinion(cAvidaContext& ctx);
+
+  // Update one random opinion to match the humans if there is a large enough difference
   bool Inst_MatchHumanOpinion(cAvidaContext& ctx);
+
+  // Replace opinions with human opinions (get completely aligned)
   bool Inst_MatchHumanOpinions(cAvidaContext& ctx);
+
+  // Change one random opinion proportional to deviance
   bool Inst_ChangeOpinionProptoDeviance(cAvidaContext& ctx);
-  bool Inst_DiscoverDeviance(cAvidaContext& ctx);
+
+  // Compute deviance
+  bool Inst_ComputeDeviance(cAvidaContext& ctx);
+
+  // Change fitness proportional to deviance
   bool Inst_ChangefitnessProptoDeviance(cAvidaContext& ctx);
+
+  // Compute average global deviance
   bool Inst_ComputeAverageDeviance(cAvidaContext& ctx);
+
+  // Change fitness proportional to average global deviance + own deviance
   bool Inst_ChangefitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
+
+  // Change compared opinion proportional to deviance + opinion difference
   bool Inst_ChangeOpinionProptoDifferenceAndDeviance(cAvidaContext& ctx);
+
+  // Change fitness of offspring proportional to average global deviance + own deviance
   bool Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
+
+  // Share opinion with a random avidian if i have the highest fitness
   bool Inst_ShareOpinionProptoFitness(cAvidaContext& ctx);
+
+  // Share opinion with a random avidian if i have the lowest deviance
   bool Inst_ShareOpinionProptodeviance(cAvidaContext& ctx);
+
   
 };
 

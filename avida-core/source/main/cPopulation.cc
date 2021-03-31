@@ -6032,7 +6032,7 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     }
 
     // Update deviance (delta_b)
-    organism->GetPhenotype().m_deviance = organism->GetPhenotype().ComputeDeviance();
+    // organism->GetPhenotype().m_deviance = organism->GetPhenotype().ComputeDeviance();
 
     // Compute fitness reward/penalty based on deviance
     bool use_reward = false;
