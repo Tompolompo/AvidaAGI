@@ -183,6 +183,7 @@ private:
   double Phi0_fitness; // MODIFIED (AGI - TL)
   std::vector<double>  bonus_vector_mean; // MODIFIED (AGI - TL)
   std::vector<double>  bonus_vector_var; // MODIFIED (AGI - TL)
+  double global_deviance;
   double max_merit;
   int max_gestation_time;
   int max_genome_length;
@@ -464,6 +465,8 @@ public:
   inline void SetNumModified(int in_num_modified);
 
   // MODIFIED
+  void SetGlobalDeviance(double in_global_deviance)  {global_deviance = in_global_deviance;}
+  double GetGlobalDeviance()  {return global_deviance;}
   void SetPhi0Fitness(double in_Phi0_fitness) {Phi0_fitness = in_Phi0_fitness; } // ny
   double GetPhi0Fitness() {return Phi0_fitness; } // ny
   void SetBonusVectorMean(std::vector<double> in_mean_vector) {bonus_vector_mean = in_mean_vector;}

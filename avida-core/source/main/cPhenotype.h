@@ -334,8 +334,9 @@ public:
   //std::vector<double> m_human_bonus_vector; // (AGI - TL) fas 3
   double ComputeDeviance();
   double m_deviance;
+  double m_global_deviance;
   struct opinion_diff {
-    int opinion_number;
+    int opinion_number = -1;
     double diff;
   } opinion_diff;
   

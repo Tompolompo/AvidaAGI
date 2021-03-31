@@ -5894,6 +5894,7 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   std::vector<double> bonus_vector_mean = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);
   std::vector<double> bonus_vector_var = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);
   std::vector<double> N_non_zero = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),N_orgs);
+  double global_deviance = 0;
 
 
   for (int i = 0; i < live_org_list.GetSize(); i++) {  
@@ -6031,8 +6032,8 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
       if (bonus_vectors[i][t] == 0) N_non_zero[t] -= 1;
     }
 
-    // Update deviance (delta_b)
-    // organism->GetPhenotype().m_deviance = organism->GetPhenotype().ComputeDeviance();
+    // Update global deviance (delta_b)
+    global_deviance += organism->GetPhenotype().ComputeDeviance();
 
     // Compute fitness reward/penalty based on deviance
     bool use_reward = false;
@@ -6076,9 +6077,10 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
       bonus_vector_var[t] += 0;
     }
   }
-
-
-
+  global_deviance /= live_org_list.GetSize();
+  
+  
+  stats.SetGlobalDeviance(global_deviance);
   stats.SetPhi0Fitness(Phi0_fitness_sum/live_org_list.GetSize());// (AGI - TL)
   stats.SetBonusVectorMean(bonus_vector_mean);// (AGI - TL)
   stats.SetBonusVectorVar(bonus_vector_var);// (AGI - TL)

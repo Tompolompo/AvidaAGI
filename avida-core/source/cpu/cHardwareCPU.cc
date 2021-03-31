@@ -11334,6 +11334,8 @@ bool cHardwareCPU::Inst_ChangefitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_ComputeAverageDeviance(cAvidaContext& ctx)
 {
+  m_organism->GetPhenotype().m_global_deviance = m_world->GetStats().GetGlobalDeviance();
+
   return true;
 }
 
@@ -11357,14 +11359,15 @@ bool cHardwareCPU::Inst_ComputeDeviance(cAvidaContext& ctx)
 }
 
 bool cHardwareCPU::Inst_ChangeOpinionProptoDeviance(cAvidaContext& ctx)
-{ // TODO: Gör om gör rätt
-  double deviance = m_organism->GetPhenotype().m_deviance;
+{
   double threshold = 0.2;
 
-  if (deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
-    int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
-    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->m_controller->m_X0[rand_task];
+  if (m_organism->GetPhenotype().m_deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
+    int task = m_organism->GetPhenotype().opinion_diff.opinion_number;
+    if (task > -1)
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task] = m_world->m_controller->m_X0[task];
   }
+
   return true;
 }
 
