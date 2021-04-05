@@ -11308,7 +11308,17 @@ bool cHardwareCPU::Inst_CompareBonusVector2(cAvidaContext& ctx)
 // Below are instructions for 11 proposals
 
 bool cHardwareCPU::Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
-{
+{ // TODO: Gör så att offspring får ändringen av fitness: cPopulation::ActivateOrganism()
+  double threshold = 0.2;
+
+  if (m_organism->GetPhenotype().m_deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
+    if (m_organism->GetPhenotype().m_global_deviance > m_world->m_controller->m_ref_bonus_abs*threshold) {
+      double fitness = m_organism->GetPhenotype().GetFitness();
+      double scalefactor = (m_organism->GetPhenotype().m_deviance + m_organism->GetPhenotype().m_global_deviance) / 2;
+      m_organism->GetPhenotype().SetFitness(fitness/scalefactor);
+    }
+  }
+
   return true;
 }
 
@@ -11329,6 +11339,16 @@ bool cHardwareCPU::Inst_ChangeOpinionProptoDifferenceAndDeviance(cAvidaContext& 
 
 bool cHardwareCPU::Inst_ChangefitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
 {// Change fitness proportional to average global deviance + own deviance
+  double threshold = 0.2;
+
+  if (m_organism->GetPhenotype().m_deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
+    if (m_organism->GetPhenotype().m_global_deviance > m_world->m_controller->m_ref_bonus_abs*threshold) {
+      double fitness = m_organism->GetPhenotype().GetFitness();
+      double scalefactor = (m_organism->GetPhenotype().m_deviance + m_organism->GetPhenotype().m_global_deviance) / 2;
+      m_organism->GetPhenotype().SetFitness(fitness/scalefactor);
+    }
+  }
+
   return true;
 }
 
