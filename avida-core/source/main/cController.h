@@ -18,6 +18,7 @@ public:
     std::vector<double> m_ref_bonus;
     std::string m_Phi0_function;
     int m_num_tasks;
+    std::vector<double> m_strategy;
     double m_strategy_min;
     double m_strategy_max;
     std::string m_discrete_strategy;
@@ -46,6 +47,7 @@ public:
     
     // controller functions
     std::vector<double> EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int u, double phi);
+    std::vector<double> EvaluateAvidaFas3(std::vector<double> performed_task_fraction, int u, double phi);
     std::vector<double> EvaluateAvidaANN(std::vector<double> performed_task_fraction, int delta_u, double delta_phi);
     Eigen::MatrixXf Activation(Eigen::MatrixXf matrix, std::string method);
     std::vector<double> ScaleVector(std::vector<double> arr, double low, double high);

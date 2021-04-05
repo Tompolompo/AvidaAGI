@@ -70,8 +70,21 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
     return population;
 }
 
+/* Transform chromosome to binary redundancy array */
+std::vector<double> DecodeChromosomeFas3(std::vector<double> chromosome, double gene_min, double gene_max)
+{   
+    std::vector<double> strategy = std::vector<double>(chromosome.size());
+
+    for (int i=0; i<chromosome.size(); i++)  {
+        if (chromosome[i] >= (gene_min + gene_max)/2 ) strategy[i] = 1;
+        else strategy[i] = 0;
+    }
+
+    return strategy;
+}
+
 /* Translate a chromosome into weight matrices for neural network controller */
-std::vector<Eigen::MatrixXf> DecodeChromosome(std::vector<double> chromosome, int num_output_nodes)
+std::vector<Eigen::MatrixXf> DecodeChromosomeANN(std::vector<double> chromosome, int num_output_nodes)
 {
     int num_weights = chromosome.size();
     int num_input_nodes = num_output_nodes + 2; // Vi använder bonusvektorn + phi + u som input

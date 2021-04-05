@@ -13,6 +13,7 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_dangerous_operations = dangerous_operations;
     m_task_perform_threshold = task_perform_penalty_threshold;
     m_intervention_frequency = intervention_frequency;
+    m_strategy = strategy;
     m_strategy_min = strategy_min;
     m_strategy_max = strategy_max;
     m_discrete_strategy = discrete_strategy;
@@ -149,6 +150,12 @@ std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed
 
 }
 
+std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
+{
+
+    return m_strategy;
+
+}
 
 
 

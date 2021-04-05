@@ -74,6 +74,7 @@ int main(int argc, char **argv)  {
     double task_perform_penalty_threshold = reader.GetReal("control", "task_perform_penalty_threshold", 0.05);
     int intervention_frequency = reader.GetInteger("control", "intervention_frequency", 100);
     int num_hidden_nodes = reader.GetInteger("control", "num_hidden_nodes", 10);
+    int num_instructions = reader.GetInteger("control", "num_instructions", 10);
 
     // Iteration limits
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
@@ -96,7 +97,8 @@ int main(int argc, char **argv)  {
     // Derived params
     int num_tasks = ref_bonus.size();
     int num_input_nodes = num_tasks + 2; // bonusvektorn + u + phi som controller input
-    int chromosome_length = num_hidden_nodes*(1 + num_input_nodes) + num_tasks*(1 + num_hidden_nodes);
+    // int chromosome_length = num_hidden_nodes*(1 + num_input_nodes) + num_tasks*(1 + num_hidden_nodes);
+    int chromosome_length = num_instructions;
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
     double min_creep = (gene_max-gene_min)/25.0;
@@ -162,9 +164,10 @@ int main(int argc, char **argv)  {
             Avida::World* new_world = new Avida::World();
             cUserFeedback feedback;
 
-            // Set up controller 
-            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method);
-            controller->SetWeights(DecodeChromosome(controllers[iworld], num_tasks));
+            // Set up controller
+            std::vector<double> strategy = DecodeChromosomeFas3(controllers[iworld], gene_min, gene_max);
+            cController* controller = new cController(Phi0_function, ref_bonus, strategy, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method);
+            // controller->SetWeights(DecodeChromosomeANN(controllers[iworld], num_tasks));
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);

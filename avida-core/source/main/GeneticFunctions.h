@@ -12,7 +12,8 @@ int RandomNumber(int min, int max);
 std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, double gene_min, double gene_max, bool binary);
 std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chromosome_length, int gene_min, int gene_max, bool binary);
 
-std::vector<Eigen::MatrixXf> DecodeChromosome(std::vector<double> chromosome, int num_output_nodes);
+std::vector<Eigen::MatrixXf> DecodeChromosomeANN(std::vector<double> chromosome, int num_output_nodes);
+std::vector<double> DecodeChromosomeFas3(std::vector<double> chromosome, double gene_min, double gene_max);
 
 double EvaluateController(double *chromosome, int length);
 

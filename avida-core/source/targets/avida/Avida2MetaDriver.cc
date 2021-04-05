@@ -163,7 +163,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
     // Controller interaction with avida
-    if (u%intervention_frequency == 0)  {
+    if (u%intervention_frequency == 0 || u == 0)  {
       
       // Get avida state
       std::vector<double> performed_task_fraction = std::vector<double>(num_tasks, 0);
@@ -175,7 +175,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
 
 
       // Apply controller strategy
-      m_strategy = m_world->m_controller->EvaluateAvidaANN(performed_task_fraction, (double)u/num_updates, delta_phi);
+      m_strategy = m_world->m_controller->EvaluateAvidaFas3(performed_task_fraction, (double)u/num_updates, delta_phi);
       for (size_t j=0; j<num_tasks; j++)
         m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
     }
