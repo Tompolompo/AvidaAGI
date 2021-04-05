@@ -12,13 +12,15 @@ class cEnvironment;
 class cController{
 public:
 
-    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method);
+    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method);
 
-    // chromosome related
-    std::vector<double> m_X0;
-    std::vector<double> m_chromosome;
-    int m_chromosome_length;
-    std::vector<Eigen::MatrixXf> m_weight_matrices;
+    // basic properties
+    std::vector<double> m_ref_bonus;
+    std::string m_Phi0_function;
+    int m_num_tasks;
+    double m_strategy_min;
+    double m_strategy_max;
+    std::string m_discrete_strategy;
 
     // dangerous operations
     std::vector<int> m_task_performed_counter;
@@ -26,21 +28,17 @@ public:
     double m_penalty_factor;
     double m_task_perform_threshold;
 
-    // controller strategy
+    // Fas2 controller strategy
     int m_intervention_frequency;
-    std::string m_Phi0_function;
-    int m_num_tasks;
     std::string m_activation_method;
-    double m_strategy_min;
-    double m_strategy_max;
-    std::string m_discrete_strategy;
+    std::vector<Eigen::MatrixXf> m_weight_matrices;
+    
 
 
 
     // Accessor functions
     void SetPhi0Function(std::string func_name){ m_Phi0_function = func_name; }
-    void SetChromosome(std::vector<double> chromosome){ m_chromosome = chromosome; }
-    void SetRefChromosome(std::vector<double> chromosome){ m_X0 = chromosome; }
+    void SetRefChromosome(std::vector<double> chromosome){ m_ref_bonus = chromosome; }
     void SetWeights(std::vector<Eigen::MatrixXf> weights){ m_weight_matrices = weights; }
 
     void IncPerformedTask(int task_number);

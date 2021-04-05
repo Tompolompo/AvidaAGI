@@ -3,12 +3,10 @@
 #include "cController.h" // header in local directory
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method)
 {
     m_Phi0_function = Phi0_function;
-    m_chromosome_length = chromosome.size();
-    m_chromosome = chromosome;
-    m_X0 = ref_bonus;
+    m_ref_bonus = ref_bonus;
     m_num_tasks = ref_bonus.size();
     m_task_performed_counter = std::vector<int>(m_num_tasks, 0);
     m_penalty_factor = penalty_factor;

@@ -801,7 +801,7 @@ double cOrganism::CalcPhi0Fitness(std::string fitness_function)
       }
       else t = 0;
 
-      calculated_bonus += m_world->m_controller->m_X0[i] * t;
+      calculated_bonus += m_world->m_controller->m_ref_bonus[i] * t;
     }
 
     return pow(2,calculated_bonus) * GetPhenotype().GetCurMeritBase() / GetPhenotype().gestation_time;
