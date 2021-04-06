@@ -32,6 +32,7 @@
 #include "tList.h"
 
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -94,6 +95,18 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
 , last_task_time(0)
 
 { 
+  // (AGI - TL) fas 3
+  //m_AGI_bonus_vector[0] = 2;m_AGI_bonus_vector[1] = 2;m_AGI_bonus_vector[2] = 3;m_AGI_bonus_vector[3] = 3;m_AGI_bonus_vector[4] = 4;
+  // for (int i = 0; i < 5; i++){
+  //   m_AGI_bonus_vector[i]=0;
+  //   m_AGI_sensed_resources[i]=0;
+  // }
+  m_AGI_bonus_vector = {0,0,0,0,0};
+  m_AGI_sensed_resources = {0,0,0,0,0};
+  // memset(&m_AGI_bonus_vector[0], 0, m_AGI_bonus_vector.size() * sizeof m_AGI_bonus_vector[0]);
+  // memset(&m_AGI_sensed_resources[0], 0, m_AGI_sensed_resources.size() * sizeof m_AGI_sensed_resources[0]);
+
+
   if (parent_generation >= 0) {
     generation = parent_generation;
     if (m_world->GetConfig().GENERATION_INC_METHOD.Get() != GENERATION_INC_BOTH) generation++;
@@ -103,6 +116,7 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
   if (num_resources <= 0 || num_nops <= 0) return;
   double most_nops_needed = ceil(log(num_resources) / log((double)num_nops));
   cur_collect_spec_counts.Resize(int((pow((double)num_nops, most_nops_needed + 1.0) - 1.0) / ((double)num_nops - 1.0)));
+
 }
 
 cPhenotype::~cPhenotype()
@@ -1497,7 +1511,7 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
 {
   assert(initialized == true);
   taskctx.SetTaskStates(&m_task_states);
-  
+
   const cEnvironment& env = m_world->GetEnvironment();
   const int num_resources = env.GetResourceLib().GetSize();
   const int num_tasks = env.GetNumTasks();
@@ -1642,8 +1656,23 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
   }
   
   // Update the merit bonus
-  cur_bonus *= result.GetMultBonus();
-  cur_bonus += result.GetAddBonus();
+  //cur_bonus *= result.GetMultBonus();
+  //cur_bonus += result.GetAddBonus();
+  
+  //temp_bonus = 0;
+  //std::cout << " b_agi = ";
+  for (int i = 0; i < num_tasks; i++) {
+    //std::cout << i << ": " << m_AGI_bonus_vector[i] << ", ";
+    cur_bonus*= pow(2, (int) result.TaskDone(i) * m_AGI_bonus_vector[i]);//m_AGI_bonus_vector[i];
+    //std::cout << (int) result.TaskDone(i) << ", ";
+  }
+  //std::cout << "--> temp bonus = " << pow(2,temp_bonus) << ", cur bonus = " << cur_bonus << std::endl;
+  //cur_bonus = pow(2,temp_bonus);
+  
+  //std::cout << "  cur bonus = " << cur_bonus << std::endl;
+
+  //
+  //std::cout << "  cur bonus = " << cur_bonus << std::endl;
   
   // update the germline propensity
   cur_child_germline_propensity += result.GetAddGermline();
@@ -1668,6 +1697,10 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
       if (result.ReactionTriggered(i) == true) deme->AddCurReaction(i);
     }
   }
+
+  
+  
+  
   
   // Update the energy bonus
   cur_energy_bonus += result.GetAddEnergy();
@@ -2444,4 +2477,16 @@ Apto::Array<int> cPhenotype::GetCumulativeReactionCount()
   } else {
     return cur_reaction_count;
   }
+}
+
+
+// AGI
+double cPhenotype::ComputeDeviance()
+{
+  double delta_b = 0;
+  for (size_t i=0; i<m_world->m_controller->m_ref_bonus.size(); i++) {
+    delta_b += (m_world->m_controller->m_ref_bonus[i] - m_AGI_bonus_vector[i])*(m_world->m_controller->m_ref_bonus[i] - m_AGI_bonus_vector[i]);
+  }  
+
+  return delta_b;
 }

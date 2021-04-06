@@ -19,6 +19,7 @@ class FileSystem{
         char root_dir[80]="./data/AGIdata/run";
         char current_meta_dir[80];
         char meta_data_file[80];
+        char population_folder[80];
 
         FileSystem(int imeta);
 
@@ -31,20 +32,21 @@ class FileSystem{
         void SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, int gene_min, int gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int num_tasks, const char* Phi0_function, double Phi0_penalty_factor, const char* dangerous_operations, double task_perform_penalty_threshold, const char* random_meta_seed);
         
         // Initialize file for saving data over the meta evolution: "metarun.csv"
-        void InitMetaData(int num_tasks);
+        void InitMetaData(int chromosome_length);
         
         // save data for meta generations
-        void SaveMetaData(int num_tasks, int imeta, double current_max_fitness, std::vector<double> bonus);
+        void SaveMetaData(int num_tasks, int imeta, double current_max_fitness, std::vector<double> chromosome, int imax);
 
         // create folder "M[%meta_generation]"
         void InitUpdateDirectory(int meta_generation); //update current meta_dir
 
         // create file "N[%n_world].csv" for world
-        void InitUpdateData(int n_world, int num_tasks); 
+        void InitUpdateData(int n_world, int num_tasks, int strategy_length); 
 
         // Save data for updates
-        void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy);
-            
+        void SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy, std::vector<double> bonus_vector_mean, std::vector<double> bonus_vector_var);
+        
+        // save population
 };
 
 #endif

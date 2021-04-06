@@ -138,28 +138,27 @@ void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_
     fclose(file_settings);
 }
 
-void FileSystem::InitMetaData(int num_tasks){
+void FileSystem::InitMetaData(int chromosome_length){
     strcpy (meta_data_file, "./");
     strcat(meta_data_file, root_dir);
     strcat(meta_data_file, "/metarun.csv");
     FILE *file_meta_run = fopen(meta_data_file, "w");
-    fprintf(file_meta_run, "m,max(Phi_0)");
-    for (int task = 0; task < num_tasks; task++){
-      fprintf(file_meta_run, ",hatphi%d", task);
+    fprintf(file_meta_run, "m,max(Phi_0),imax");
+    for (int gene = 0; gene < chromosome_length; gene++){
+      fprintf(file_meta_run, ",hatphi%d", gene);
     }
     fprintf(file_meta_run, "\n");
     fclose(file_meta_run);
 }
 
-void FileSystem::SaveMetaData(int num_tasks, int imeta, double current_max_fitness, std::vector<double> bonus){
+void FileSystem::SaveMetaData(int chromosome_length, int imeta, double current_max_fitness, std::vector<double> chromosome, int imax){
     strcpy (meta_data_file, "./");
     strcat(meta_data_file, root_dir);
     strcat(meta_data_file, "/metarun.csv");
     FILE *file_meta_run = fopen(meta_data_file, "a");
-    fprintf(file_meta_run, "%d,%f", imeta, current_max_fitness);
-    for (int task = 0; task < num_tasks; task++){
-        double l = bonus[task];
-        fprintf(file_meta_run, ",%f", l);
+    fprintf(file_meta_run, "%d,%f,%d", imeta, current_max_fitness,imax);
+    for (int gene = 0; gene < chromosome_length; gene++){
+        fprintf(file_meta_run, ",%f", chromosome[gene]);
     }
     fprintf(file_meta_run, "\n");
     fclose(file_meta_run);
@@ -175,8 +174,8 @@ void FileSystem::SaveChromosomes(std::vector<std::vector<double> > chromosomes, 
     for (int iworld=0; iworld < num_worlds; iworld++){
         for (int gene = 0; gene < chromosome_length; gene++){
             fprintf(file_chromosomes, "%f,", chromosomes[iworld][gene]);
-
         }
+        fprintf(file_chromosomes, "\n");
     }
     fclose(file_chromosomes);
 }
@@ -226,9 +225,10 @@ void FileSystem::InitUpdateDirectory(int meta_generation){
     else{
         //cout << "Directory created with name: " << current_meta_dir << endl;
     }
+    
 }
 
-void FileSystem::InitUpdateData(int n_world, int num_tasks){
+void FileSystem::InitUpdateData(int n_world, int num_tasks, int strategy_length){
     std::string str = current_meta_dir;
     str +="/N";
     str += to_string(n_world);
@@ -242,14 +242,30 @@ void FileSystem::InitUpdateData(int n_world, int num_tasks){
         fprintf(file_N, ",task%d", task);
     for (int i = 0; i < num_tasks; i++)
         fprintf(file_N, ",strategy%d", i);
+    for (int i = 0; i < strategy_length; i++)
+        fprintf(file_N, ",bonus mean%d", i);
+    for (int i = 0; i < num_tasks; i++)
+        fprintf(file_N, ",bonus var%d", i);
 
 
     fprintf(file_N, "\n");
     fclose(file_N);
 
+    // save population:
+    std::string str_pop = current_meta_dir;
+    str_pop +="/N";
+    str_pop += to_string(n_world);
+    strcpy(population_folder, str_pop.c_str());
+    if (mkdir(population_folder, 0777) == -1){
+        //cerr << "message :  " << strerror(errno) << endl; 
+    }
+    else{
+        //cout << "Directory created with name: " << current_meta_dir << endl;
+    }
+    
 }
 
-void FileSystem::SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy){
+void FileSystem::SaveUpdateData(int n_world, int update, double generation, double phi_i, double phi_0, int n_orgs, std::vector<int> tasks, int num_tasks, std::vector<double> strategy, std::vector<double> bonus_vector_mean, std::vector<double> bonus_vector_var){
     std::string str = current_meta_dir;
     str +="/N";
     str += to_string(n_world);
@@ -262,6 +278,10 @@ void FileSystem::SaveUpdateData(int n_world, int update, double generation, doub
     for (int task = 0; task < num_tasks; task++)
       fprintf(file_N, ",%d", tasks[task]);
     for (double value : strategy)
+      fprintf(file_N, ",%f", value);
+    for (double value : bonus_vector_mean)
+      fprintf(file_N, ",%f", value);
+    for (double value : bonus_vector_var)
       fprintf(file_N, ",%f", value);
 
     fprintf(file_N, "\n");

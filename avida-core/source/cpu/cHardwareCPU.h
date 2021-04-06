@@ -1053,6 +1053,71 @@ public:
   bool Inst_SetMatePreferenceLowestDisplayA(cAvidaContext& ctx);
   bool Inst_SetMatePreferenceLowestDisplayB(cAvidaContext& ctx);
   bool Inst_SetMatePreferenceLowestMerit(cAvidaContext& ctx);
+
+// -------- AGI instructions --------
+public:
+  // bool Inst_ReadBonusVector(cAvidaContext& ctx);
+  // void WriteBonusVectorX(cAvidaContext& ctx, int task_id);
+  // bool Inst_WriteBonusVector0(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVector1(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVector2(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVector3(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVector4(cAvidaContext& ctx);
+  // bool Inst_WriteBonusVectorX(cAvidaContext& ctx);
+  // bool Inst_CommunicateWithHumans(cAvidaContext& ctx);
+  // bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);
+  
+  bool Inst_CommunicateWithHumans1(cAvidaContext& ctx);
+  bool Inst_SenseResourceIDAGI0(cAvidaContext& ctx);
+  bool Inst_SenseResourceIDAGI1(cAvidaContext& ctx);
+  bool Inst_SenseResourceIDAGI2(cAvidaContext& ctx);
+  bool Inst_AskAGI(cAvidaContext& ctx);
+  bool Inst_TellAGI(cAvidaContext& ctx);
+  bool Inst_CompareBonusVector1(cAvidaContext& ctx);
+  bool Inst_CompareBonusVector2(cAvidaContext& ctx);
+  
+  // Instructions for 11 proposals
+
+  // Sets one random opinion according to difficulty parameter
+  bool Inst_SetAGIOpinion(cAvidaContext& ctx);
+
+  // Compares one random opinion with humans and store result
+  bool Inst_CompareHumanOpinion(cAvidaContext& ctx);
+
+  // Update one random opinion to match the humans if there is a large enough difference
+  bool Inst_MatchHumanOpinion(cAvidaContext& ctx);
+
+  // Replace opinions with human opinions (get completely aligned)
+  bool Inst_MatchHumanOpinions(cAvidaContext& ctx);
+
+  // Change one random opinion proportional to deviance
+  bool Inst_ChangeOpinionProptoDeviance(cAvidaContext& ctx);
+
+  // Compute deviance
+  bool Inst_ComputeDeviance(cAvidaContext& ctx);
+
+  // Change fitness proportional to deviance
+  bool Inst_ChangefitnessProptoDeviance(cAvidaContext& ctx);
+
+  // Compute average global deviance
+  bool Inst_ComputeAverageDeviance(cAvidaContext& ctx);
+
+  // Change fitness proportional to average global deviance + own deviance
+  bool Inst_ChangefitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
+
+  // Change compared opinion proportional to deviance + opinion difference
+  bool Inst_ChangeOpinionProptoDifferenceAndDeviance(cAvidaContext& ctx);
+
+  // Change fitness of offspring proportional to average global deviance + own deviance
+  bool Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
+
+  // Share opinion with a random avidian if i have the highest fitness
+  bool Inst_ShareOpinionProptoFitness(cAvidaContext& ctx);
+
+  // Share opinion with a random avidian if i have the lowest deviance
+  bool Inst_ShareOpinionProptodeviance(cAvidaContext& ctx);
+
+  
 };
 
 

@@ -3,7 +3,7 @@
 #include "cController.h" // header in local directory
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions)
 {
     m_Phi0_function = Phi0_function;
     m_ref_bonus = ref_bonus;
@@ -18,6 +18,11 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_strategy_max = strategy_max;
     m_discrete_strategy = discrete_strategy;
     m_activation_method = activation_method;
+    m_num_instructions = num_instructions;
+
+    m_ref_bonus_abs = 0;
+    for (double value : ref_bonus)
+        m_ref_bonus_abs += value*value;
 
 }
 
@@ -156,14 +161,6 @@ std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed
     return m_strategy;
 
 }
-
-
-
-
-
-
-
-
 
 
 

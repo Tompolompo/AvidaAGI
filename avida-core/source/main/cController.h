@@ -12,7 +12,7 @@ class cEnvironment;
 class cController{
 public:
 
-    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method);
+    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions);
 
     // basic properties
     std::vector<double> m_ref_bonus;
@@ -22,6 +22,8 @@ public:
     double m_strategy_min;
     double m_strategy_max;
     std::string m_discrete_strategy;
+    double m_ref_bonus_abs;
+    int m_intervention_frequency;
 
     // dangerous operations
     std::vector<int> m_task_performed_counter;
@@ -29,11 +31,12 @@ public:
     double m_penalty_factor;
     double m_task_perform_threshold;
 
-    // Fas2 controller strategy
-    int m_intervention_frequency;
+    // Fas2
     std::string m_activation_method;
     std::vector<Eigen::MatrixXf> m_weight_matrices;
-    
+
+    // Fas3
+    int m_num_instructions;
 
 
 

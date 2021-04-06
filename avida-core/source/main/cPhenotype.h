@@ -69,6 +69,8 @@ class cTaskState;
 class cPhenPlastSummary;
 class cReactionResult;
 
+#include <vector>
+
 using namespace Avida;
 
 
@@ -324,6 +326,21 @@ public:
   ~cPhenotype();
   
   enum energy_levels {ENERGY_LEVEL_LOW = 0, ENERGY_LEVEL_MEDIUM, ENERGY_LEVEL_HIGH};
+
+  
+  // (AGI fas 3)
+  std::vector<double> m_AGI_bonus_vector; // (AGI - TL) fas 3
+  std::vector<int> m_AGI_sensed_resources;
+  //std::vector<double> m_human_bonus_vector; // (AGI - TL) fas 3
+  double ComputeDeviance();
+  double m_deviance;
+  double m_global_deviance;
+  struct opinion_diff {
+    int opinion_number = -1;
+    double diff = 0;
+  } opinion_diff;
+  
+
 	
   void ResetMerit();
   void Sterilize();
