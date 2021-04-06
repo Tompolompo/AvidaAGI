@@ -87,7 +87,7 @@ std::vector<double> cController::ScaleVector(std::vector<double> arr, double low
 }
 
 
-std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
+std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
 {
     int num_outputs = performed_task_fraction.size();
     int num_inputs = num_outputs + 2; 
@@ -155,8 +155,12 @@ std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed
 
 }
 
-std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
+std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
 {
+    if (delta_u > 0.5)  {
+        for (size_t i=0; i<m_strategy.size(); i++)
+            m_strategy[i] += 1;
+    }
 
     return m_strategy;
 

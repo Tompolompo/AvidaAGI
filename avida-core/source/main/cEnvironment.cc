@@ -165,7 +165,8 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc, Feedba
     }
     else if (var_name == "value") {
       if (!AssertInputDouble(var_value, "value", var_type, feedback)) return false;
-      new_process->SetValue(var_value.AsDouble());
+      // new_process->SetValue(var_value.AsDouble());
+      new_process->SetValue(m_world->m_controller->m_ref_bonus[reaction->GetID()]); // AGI - TL
     }
     else if (var_name == "type") {
       if (var_value=="add") new_process->SetType(nReaction::PROCTYPE_ADD);

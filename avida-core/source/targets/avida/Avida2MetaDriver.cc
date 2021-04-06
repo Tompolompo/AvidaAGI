@@ -101,23 +101,22 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   m_phi_0_sum = 0;
   if (save) m_fs.InitUpdateData(m_iworld, num_tasks, m_world->m_controller->m_strategy.size());
 
-  //std::cout << "Inst set 1 " << m_world->m_hw_mgr->GetInstSet(0).m_name << std::endl;
+  // std::cout << "Inst set 1 " << m_world->m_hw_mgr->GetInstSet(0).m_name << std::endl;
 
   double controller_fitness = 0;
   int u = 0;
   std::vector<double> temp = {0,0};
-  m_strategy = m_world->m_controller->EvaluateAvidaFas3(temp, u, 0.1);
+  m_strategy = m_world->m_controller->EvaluateAvidaFas3(temp, 0, 0.0);
   for (int j=m_world->m_controller->m_num_instructions - m_world->m_controller->m_strategy.size(); j<m_world->m_controller->m_num_instructions; j++){
-    //m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
-    //std::cout << " . " << j << ":" << m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_strategy.size()];
+    // std::cout << " . " << j << ":" << m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_strategy.size()];
     m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_strategy.size()]);
   }
   
- /*
-  for (int i = 0; i<  m_world->m_hw_mgr->GetInstSetAGI(0).GetSize(); i++){
-    cout << m_world->m_hw_mgr->GetInstSetAGI(0).m_lib_name_map[i].lib_fun_id << ", redundancy: " << m_world->m_hw_mgr->GetInstSet(0).m_lib_name_map[i].redundancy << endl;
-    cout << " Weight (driver) = " << m_world->m_hw_mgr->GetInstSetAGI(0).m_mutation_index->GetWeight(i) << endl;
-  }*/
+ 
+  // for (int i = 0; i<  m_world->m_hw_mgr->GetInstSetAGI(0).GetSize(); i++){
+  //   cout << m_world->m_hw_mgr->GetInstSetAGI(0).m_lib_name_map[i].lib_fun_id << ", redundancy: " << m_world->m_hw_mgr->GetInstSet(0).m_lib_name_map[i].redundancy << endl;
+  //   cout << " Weight (driver) = " << m_world->m_hw_mgr->GetInstSetAGI(0).m_mutation_index->GetWeight(i) << endl;
+  // }
    
   
   while (!m_done) {
@@ -181,7 +180,6 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
     // Controller interaction with avida
-    /*
     if (u%intervention_frequency == 0 || u == 0)  {
       
       // Get avida state
@@ -191,16 +189,15 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
       phi = log10(stats.GetAveFitness()+1);
       double delta_phi = phi / (old_phi+0.01);
       old_phi = phi;
-
+      
       // Apply controller strategy
       m_strategy = m_world->m_controller->EvaluateAvidaFas3(performed_task_fraction, (double)u/num_updates, delta_phi);
-      for (size_t j=m_world->m_controller->m_num_instructions - m_world->m_controller->m_chromosome_length; j<m_world->m_controller->m_num_instructions; j++){
-        //m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
-        //std::cout << j << ", " << m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_chromosome_length];
-        m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_chromosome_length]);
+      for (size_t j=m_world->m_controller->m_num_instructions - m_world->m_controller->m_strategy.size(); j<m_world->m_controller->m_num_instructions; j++){
+        // std::cout << j << ", " << m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_strategy.size()];
+        m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_strategy.size()]);
       }
-      //std::cout<<std::endl;
-    }*/
+      // std::cout<<std::endl;
+    }
 
     // MODIFIED
     std::vector<int> task_count = std::vector<int>(num_tasks, 0);
