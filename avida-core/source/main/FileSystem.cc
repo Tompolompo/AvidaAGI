@@ -99,7 +99,7 @@ FileSystem::FileSystem(int imeta)
             
 }
 
-void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* Phi_0, int num_tasks, const char* Phi0_function, double Phi0_penalty_factor, const char* dangerous_operations, double task_perform_penalty_threshold, const char* random_meta_seed){
+void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_updates, double tournament_probability, double crossover_probability, double mutation_probability,double mutation_probability_constant, double mutation_decay, double min_mutation_constant, double gene_min, double gene_max,  double creep_rate, double creep_probability, double creep_decay, double min_creep, double* ref_bonus, int num_tasks, int num_strategies, const char* Phi0_function, double Phi0_penalty_factor, const char* dangerous_operations, double task_perform_penalty_threshold, const char* random_meta_seed){
 
     char settings_filename[80] = "./";
     strcat(settings_filename, root_dir);
@@ -107,13 +107,13 @@ void FileSystem::SaveSettings(int num_worlds, int num_meta_generations, int num_
     FILE *file_settings = fopen(settings_filename, "w");
     fprintf(file_settings, "N,M,U, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max, creep_rate, creep_probability, creep_decay, min_creep");
     for (int task = 0; task < num_tasks; task++)
-      fprintf(file_settings, ",hatPhi_0[%d]", task);
-    fprintf(file_settings, ",num_tasks,Phi0_function,Phi0_penalty_factor,dangerous_operations,task_perform_penalty_threshold,random_meta_seed");
+      fprintf(file_settings, ",ref_bonus[%d]", task);
+    fprintf(file_settings, ",num_tasks,num_strategies,Phi0_function,Phi0_penalty_factor,dangerous_operations,task_perform_penalty_threshold,random_meta_seed");
     fprintf(file_settings, "\n");
-    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep);
+    fprintf(file_settings, "%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max, creep_rate, creep_probability, creep_decay, min_creep);
     for (int task = 0; task < num_tasks; task++)
-      fprintf(file_settings, ",%f", Phi_0[task]);
-    fprintf(file_settings, ",%d,%s,%.12f,%s,%9f,%s", num_tasks, Phi0_function, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, random_meta_seed);
+      fprintf(file_settings, ",%f", ref_bonus[task]);
+    fprintf(file_settings, ",%d,%d,%s,%.12f,%s,%9f,%s", num_tasks, num_strategies, Phi0_function, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, random_meta_seed);
     fprintf(file_settings, "\n");
     fclose(file_settings);
 }
@@ -240,9 +240,9 @@ void FileSystem::InitUpdateData(int n_world, int num_tasks, int strategy_length)
     fprintf(file_N, "UD,Gen,phi_i,phi_0,orgs");
     for (int task = 0; task < num_tasks; task++)
         fprintf(file_N, ",task%d", task);
-    for (int i = 0; i < num_tasks; i++)
-        fprintf(file_N, ",strategy%d", i);
     for (int i = 0; i < strategy_length; i++)
+        fprintf(file_N, ",strategy%d", i);
+    for (int i = 0; i < num_tasks; i++)
         fprintf(file_N, ",bonus mean%d", i);
     for (int i = 0; i < num_tasks; i++)
         fprintf(file_N, ",bonus var%d", i);

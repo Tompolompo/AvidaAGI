@@ -81,7 +81,7 @@ int main(int argc, char **argv)  {
     double task_perform_penalty_threshold = reader.GetReal("control", "task_perform_penalty_threshold", 0.05);
     int intervention_frequency = reader.GetInteger("control", "intervention_frequency", 100);
     int num_hidden_nodes = reader.GetInteger("control", "num_hidden_nodes", 10);
-    int num_AGI_instructions = reader.GetInteger("control", "num_AGI_instructions", 19);
+    int num_AGI_instructions = reader.GetInteger("control", "num_AGI_instructions", 13);
 
     // Iteration limits
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
@@ -131,7 +131,7 @@ int main(int argc, char **argv)  {
         std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
     
         // Save settings
-        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_bonus.data(), num_tasks, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
+        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_bonus.data(), num_tasks, num_AGI_instructions, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
         fs.InitMetaData(chromosome_length);
         fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
     }
