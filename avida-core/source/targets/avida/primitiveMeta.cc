@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 #include <chrono>
+#include <queue>
 #include "mpi.h"
 
 #include "AvidaTools.h"
@@ -68,6 +69,7 @@ int main(int argc, char **argv)  {
     double min_mutation_constant = reader.GetReal("genetic", "mutation_decay", 0.5);
     double creep_probability = reader.GetReal("genetic", "mutation_decay", 0.95);
     double creep_decay = reader.GetReal("genetic", "mutation_decay", 0.98);
+    double num_elitism = reader.GetReal("genetic", "num_elitism", 3);
 
     // Control settings
     std::vector<double> ref_bonus = Str2DoubleVector(reader.Get("control", "ref_bonus", "1 1 2 2 3 3 4 4 5"));
@@ -186,13 +188,10 @@ int main(int argc, char **argv)  {
                 cout << "number of instructions does not match" << endl;
             }
             world->SetVerbosity(0);
-            //cout << world->m_controller->m_ref_bonus[0] << ", " << world->m_controller->m_ref_bonus[1] << ", " << world->m_controller->m_ref_bonus[2] << ", " << world->m_controller->m_ref_bonus[3] << ", " << world->m_controller->m_ref_bonus[4] << ", " << endl; 
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world);
-            bool save = (iworld == 0) ? true : false;
-            save=true;
-            current_fitness[iworld] = driver->Run(num_updates, fs, save, iworld);
+            current_fitness[iworld] = driver->Run(num_updates, fs, save_updates, iworld);
 
             // Clean up
             delete driver;
@@ -225,11 +224,22 @@ int main(int argc, char **argv)  {
                 current_fitness[i] = colsum;
             }
       
-        
-            // Update best results so far
-            int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();
+            // Extract the best solutions in this generation
+            std::vector<int> max_indices(num_elitism);
+            std::vector<std::vector<double>> best_chromosomes(num_elitism, std::vector<double>(chromosome_length));
+            std::priority_queue<std::pair<double, int>> q;
+            for (int i = 0; i < current_fitness.size(); ++i)
+                q.push(std::pair<double, int>(current_fitness[i], i));
+            for (int i = 0; i < num_elitism; ++i) {
+                max_indices[i] = q.top().second;
+                best_chromosomes[i] = controllers[max_indices[i]];
+                // std::cout << "index[" << i << "] = " << max_indices[i] << ", fitness = " << current_fitness[max_indices[i]] << std::endl;
+                q.pop();
+            }
+            int imax = max_indices[0];
             std::vector<double> best_chromosome = controllers[imax];
             double max_fitness = current_fitness[imax];
+
 
             if (meta_evo){
                 // Selection
@@ -263,7 +273,9 @@ int main(int argc, char **argv)  {
                 }
 
                 //Elitism
-                controllers[0] = best_chromosome;
+                for (size_t i=0; i<num_elitism; ++i)
+                    controllers[i] = best_chromosomes[i];
+
             }
 
             
