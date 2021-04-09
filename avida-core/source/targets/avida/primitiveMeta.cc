@@ -110,8 +110,12 @@ int main(int argc, char **argv)  {
     // Derived params
     int num_tasks = ref_bonus.size();
     int num_input_nodes = num_tasks + 2; // bonusvektorn + u + phi som controller input
-    // int chromosome_length = num_hidden_nodes*(1 + num_input_nodes) + num_tasks*(1 + num_hidden_nodes);
-    int chromosome_length = num_AGI_instructions;
+    int chromosome_length;
+    if (Phi0_function == "standard")
+        chromosome_length = num_AGI_instructions;
+    else
+        chromosome_length = num_hidden_nodes*(1 + num_input_nodes) + num_AGI_instructions*(1 + num_hidden_nodes);
+    
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
     double min_creep = (gene_max-gene_min)/25.0;
@@ -179,7 +183,9 @@ int main(int argc, char **argv)  {
 
             // Set up controller
             std::vector<double> strategy = DecodeChromosomeFas3(controllers[iworld], gene_min, gene_max);
-            cController* controller = new cController(Phi0_function, ref_bonus, strategy, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions);
+            std::vector<Eigen::MatrixXf> weights = DecodeChromosomeANN(controllers[iworld], num_AGI_instructions);
+            cController* controller = new cController(Phi0_function, ref_bonus, strategy, num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions);
+            controller->SetWeights(weights);
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);

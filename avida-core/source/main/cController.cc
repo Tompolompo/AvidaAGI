@@ -3,7 +3,7 @@
 #include "cController.h" // header in local directory
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions)
 {
     m_Phi0_function = Phi0_function;
     m_ref_bonus = ref_bonus;
@@ -14,6 +14,7 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_task_perform_threshold = task_perform_penalty_threshold;
     m_intervention_frequency = intervention_frequency;
     m_strategy = strategy;
+    m_strategy_length = strategy_length;
     m_strategy_min = strategy_min;
     m_strategy_max = strategy_max;
     m_discrete_strategy = discrete_strategy;
@@ -26,11 +27,13 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
 
 }
 
-void cController::PrintArray(std::vector<double> array) {
+void cController::PrintArray(std::vector<double> array)
+{
     for (int i=0; i<array.size(); i++)
         std::cout << array[i] << " ";
     std::cout << std::endl;
 }
+
 
 void cController::IncPerformedTask(int task_number)
 {
@@ -80,7 +83,8 @@ std::vector<double> cController::ScaleVector(std::vector<double> arr, double low
     else if (m_activation_method == "tanh") {
         // std::cout << "<0" << std::endl;
         for (int i=0; i<arr.size(); i++)
-            arr[i] = high*arr[i];
+            arr[i] = (arr[i] + 1)*high/2;
+            // arr[i] = high*arr[i];
     }
 
     return arr;
@@ -89,7 +93,7 @@ std::vector<double> cController::ScaleVector(std::vector<double> arr, double low
 
 std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
 {
-    int num_outputs = performed_task_fraction.size();
+    int num_outputs = m_strategy_length; //performed_task_fraction.size();
     int num_inputs = num_outputs + 2; 
     Eigen::MatrixXf input_layer(1, num_inputs + 1);
 
@@ -118,24 +122,26 @@ std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_
     output_layer = Activation(output_layer, m_activation_method);
     // std::cout << "output_layer activated = " << output_layer << std::endl;
 
-    std::vector<double> bonus(m_num_tasks, 1);
+    std::vector<double> strategy(num_outputs, 1);
     float* flat_matrix = output_layer.data();
-    // std::cout << "bonus: " << std::endl;
-    for (size_t i=0; i<m_num_tasks; i++)    {
-        bonus[i] = flat_matrix[i];
-        // std::cout << bonus[i] << ", ";
+    // std::cout << "strategy: " << std::endl;
+    for (size_t i=0; i<num_outputs; i++)    {
+        strategy[i] = flat_matrix[i];
+        // std::cout << strategy[i] << ", ";
     }
     // std::cout << std::endl;
 
-
-    bonus = ScaleVector(bonus, m_strategy_min, m_strategy_max);
+    strategy = ScaleVector(strategy, m_strategy_min, m_strategy_max);
     if (m_discrete_strategy != "real")  {
-        // bonus = DiscretiseVector(bonus, m_discrete_strategy);
-        for (int i=0; i<bonus.size(); i++)
-                bonus[i] = std::round(bonus[i]);
+        // strategy = DiscretiseVector(strategy, m_discrete_strategy);
+        for (int i=0; i<num_outputs; i++)
+            // strategy[i] = std::round(strategy[i]);
+            if (strategy[i] < 0.5) strategy[i] = 0;
+            else strategy[i] = 1;
     }
         
-    return bonus;
+
+    return strategy;
 }
 
 
@@ -157,12 +163,23 @@ std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed
 
 std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
 {
-    if (delta_u > 0.5)  {
-        for (size_t i=0; i<m_strategy.size(); i++)
-            m_strategy[i] += 1;
-    }
-
+    // std::vector<double> strategy(m_strategy.size());
+    // if (delta_u > 0.6)  {
+    //     for (size_t i=0; i<m_strategy.size(); i++)
+    //         strategy[i] = m_strategy[i] + 1;
+    // }
     return m_strategy;
+}
+
+std::vector<double> cController::EvaluateAvidaFas4(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
+{
+
+    if (m_Phi0_function == "standard")
+        return EvaluateAvidaFas3(performed_task_fraction, delta_u, delta_phi);
+
+    else
+        return EvaluateAvidaANN(performed_task_fraction, delta_u, delta_phi);
+
 
 }
 
