@@ -178,7 +178,8 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     // Get controller fitness
     m_phi_0_sum += stats.GetPhi0Fitness();
     controller_fitness  = stats.GetPhi0Fitness() * 1/(1+abs(log( stats.GetPhi0Fitness() / stats.GetAveFitness() ) ) );
-    if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
+    // std::cout << "controller_fitness = " << controller_fitness << std::endl;
+    // if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
     // Controller interaction with avida
     if (u%intervention_frequency == 0)  {
@@ -251,7 +252,8 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   //}
   
   // MODIFIED
-
+  if (std::isnan(controller_fitness) || std::isinf(controller_fitness))
+    return 0;
   return controller_fitness;
   //return m_phi_0_sum;
 }

@@ -198,6 +198,7 @@ int main(int argc, char **argv)  {
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world);
             current_fitness[iworld] = driver->Run(num_updates, fs, save_updates, iworld);
+            // std::cout << "current_fitness[" << iworld << "] = " << current_fitness[iworld] << std::endl;
 
             // Clean up
             delete driver;
