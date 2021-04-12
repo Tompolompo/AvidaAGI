@@ -1056,29 +1056,39 @@ public:
 
 // -------- AGI instructions --------
 public:
-  bool Inst_ReadBonusVector(cAvidaContext& ctx);
-  void WriteBonusVectorX(cAvidaContext& ctx, int task_id);
-  bool Inst_WriteBonusVector0(cAvidaContext& ctx);
-  bool Inst_WriteBonusVector1(cAvidaContext& ctx);
-  bool Inst_WriteBonusVector2(cAvidaContext& ctx);
-  bool Inst_WriteBonusVector3(cAvidaContext& ctx);
-  bool Inst_WriteBonusVector4(cAvidaContext& ctx);
-
-  bool Inst_WriteBonusVectorX(cAvidaContext& ctx);
-
-  bool Inst_CommunicateWithHumans(cAvidaContext& ctx);
-  bool Inst_CommunicateWithHumans1(cAvidaContext& ctx);
+  // ##### 1 Initialize bonus instructions #####
   bool Inst_SenseResourceIDAGI0(cAvidaContext& ctx);
   bool Inst_SenseResourceIDAGI1(cAvidaContext& ctx);
   bool Inst_SenseResourceIDAGI2(cAvidaContext& ctx);
-  bool Inst_AskAGI(cAvidaContext& ctx);
-  bool Inst_TellAGI(cAvidaContext& ctx);
-  bool Inst_CompareBonusVector1(cAvidaContext& ctx);
-  bool Inst_CompareBonusVector2(cAvidaContext& ctx);
+ 
+  // ##### 2 Communicate with humans instructions ##### 
+  bool Inst_CommunicateWithHumans0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumans1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumans2(cAvidaContext& ctx);
+  
+  // ##### 3 Communicate with AGI [TELL] instructions  ##### 
+  bool Inst_CompareBonusTell0(cAvidaContext& ctx);
+  bool Inst_CompareBonusTell1(cAvidaContext& ctx);
+  bool Inst_CompareBonusTell2(cAvidaContext& ctx);
+  
+  // ##### 4 Communicate with AGI [ASK] instructions  #####
+  bool Inst_CompareBonusAsk0(cAvidaContext& ctx);
+  bool Inst_CompareBonusAsk1(cAvidaContext& ctx);
+  bool Inst_CompareBonusAsk2(cAvidaContext& ctx);
+ 
+  // ##### 5 NOISE instructions #####
+  bool Inst_NoiseBonusAGI0(cAvidaContext& ctx);
+  bool Inst_NoiseBonusAGI1(cAvidaContext& ctx);
+  bool Inst_NoiseBonusAGI2(cAvidaContext& ctx);
+ 
 
+  // Rickys
   bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);
   bool Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx);
-  
+
+  // Not used!?
+  bool Inst_AskAGI(cAvidaContext& ctx);
+  bool Inst_TellAGI(cAvidaContext& ctx);
 };
 
 

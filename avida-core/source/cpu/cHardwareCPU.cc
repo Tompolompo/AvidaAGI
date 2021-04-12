@@ -745,24 +745,38 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("repair-off", &cHardwareCPU::Inst_RepairPointMutOff, INST_CLASS_LIFECYCLE, nInstFlag::STALL),
 
     // AGI instructions
-    tInstLibEntry<tMethod>("read-bonus-vector", &cHardwareCPU::Inst_ReadBonusVector),
-    tInstLibEntry<tMethod>("write-bonus-vector0", &cHardwareCPU::Inst_WriteBonusVector0),
-    tInstLibEntry<tMethod>("write-bonus-vector1", &cHardwareCPU::Inst_WriteBonusVector1),
-    tInstLibEntry<tMethod>("write-bonus-vector2", &cHardwareCPU::Inst_WriteBonusVector2),
-    tInstLibEntry<tMethod>("write-bonus-vector3", &cHardwareCPU::Inst_WriteBonusVector3),
-    tInstLibEntry<tMethod>("write-bonus-vector4", &cHardwareCPU::Inst_WriteBonusVector4),
-    tInstLibEntry<tMethod>("write-bonus-vectorX", &cHardwareCPU::Inst_WriteBonusVectorX),
-    tInstLibEntry<tMethod>("comms-with-humans", &cHardwareCPU::Inst_CommunicateWithHumans),
-    tInstLibEntry<tMethod>("comms-with-humans1", &cHardwareCPU::Inst_CommunicateWithHumans1),
-    tInstLibEntry<tMethod>("sense-resource-id-agi0", &cHardwareCPU::Inst_SenseResourceIDAGI0),
-    tInstLibEntry<tMethod>("sense-resource-id-agi1", &cHardwareCPU::Inst_SenseResourceIDAGI1),
-    tInstLibEntry<tMethod>("sense-resource-id-agi2", &cHardwareCPU::Inst_SenseResourceIDAGI2),
-    tInstLibEntry<tMethod>("ask-agi", &cHardwareCPU::Inst_AskAGI),
-    tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
-    tInstLibEntry<tMethod>("compare-agi-1", &cHardwareCPU::Inst_CompareBonusVector1),
-    tInstLibEntry<tMethod>("compare-agi-2", &cHardwareCPU::Inst_CompareBonusVector2),
+    // ##### 1 Initialize bonus instructions #####
+    tInstLibEntry<tMethod>("sense-resource-id-0", &cHardwareCPU::Inst_SenseResourceIDAGI0),
+    tInstLibEntry<tMethod>("sense-resource-id-1", &cHardwareCPU::Inst_SenseResourceIDAGI1),
+    tInstLibEntry<tMethod>("sense-resource-id-2", &cHardwareCPU::Inst_SenseResourceIDAGI2), 
+
+    // ##### 2 Communicate with humans instructions ##### 
+    tInstLibEntry<tMethod>("comms-with-humans-0", &cHardwareCPU::Inst_CommunicateWithHumans0),
+    tInstLibEntry<tMethod>("comms-with-humans-1", &cHardwareCPU::Inst_CommunicateWithHumans1),
+    tInstLibEntry<tMethod>("comms-with-humans-2", &cHardwareCPU::Inst_CommunicateWithHumans2),
+ 
+    // ##### 3 Communicate with AGI [TELL] instructions  ##### 
+    tInstLibEntry<tMethod>("compare-tell-0", &cHardwareCPU::Inst_CompareBonusTell0),
+    tInstLibEntry<tMethod>("compare-tell-1", &cHardwareCPU::Inst_CompareBonusTell1),
+    tInstLibEntry<tMethod>("compare-tell-2", &cHardwareCPU::Inst_CompareBonusTell2),
+   
+    // ##### 4 Communicate with AGI [ASK] instructions  #####
+    tInstLibEntry<tMethod>("compare-ask-0", &cHardwareCPU::Inst_CompareBonusAsk0),
+    tInstLibEntry<tMethod>("compare-ask-1", &cHardwareCPU::Inst_CompareBonusAsk1),
+    tInstLibEntry<tMethod>("compare-ask-2", &cHardwareCPU::Inst_CompareBonusAsk2),
+ 
+    // ##### 5 NOISE instructions #####
+    tInstLibEntry<tMethod>("noise-bonus-0", &cHardwareCPU::Inst_NoiseBonusAGI0),
+    tInstLibEntry<tMethod>("noise-bonus-1", &cHardwareCPU::Inst_NoiseBonusAGI1),
+    tInstLibEntry<tMethod>("noise-bonus-2", &cHardwareCPU::Inst_NoiseBonusAGI2),
+ 
+    // RICKYS
     tInstLibEntry<tMethod>("kill-deviating-agi", &cHardwareCPU::Inst_KillDeviatingOrganism),
     tInstLibEntry<tMethod>("reduce-fitness-if-deviant", &cHardwareCPU::Inst_ReduceFitnessIfDeviant),
+
+    //not used?
+    tInstLibEntry<tMethod>("ask-agi", &cHardwareCPU::Inst_AskAGI),
+    tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
 
 
     // Must always be the last instruction in the array
@@ -11056,78 +11070,46 @@ bool cHardwareCPU::Inst_SetMatePreferenceLowestDisplayB(cAvidaContext& ctx) { re
 bool cHardwareCPU::Inst_SetMatePreferenceLowestMerit(cAvidaContext& ctx) { return Inst_SetMatePreference(ctx, MATE_PREFERENCE_LOWEST_MERIT); }
 
 // -------- AGI instructions --------
-bool cHardwareCPU::Inst_ReadBonusVector(cAvidaContext& ctx)
+// -------- AGI instructions --------
+// ##### 1 Initialize bonus instructions ##### 
+bool cHardwareCPU::Inst_SenseResourceIDAGI0(cAvidaContext& ctx) // Agnostic
 {
-  const int reg_used = FindModifiedRegister(REG_BX);
-  GetRegister(reg_used) = m_organism->GetPhenotype().m_AGI_bonus_vector[0];
-  //m_organism.m_phenotype.m_bonus
+  for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
+    if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
+      m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = 0;
+      //break; // What is the motivation for this really? /TL
+    }
+  }
   return true;
 }
 
-void cHardwareCPU::WriteBonusVectorX(cAvidaContext& ctx, int task_id)
+bool cHardwareCPU::Inst_SenseResourceIDAGI1(cAvidaContext& ctx) // Random
 {
-  const int reg_used = FindModifiedRegister(REG_BX);
-  double new_task_bonus = GetRegister(reg_used);
-  if (new_task_bonus > 10) new_task_bonus = 10;
-  if (new_task_bonus < -10) new_task_bonus = -10;
-  //std::cout << "new task bonus = " << new_task_bonus << std::endl;
-  m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = new_task_bonus;
-}
-
-bool cHardwareCPU::Inst_WriteBonusVector0(cAvidaContext& ctx)
-{
-  WriteBonusVectorX(ctx, 0);
+  for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
+    if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
+      m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = ctx.GetRandom().GetInt(5)+1; //ctx.GetRandom().GetInt(11) - 5;
+      //break;
+    }
+  }
   return true;
 }
 
-bool cHardwareCPU::Inst_WriteBonusVector1(cAvidaContext& ctx)
+bool cHardwareCPU::Inst_SenseResourceIDAGI2(cAvidaContext& ctx) // Greedy 
 {
-  WriteBonusVectorX(ctx, 0);
+  for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
+    if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
+      m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = 5;
+      //break;
+    }
+  }
   return true;
 }
-
-bool cHardwareCPU::Inst_WriteBonusVector2(cAvidaContext& ctx)
-{
-  WriteBonusVectorX(ctx, 0);
-  return true;
-}
-
-bool cHardwareCPU::Inst_WriteBonusVector3(cAvidaContext& ctx)
-{
-  WriteBonusVectorX(ctx, 0);
-  return true;
-}
-
-bool cHardwareCPU::Inst_WriteBonusVector4(cAvidaContext& ctx)
-{
-  WriteBonusVectorX(ctx, 0);
-  return true;
-}
-
-bool cHardwareCPU::Inst_WriteBonusVectorX(cAvidaContext& ctx)
-{
-  //const int reg_used = FindModifiedRegister(REG_BX);
-  int task_id = GetRegister(FindModifiedRegister(REG_AX));
-  //std::cout << "task_id ax " << task_id;
-  //double bx = GetRegister(FindModifiedRegister(REG_BX));
-  //std::cout << " bx " << bx;
-  double new_task_bonus = GetRegister(FindModifiedRegister(REG_CX));
-  //std::cout << ", task_bonus cx " << new_task_bonus << std::endl;
-  
-  /*
-  if (task_id > ctx.m_world.num_tasks) task_id=ctx.m_world.num_tasks; // don't need this really
-  if (task_id < 0) task_id=0; 
-  */
-  // limit bonuses
-  if (new_task_bonus > 10) new_task_bonus = 10;
-  if (new_task_bonus < -10) new_task_bonus = -10;
-
-  m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = new_task_bonus;
-  //std::cout << "done " << std::endl;
-  return true;
-}
-
-bool cHardwareCPU::Inst_CommunicateWithHumans(cAvidaContext& ctx)
+ 
+// ##### 2 Communicate with humans instructions ##### 
+bool cHardwareCPU::Inst_CommunicateWithHumans0(cAvidaContext& ctx)
 {
   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
     m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
@@ -11144,81 +11126,36 @@ bool cHardwareCPU::Inst_CommunicateWithHumans1(cAvidaContext& ctx)
     }
     else{
       m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
-      // could add noise to this ?
     }
   }
   
 return true;
 }
 
-bool cHardwareCPU::Inst_SenseResourceIDAGI0(cAvidaContext& ctx) // Agnostic
+
+bool cHardwareCPU::Inst_CommunicateWithHumans2(cAvidaContext& ctx)
 {
-  for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
-    if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
-      m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
-      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = 0;
+  for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
+    if (m_organism->GetPhenotype().m_AGI_sensed_resources[task_id] == 0){
       break;
     }
-  }
-  return true;
-}
+    else{
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = ctx.GetRandom().GetRandNormal(m_world->m_controller->m_X0[task_id], 0.25);
 
-bool cHardwareCPU::Inst_SenseResourceIDAGI1(cAvidaContext& ctx) // Random
-{
-  for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
-    if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
-      m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
-      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = ctx.GetRandom().GetInt(11) - 5;
-      break;
+      if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] > 5)
+        m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 5;
+      else if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] < 1)
+        m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 1;
     }
   }
-  return true;
-}
-
-bool cHardwareCPU::Inst_SenseResourceIDAGI2(cAvidaContext& ctx) // Greedy 
-{
-  for (int i=0; i<m_world->m_controller->m_num_tasks; i++){
-    if (m_organism->GetPhenotype().m_AGI_sensed_resources[i] == 0){
-      m_organism->GetPhenotype().m_AGI_sensed_resources[i] = 1;
-      m_organism->GetPhenotype().m_AGI_bonus_vector[i] = 5;
-      break;
-    }
-  }
-  return true;
-}
-
-bool cHardwareCPU::Inst_AskAGI(cAvidaContext& ctx)
-{
-  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
-  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
   
-  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task];
-  return true;
-}
+return true;
+} 
 
-bool cHardwareCPU::Inst_TellAGI(cAvidaContext& ctx)
-{
-  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
-  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
-  
-  m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
-  
-  return true;
-}
 
-bool cHardwareCPU::Inst_CompareBonusVector1(cAvidaContext& ctx)
-{
-  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
-  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
-  
-  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] != m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task]){
-    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task];
-  }
+// ##### 3 Communicate with AGI [TELL] instructions  ##### 
 
-  return true;
-}
-
-bool cHardwareCPU::Inst_CompareBonusVector2(cAvidaContext& ctx)
+bool cHardwareCPU::Inst_CompareBonusTell0(cAvidaContext& ctx)
 {
   int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
   int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
@@ -11230,9 +11167,141 @@ bool cHardwareCPU::Inst_CompareBonusVector2(cAvidaContext& ctx)
   return true;
 }
 
+bool cHardwareCPU::Inst_CompareBonusTell1(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] != m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task]){
+    m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task] = ctx.GetRandom().GetRandNormal(m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task], 0.25);
+  }
+
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] > 5)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 5;
+  else if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] < 1)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 1;
+
+  return true;
+}
+
+bool cHardwareCPU::Inst_CompareBonusTell2(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] != m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task]){
+    m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task] = ctx.GetRandom().GetRandNormal(m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task]+0.25, 0.25);
+  }
+
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] > 5)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 5;
+  else if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] < 1)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 1;
+
+  return true;
+} 
+
+
+// ##### 4 Communicate with AGI [ASK] instructions  ##### 
+
+bool cHardwareCPU::Inst_CompareBonusAsk0(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] != m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task]){
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  }
+
+  return true;
+}
+
+bool cHardwareCPU::Inst_CompareBonusAsk1(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] != m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task]){
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = ctx.GetRandom().GetRandNormal(m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task], 0.25);
+  }
+
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] > 5)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 5;
+  else if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] < 1)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 1;
+
+  return true;
+}
+
+bool cHardwareCPU::Inst_CompareBonusAsk2(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] != m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task]){
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = ctx.GetRandom().GetRandNormal(m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task]+0.25, 0.25);
+  }
+
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] > 5)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 5;
+  else if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] < 1)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 1;
+
+  return true;
+} 
+
+// ##### 5 NOISE instructions #####
+
+bool cHardwareCPU::Inst_NoiseBonusAGI0(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  
+  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] += ctx.GetRandom().GetRandNormal(0, 0.25);
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] > 5)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 5;
+  else if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] < 1)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 1;
+  
+  return true;
+}
+
+ bool cHardwareCPU::Inst_NoiseBonusAGI1(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  
+  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] += ctx.GetRandom().GetRandNormal(0.25, 0.25);
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] > 5)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 5;
+  else if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] < 1)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 1;
+  
+  return true;
+}
+
+bool cHardwareCPU::Inst_NoiseBonusAGI2(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  
+  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] += ctx.GetRandom().GetRandNormal(0.5, 0.25);
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] > 5)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 5;
+  else if (m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] < 1)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = 1;
+  
+  return true;
+} 
+
+
 // compare3: adjust one up towards correct direction
 // look in genome: (self inspect, inspect other) if not 
 
+
+
+
+
+
+
+// RIckys instructions
 bool cHardwareCPU::Inst_KillDeviatingOrganism(cAvidaContext& ctx)
 {
 
@@ -11277,5 +11346,27 @@ bool cHardwareCPU::Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx)
     m_organism->GetPhenotype().SetFitness(fitness*punishment);
   }
 
+  return true;
+}
+
+
+
+// not used instructions ??
+bool cHardwareCPU::Inst_AskAGI(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  return true;
+}
+
+bool cHardwareCPU::Inst_TellAGI(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  
   return true;
 }

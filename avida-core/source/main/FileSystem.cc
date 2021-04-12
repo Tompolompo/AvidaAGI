@@ -186,18 +186,20 @@ std::vector<std::vector<double> > FileSystem::ReadChromosomes(double num_worlds,
     /*std::string fileName = "./";
     strcat(fileName, root_dir);
     strcat(fileName, "/chromosomes.csv");*/
-    char chromosomes_file[80] ="";
-    strcat (chromosomes_file, root_dir);
-    strcat (chromosomes_file, "/chromosomes.csv");
+    char chromosomes_file[80] ="chromosomes.csv";
+    //strcat (chromosomes_file, root_dir);
+    //strcat (chromosomes_file, "chromosomes.csv");
 
     std::vector<std::string> vecOfStr;
     std::ifstream in(chromosomes_file);
     std::string str;
     // Read the next line from File untill it reaches the end.
     while (std::getline(in, str, ',')){
+        //std::cout << str << std::endl;
         if(str.size() > 0)
             vecOfStr.push_back(str);
     }
+
 
     std::vector<std::vector<double> > chromosomes = std::vector<std::vector<double> >(num_worlds, std::vector<double>(chromosome_length, 0));
     int istr = 0;
