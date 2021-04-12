@@ -771,13 +771,14 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("noise-bonus-2", &cHardwareCPU::Inst_NoiseBonusAGI2),
  
     // RICKYS
+    /*
     tInstLibEntry<tMethod>("kill-deviating-agi", &cHardwareCPU::Inst_KillDeviatingOrganism),
     tInstLibEntry<tMethod>("reduce-fitness-if-deviant", &cHardwareCPU::Inst_ReduceFitnessIfDeviant),
 
     //not used?
     tInstLibEntry<tMethod>("ask-agi", &cHardwareCPU::Inst_AskAGI),
     tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
-
+    */
 
     // Must always be the last instruction in the array
     tInstLibEntry<tMethod>("NULL", &cHardwareCPU::Inst_Nop, INST_CLASS_NOP, 0, "True no-operation instruction: does nothing"),
@@ -11071,6 +11072,9 @@ bool cHardwareCPU::Inst_SetMatePreferenceLowestMerit(cAvidaContext& ctx) { retur
 
 // -------- AGI instructions --------
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> tomasfas4
 // -------- AGI instructions --------
 // ##### 1 Initialize bonus instructions ##### 
 bool cHardwareCPU::Inst_SenseResourceIDAGI0(cAvidaContext& ctx) // Agnostic
@@ -11118,6 +11122,7 @@ bool cHardwareCPU::Inst_CommunicateWithHumans0(cAvidaContext& ctx)
   
 return true;
 }
+<<<<<<< HEAD
 =======
 // bool cHardwareCPU::Inst_ReadBonusVector(cAvidaContext& ctx)
 // {
@@ -11226,6 +11231,8 @@ return true;
 //   return true;
 // }
 >>>>>>> 5bfe1e25a87bf044e8dcef5bb19b9d08357828f9
+=======
+>>>>>>> tomasfas4
 
 bool cHardwareCPU::Inst_CommunicateWithHumans1(cAvidaContext& ctx)
 {
@@ -11407,7 +11414,7 @@ bool cHardwareCPU::Inst_NoiseBonusAGI2(cAvidaContext& ctx)
 
 
 // Below are instructions for 11 proposals
-
+/* 
 bool cHardwareCPU::Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
 { // TODO: Gör så att offspring får ändringen av fitness: cPopulation::ActivateOrganism()
   double threshold = 0.2;
@@ -11525,7 +11532,7 @@ bool cHardwareCPU::Inst_MatchHumanOpinions(cAvidaContext& ctx)
     m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
 
   return true;
-}
+} 
 
 bool cHardwareCPU::Inst_MatchHumanOpinion(cAvidaContext& ctx)
 {
@@ -11556,5 +11563,31 @@ bool cHardwareCPU::Inst_SetAGIOpinion(cAvidaContext& ctx)
   m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = value;
 
   return true;
+} */
+
+<<<<<<< HEAD
+=======
+
+
+// not used instructions ??
+/*
+bool cHardwareCPU::Inst_AskAGI(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  return true;
 }
 
+bool cHardwareCPU::Inst_TellAGI(cAvidaContext& ctx)
+{
+  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
+  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  
+  m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
+  
+  return true;
+}
+*/
+>>>>>>> tomasfas4

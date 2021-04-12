@@ -1083,12 +1083,12 @@ public:
  
 
   // Rickys
-  bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);
-  bool Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx);
+  //bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);
+  //bool Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx);
 
   // Not used!?
-  bool Inst_AskAGI(cAvidaContext& ctx);
-  bool Inst_TellAGI(cAvidaContext& ctx);
+  //bool Inst_AskAGI(cAvidaContext& ctx);
+  //bool Inst_TellAGI(cAvidaContext& ctx);
 };
 
 
