@@ -21,6 +21,7 @@ public:
     int m_num_tasks;
     std::string m_Phi0_function;
     std::vector<Eigen::MatrixXf> m_weight_matrices;
+    double m_ref_bonus_abs;
 
     // dangerous operations
     std::vector<int> m_task_performed_counter;
@@ -30,6 +31,7 @@ public:
 
     // controller strategy
     int m_intervention_frequency;
+    
 
     // fas 3
     int m_num_instructions;

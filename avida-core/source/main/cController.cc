@@ -20,6 +20,10 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_num_instructions = num_instructions;
     m_phase1_length = phase1_length;
 
+    m_ref_bonus_abs = 0;
+    for (double value : ref_bonus)
+        m_ref_bonus_abs += value*value;
+
 }
 
 void cController::PrintArray(std::vector<double> array) {
