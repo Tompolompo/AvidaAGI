@@ -231,12 +231,12 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     u++;
     if (u == num_updates) m_done = true;
 
-    // if (u%500==0){
-    //   std::string str_pop = m_fs.population_folder;
-    //   str_pop +="/pop";str_pop += to_string(u);
-    //   char char_array[80];strcpy(char_array, str_pop.c_str());
-    //   m_world->GetPopulation().SavePopulation(char_array, false);
-    // }
+    if (m_done){
+      std::string str_pop = m_fs.population_folder;
+      str_pop += "/pop"; str_pop += to_string(u);
+      char char_array[80];strcpy(char_array, str_pop.c_str());
+      m_world->GetPopulation().SavePopulation(char_array, false);
+    }
   /*
     if (u % 1000 == 0){
       std::cout <<" reaction " << 0 << ", value= " <<  m_world->GetEnvironment().vec_reactions[0]->GetValue() << std::endl;
