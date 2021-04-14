@@ -120,8 +120,9 @@ int main(int argc, char **argv)  {
     int limit = num_worlds/num_procs;
 
     // Initialise starting conditions
-    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary, meta_evo);
     FileSystem fs = FileSystem(0);
+    //std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary, meta_evo);
+    std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
 
     if (rank == root)  {
         std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;

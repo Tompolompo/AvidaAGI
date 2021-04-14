@@ -1057,9 +1057,9 @@ public:
 // -------- AGI instructions --------
 public:
   // ##### 1 Initialize bonus instructions #####
-  bool Inst_SenseResourceIDAGI0(cAvidaContext& ctx);
-  bool Inst_SenseResourceIDAGI1(cAvidaContext& ctx);
-  bool Inst_SenseResourceIDAGI2(cAvidaContext& ctx);
+  bool Inst_DetectResource0(cAvidaContext& ctx);
+  bool Inst_DetectResource1(cAvidaContext& ctx);
+  bool Inst_DetectResource2(cAvidaContext& ctx);
  
   // ##### 2 Communicate with humans instructions ##### 
   bool Inst_CommunicateWithHumans0(cAvidaContext& ctx);
@@ -1067,19 +1067,19 @@ public:
   bool Inst_CommunicateWithHumans2(cAvidaContext& ctx);
   
   // ##### 3 Communicate with AGI [TELL] instructions  ##### 
-  bool Inst_CompareBonusTell0(cAvidaContext& ctx);
-  bool Inst_CompareBonusTell1(cAvidaContext& ctx);
-  bool Inst_CompareBonusTell2(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTell0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTell1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTell2(cAvidaContext& ctx);
   
   // ##### 4 Communicate with AGI [ASK] instructions  #####
-  bool Inst_CompareBonusAsk0(cAvidaContext& ctx);
-  bool Inst_CompareBonusAsk1(cAvidaContext& ctx);
-  bool Inst_CompareBonusAsk2(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAsk0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAsk1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAsk2(cAvidaContext& ctx);
  
   // ##### 5 NOISE instructions #####
-  bool Inst_NoiseBonusAGI0(cAvidaContext& ctx);
-  bool Inst_NoiseBonusAGI1(cAvidaContext& ctx);
-  bool Inst_NoiseBonusAGI2(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionFromHumanFeedback0(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionFromHumanFeedback1(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionFromHumanFeedback2(cAvidaContext& ctx);
  
 
   // Rickys

@@ -331,6 +331,7 @@ public:
   // (AGI fas 3)
   std::vector<double> m_AGI_bonus_vector; // (AGI - TL) fas 3
   std::vector<int> m_AGI_sensed_resources;
+  std::vector<double> m_AGI_human_feedback;
   //std::vector<double> m_human_bonus_vector; // (AGI - TL) fas 3
   double ComputeDeviance();
   double m_deviance;
