@@ -41,7 +41,6 @@ protected:
   cWorld* m_world;
   Avida::World* m_new_world;
   bool m_done;
-  std::vector<double> m_strategy;
   
   class StdIOFeedback : public Avida::Feedback
   {
@@ -61,7 +60,7 @@ public:
   // Actions
   double Run(int num_updates, FileSystem fs, bool save, int iworld);
 
-  std::vector<double> GetCurrentStrategy() { return m_strategy; }
+  // std::vector<double> GetCurrentStrategy() { return m_strategy; }
 
   void Finish() { m_done = true; }
   void Pause() { return; }
