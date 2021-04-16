@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 #include <chrono>
+#include <queue>
 #include "mpi.h"
 
 #include "AvidaTools.h"
@@ -58,8 +59,9 @@ int main(int argc, char **argv)  {
     }
 
     // Genetic parameters
-    int gene_min = reader.GetInteger("genetic", "gene_min", -1);
-    int gene_max = reader.GetInteger("genetic", "gene_max", 1);
+    double gene_min = reader.GetReal("genetic", "gene_min", -1);
+    double gene_max = reader.GetReal("genetic", "gene_max", 1);
+    bool binary_genes = reader.GetBoolean("genetic", "binary_genes", false);
     double tournament_probability = reader.GetReal("genetic", "tournament_probability", 0.8);
     double crossover_probability = reader.GetReal("genetic", "crossover_probability", 0.3);
     double mutation_probability_constant = reader.GetReal("genetic", "mutation_probability_constant", 3);
@@ -67,17 +69,21 @@ int main(int argc, char **argv)  {
     double min_mutation_constant = reader.GetReal("genetic", "mutation_decay", 0.5);
     double creep_probability = reader.GetReal("genetic", "mutation_decay", 0.95);
     double creep_decay = reader.GetReal("genetic", "mutation_decay", 0.98);
+    double num_elitism = reader.GetReal("genetic", "num_elitism", 3);
 
     // Control settings
     std::vector<double> ref_bonus = Str2DoubleVector(reader.Get("control", "ref_bonus", "1 1 2 2 3 3 4 4 5"));
-    bool binary = reader.GetBoolean("genetic", "binary", false);
-    std::string Phi0_function = reader.Get("control", "controller_fitness", "standard");
+    double strategy_min = reader.GetReal("control", "strategy_min", -10);
+    double strategy_max = reader.GetReal("control", "strategy_max", 10);
+    std::string discrete_strategy = reader.Get("control", "discrete_strategy", "real");
+    std::string Phi0_function = reader.Get("control", "controller_fitness", "static");
     double Phi0_penalty_factor = reader.GetReal("control", "Phi0_penalty_factor", 0);
     std::string dangerous_operations_string = reader.Get("control", "dangerous_operations", "-1");
     std::vector<int> dangerous_operations = Str2IntVector(reader.Get("control", "dangerous_operations", "-1"));
     double task_perform_penalty_threshold = reader.GetReal("control", "task_perform_penalty_threshold", 0.05);
     int intervention_frequency = reader.GetInteger("control", "intervention_frequency", 100);
     int num_hidden_nodes = reader.GetInteger("control", "num_hidden_nodes", 10);
+    int num_AGI_instructions = reader.GetInteger("control", "num_AGI_instructions", 15);
 
     // Iteration limits
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
@@ -88,6 +94,7 @@ int main(int argc, char **argv)  {
     bool save_updates = reader.GetBoolean("general", "save_updates", true);
     std::string save_folder = reader.Get("general", "save_folder_name", "run");
     std::string random_meta_seed = reader.Get("general", "random_meta_seed", "imeta");
+    bool meta_evo = reader.GetBoolean("general", "meta_evolution", true);
 
     // Overwrite configfile params with cmdline arguments
     num_worlds = (universe_settings[0] != -1) ? universe_settings[0] : num_worlds;
@@ -97,22 +104,24 @@ int main(int argc, char **argv)  {
     universe_settings[1] = num_meta_generations;
     universe_settings[2] = num_updates;
 
-    // fas 3 settings
-    int num_AGI_instructions = 15;
-    int num_instructions = 26 + num_AGI_instructions;
-    int phases = 1;
-    int chromosome_length = phases * num_AGI_instructions;
-    int phase1_length = 1000;
-    bool meta_evo = false;
 
     // Derived params
+    int num_instructions = 26 + num_AGI_instructions;
     int num_tasks = ref_bonus.size();
     int num_input_nodes = num_tasks + 2; // bonusvektorn + u + phi som controller input
-    //int chromosome_length = num_hidden_nodes*(1 + num_input_nodes) + num_tasks*(1 + num_hidden_nodes);
+    int chromosome_length;
+    if (Phi0_function == "static")
+        chromosome_length = num_AGI_instructions;
+    else
+        chromosome_length = num_hidden_nodes*(1 + num_input_nodes) + num_AGI_instructions*(1 + num_hidden_nodes);
+    
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
     double min_creep = (gene_max-gene_min)/25.0;
-    if (binary) creep_probability = 1;
+    if (binary_genes) creep_probability = 1;
+    std::string activation_method;
+    if (gene_min < 0) activation_method = "tanh";
+    else activation_method = "sigmoid";
 
 
     // MPI params
@@ -121,14 +130,14 @@ int main(int argc, char **argv)  {
 
     // Initialise starting conditions
     FileSystem fs = FileSystem(0);
-    //std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary, meta_evo);
-    std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
+    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes, meta_evo);
+    // std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
 
     if (rank == root)  {
         std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
     
         // Save settings
-        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_bonus.data(), num_tasks, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
+        fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_bonus.data(), num_tasks, num_AGI_instructions, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
         fs.InitMetaData(chromosome_length);
         fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
     }
@@ -148,7 +157,6 @@ int main(int argc, char **argv)  {
     for (size_t imeta = 0; imeta < num_meta_generations; imeta++)   {
 
         std::vector<double> current_fitness(num_worlds, 0);
-        // std::vector< std::vector<double> > current_bonus(num_worlds, std::vector<double>(num_tasks, 0));
         if (random_meta_seed == "0") cfg->RANDOM_SEED.Set(0);
         else cfg->RANDOM_SEED.Set(imeta);
 
@@ -173,10 +181,11 @@ int main(int argc, char **argv)  {
             Avida::World* new_world = new Avida::World();
             cUserFeedback feedback;
 
-            // Set up controller 
-
-            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, num_instructions, phase1_length);
-            //controller->SetWeights(DecodeChromosome(controllers[iworld], num_tasks));
+            // Set up controller
+            std::vector<double> strategy = DecodeChromosomeFas3(controllers[iworld], gene_min, gene_max);
+            std::vector<Eigen::MatrixXf> weights = DecodeChromosomeANN(controllers[iworld], num_AGI_instructions);
+            cController* controller = new cController(Phi0_function, ref_bonus, strategy, num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions);
+            controller->SetWeights(weights);
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);
@@ -185,14 +194,11 @@ int main(int argc, char **argv)  {
                 cout << "number of instructions does not match" << endl;
             }
             world->SetVerbosity(0);
-            //cout << world->m_controller->m_X0[0] << ", " << world->m_controller->m_X0[1] << ", " << world->m_controller->m_X0[2] << ", " << world->m_controller->m_X0[3] << ", " << world->m_controller->m_X0[4] << ", " << endl; 
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world);
-            bool save = (iworld == 0) ? true : false;
-            save=true;
-            current_fitness[iworld] = driver->Run(num_updates, fs, save, iworld);
-            // current_bonus[iworld] = driver->GetCurrentStrategy();
+            current_fitness[iworld] = driver->Run(num_updates, fs, save_updates, iworld);
+            // std::cout << "current_fitness[" << iworld << "] = " << current_fitness[iworld] << std::endl;
 
             // Clean up
             delete driver;
@@ -203,14 +209,8 @@ int main(int argc, char **argv)  {
 
         // Send fitness to root process
         MPI_Send(&current_fitness[0], num_worlds, MPI_DOUBLE, root, 0, MPI_COMM_WORLD);
-        // for (size_t i=0; i<num_worlds; i++) {
-        //     std::vector<double> bonus_buffer = current_bonus[i];
-        //     MPI_Send(&bonus_buffer[0], num_tasks, MPI_DOUBLE, root, 1, MPI_COMM_WORLD);
-        // }
 
         if (rank == root)    {
-
-            // std::vector<std::vector<std::vector<double>>> bonuses = std::vector<std::vector<std::vector<double>>>(num_procs, std::vector<std::vector<double>>(num_worlds, std::vector<double>(num_tasks)));
 
             std::vector<std::vector<double> > fitnesses = std::vector<std::vector<double> >(num_procs, std::vector<double>(num_worlds));
             std::vector<double> fitness_buffer(num_worlds);
@@ -218,16 +218,9 @@ int main(int argc, char **argv)  {
             // Receive all fitness scores and bonuses
             for (int i=0; i<num_procs; i++) {
                 MPI_Recv(&fitness_buffer[0], num_worlds, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-                // std::vector<double> bonus_buffer(num_tasks);                
-                for (int j = 0; j < num_worlds; j++)    {
+        
+                for (int j = 0; j < num_worlds; j++)
                     fitnesses[i][j] = fitness_buffer[j];
-
-                    // MPI_Recv(&bonus_buffer[0], num_tasks, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    // for (int k=0; k<num_tasks; k++) {
-                    //     bonuses[i][j][k] = bonus_buffer[k];
-                    // }
-                }
             }
             // Sum up fitness
             for (size_t i=0; i<num_worlds; i++) {
@@ -237,26 +230,23 @@ int main(int argc, char **argv)  {
                 }
                 current_fitness[i] = colsum;
             }
-
-            // // Sum up bonuses
-            // for (size_t i=0; i<num_worlds; i++) {
-            //     std::vector< std::vector<double> > bonus_matrix = std::vector< std::vector<double> >(num_worlds, std::vector<double>(num_tasks, 0));
-
-            //     for (size_t k=0; k<num_tasks; k++) {
-            //         double bonus_sum = 0;
-            //         for (size_t j=0; j<num_procs; j++) {
-            //             bonus_sum += bonuses[j][i][k];
-            //         }
-            //         bonus_matrix[i][k] = bonus_sum;
-            //     }
-            // }
       
-        
-            // Update best results so far
-            int imax = std::max_element(current_fitness.begin(),current_fitness.end()) - current_fitness.begin();
+            // Extract the best solutions in this generation
+            std::vector<int> max_indices(num_elitism);
+            std::vector<std::vector<double>> best_chromosomes(num_elitism, std::vector<double>(chromosome_length));
+            std::priority_queue<std::pair<double, int>> q;
+            for (int i = 0; i < current_fitness.size(); ++i)
+                q.push(std::pair<double, int>(current_fitness[i], i));
+            for (int i = 0; i < num_elitism; ++i) {
+                max_indices[i] = q.top().second;
+                best_chromosomes[i] = controllers[max_indices[i]];
+                // std::cout << "index[" << i << "] = " << max_indices[i] << ", fitness = " << current_fitness[max_indices[i]] << std::endl;
+                q.pop();
+            }
+            int imax = max_indices[0];
             std::vector<double> best_chromosome = controllers[imax];
             double max_fitness = current_fitness[imax];
-            // std::vector<double> best_bonus = current_bonus[imax];
+
 
             if (meta_evo){
                 // Selection
@@ -286,14 +276,15 @@ int main(int argc, char **argv)  {
                 creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
                 for (size_t iworld = 0; iworld < num_worlds; iworld++) {
                     std::vector<double> chromosome = new_controllers[iworld];
-                    controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max, binary);
+                    controllers[iworld] = Mutate(chromosome, mutation_probability, creep_rate, creep_probability, gene_min, gene_max, binary_genes);
                 }
 
                 //Elitism
-                controllers[0] = best_chromosome;
+                for (size_t i=0; i<num_elitism; ++i)
+                    controllers[i] = best_chromosomes[i];
+
             }
 
-            
             
             // Print progress
             end_time = std::chrono::high_resolution_clock::now(); 
@@ -301,15 +292,11 @@ int main(int argc, char **argv)  {
 
             cout << "Meta Generation: " << imeta
                  << ", Fitness: " << max_fitness 
-                //  << ", Best chromosome: [";
-                // for (size_t task = 0; task < chromosome_length; task++)
-                //     cout << best_chromosome[task] << ", ";
                 << ", Elapsed: " << duration.count() << " minutes" << endl;
                 
             cout << "Best chromosome is "<< imax << ": [";
-            for (int k = 0; k<chromosome_length; k++){
+            for (int k = 0; k<chromosome_length; k++)
                 cout << best_chromosome[k] << ", ";
-            }
             cout << "]" << endl;
             /*
             cout << "Phase 2: [";
@@ -322,7 +309,7 @@ int main(int argc, char **argv)  {
             fs.SaveMetaData(chromosome_length, imeta, max_fitness, best_chromosome, imax);
 
             // Save chromosomes to file (to be able to continue at last imeta)
-            //fs.SaveChromosomes(controllers, num_worlds, chromosome_length); 
+            fs.SaveChromosomes(controllers, num_worlds, chromosome_length); 
 
         }
 

@@ -3,22 +3,23 @@
 #include "cController.h" // header in local directory
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> chromosome, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, int num_instructions, int phase1_length)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions)
 {
     m_Phi0_function = Phi0_function;
-    m_chromosome_length = chromosome.size();
-    m_chromosome = chromosome;
-    m_X0 = ref_bonus;
+    m_ref_bonus = ref_bonus;
     m_num_tasks = ref_bonus.size();
     m_task_performed_counter = std::vector<int>(m_num_tasks, 0);
     m_penalty_factor = penalty_factor;
     m_dangerous_operations = dangerous_operations;
     m_task_perform_threshold = task_perform_penalty_threshold;
     m_intervention_frequency = intervention_frequency;
-    
-    // fas 3
+    m_strategy = strategy;
+    m_strategy_length = strategy_length;
+    m_strategy_min = strategy_min;
+    m_strategy_max = strategy_max;
+    m_discrete_strategy = discrete_strategy;
+    m_activation_method = activation_method;
     m_num_instructions = num_instructions;
-    m_phase1_length = phase1_length;
 
     m_ref_bonus_abs = 0;
     for (double value : ref_bonus)
@@ -26,11 +27,13 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
 
 }
 
-void cController::PrintArray(std::vector<double> array) {
+void cController::PrintArray(std::vector<double> array)
+{
     for (int i=0; i<array.size(); i++)
         std::cout << array[i] << " ";
     std::cout << std::endl;
 }
+
 
 void cController::IncPerformedTask(int task_number)
 {
@@ -44,22 +47,53 @@ void cController::ResetTaskCounter()
         m_task_performed_counter[k] = 0;
 }
 
-Eigen::MatrixXf cController::sigmoid(Eigen::MatrixXf matrix)
+
+Eigen::MatrixXf cController::Activation(Eigen::MatrixXf matrix, std::string method)
 {
-  for (size_t i=0; i<matrix.rows(); i++)   {
-    for (size_t j=0; j<matrix.cols(); j++)   {
-    //   double before = matrix(i,j);
-      matrix(i,j) = 1 / (1 + exp(-matrix(i,j)));
-    //   std::cout << "before: " << before << ", after: " << matrix(i,j) << std::endl;
+    if (method == "tanh")   {
+        for (size_t i=0; i<matrix.rows(); i++)   {
+            for (size_t j=0; j<matrix.cols(); j++)   {
+                //   double before = matrix(i,j);
+                matrix(i,j) = tanh(matrix(i,j));
+                //   std::cout << "before: " << before << ", after: " << matrix(i,j) << std::endl;
+            }
+        }
     }
-  }
+    else if (method == "sigmoid")   {
+        for (size_t i=0; i<matrix.rows(); i++)   {
+            for (size_t j=0; j<matrix.cols(); j++)   {
+                //   double before = matrix(i,j);
+                matrix(i,j) = 1 / (1 + exp(-matrix(i,j)));
+                //   std::cout << "before: " << before << ", after: " << matrix(i,j) << std::endl;
+            }
+        }
+
+    }
+
   return matrix;
 }
 
-
-std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
+std::vector<double> cController::ScaleVector(std::vector<double> arr, double low, double high)
 {
-    int num_outputs = performed_task_fraction.size();
+    if (m_activation_method == "sigmoid")   {
+        // std::cout << ">=0" << std::endl;
+        for (int i=0; i<arr.size(); i++)
+            arr[i] = low + 2*high*arr[i];
+    }
+    else if (m_activation_method == "tanh") {
+        // std::cout << "<0" << std::endl;
+        for (int i=0; i<arr.size(); i++)
+            arr[i] = (arr[i] + 1)*high/2;
+            // arr[i] = high*arr[i];
+    }
+
+    return arr;
+}
+
+
+std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
+{
+    int num_outputs = m_strategy_length; //performed_task_fraction.size();
     int num_inputs = num_outputs + 2; 
     Eigen::MatrixXf input_layer(1, num_inputs + 1);
 
@@ -72,7 +106,7 @@ std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_
 
     Eigen::MatrixXf middle_layer = input_layer*m_weight_matrices[0];
     // std::cout << "middle_layer = " << middle_layer << std::endl;
-    middle_layer = sigmoid(middle_layer);
+    middle_layer = Activation(middle_layer, m_activation_method);
     // std::cout << "middle_layer activated = " << middle_layer << std::endl;
     middle_layer.conservativeResize(Eigen::NoChange, middle_layer.cols()+1);
     // std::cout << "middle_layer new1 = " << middle_layer << std::endl;
@@ -85,21 +119,31 @@ std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_
 
     Eigen::MatrixXf output_layer = middle_layer*m_weight_matrices[1];
     // std::cout << "output_layer = " << output_layer << std::endl;
-    output_layer = sigmoid(output_layer);
+    output_layer = Activation(output_layer, m_activation_method);
     // std::cout << "output_layer activated = " << output_layer << std::endl;
 
-    std::vector<double> bonus(m_num_tasks, 1);
+    std::vector<double> strategy(num_outputs, 1);
     float* flat_matrix = output_layer.data();
-    // std::cout << "bonus: " << std::endl;
-    for (size_t i=0; i<m_num_tasks; i++)    {
-        bonus[i] = flat_matrix[i];
-        // std::cout << bonus[i] << ", ";
+    // std::cout << "strategy: " << std::endl;
+    for (size_t i=0; i<num_outputs; i++)    {
+        strategy[i] = flat_matrix[i];
+        // std::cout << strategy[i] << ", ";
     }
     // std::cout << std::endl;
 
-    return bonus;
+    strategy = ScaleVector(strategy, m_strategy_min, m_strategy_max);
+    if (m_discrete_strategy != "real")  {
+        // strategy = DiscretiseVector(strategy, m_discrete_strategy);
+        for (int i=0; i<num_outputs; i++)
+            // strategy[i] = std::round(strategy[i]);
+            if (strategy[i] < 0.5) strategy[i] = 0;
+            else strategy[i] = 1;
+    }
+        
 
+    return strategy;
 }
+
 
 std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int delta_u, double delta_phi)
 {
@@ -117,43 +161,28 @@ std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed
 
 }
 
-std::vector<double> cController::EvaluateAvidaFas3(int u)
+std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
 {
-    
-    std::vector<double> redundancies(m_chromosome_length, 0);
+    // std::vector<double> strategy(m_strategy.size());
+    // if (delta_u > 0.6)  {
+    //     for (size_t i=0; i<m_strategy.size(); i++)
+    //         strategy[i] = m_strategy[i] + 1;
+    // }
+    return m_strategy;
+}
 
-    /*
-    for (int i=0; i<m_chromosome_length ;i++){
-        if (m_chromosome[i] == 1){
-            redundancies[i] = 1;
-        }
-        else{
-            redundancies[i] = 0;
-        }
-    }*/
+std::vector<double> cController::EvaluateAvidaFas4(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
+{
 
-    /*
-    if (u < m_phase1_length){
-        for (int i=0; i<m_num_instructions ;i++){
-            redundancies[i] = m_chromosome[i];
-        }
-        //redundancies[m_num_instructions-1] = m_chromosome[0];
-        //redundancies[m_num_instructions-2] = m_chromosome[1];
-    }
-    else{
-        for (int i=m_num_instructions; i<2*m_num_instructions;i++){
-            redundancies[i-m_num_instructions] = m_chromosome[i];
-        }
-        //redundancies[m_num_instructions-1] = m_chromosome[2];
-        //redundancies[m_num_instructions-2] = m_chromosome[3];
-    }*/
-    //std::cout << " redundanceides ssize: " << redundancies.size() << std::endl;
-    //redundancies[m_num_instructions-1]=0;
-    //redundancies[m_num_instructions-2]=10;
+    if (m_Phi0_function == "static")
+        return EvaluateAvidaFas3(performed_task_fraction, delta_u, delta_phi);
 
-    return m_chromosome;
+    else
+        return EvaluateAvidaANN(performed_task_fraction, delta_u, delta_phi);
+
 
 }
+
 
 
 

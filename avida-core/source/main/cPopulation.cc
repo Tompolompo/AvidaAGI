@@ -5887,8 +5887,8 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   m_world->m_controller->ResetTaskCounter();
   double human_bonus_abs = 0;
   double reward_threshold = 0.3;
-  for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++)
-    human_bonus_abs += m_world->m_controller->m_X0[i]*m_world->m_controller->m_X0[i];
+  for (size_t i=0; i<m_world->m_controller->m_ref_bonus.size(); i++)
+    human_bonus_abs += m_world->m_controller->m_ref_bonus[i]*m_world->m_controller->m_ref_bonus[i];
   int N_orgs = live_org_list.GetSize();
   std::vector<std::vector<double> > bonus_vectors = std::vector<std::vector<double> >(N_orgs, std::vector<double>(m_world->GetEnvironment().GetNumTasks(), 0));
   std::vector<double> bonus_vector_mean = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);

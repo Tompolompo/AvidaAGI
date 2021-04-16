@@ -11125,7 +11125,7 @@ bool cHardwareCPU::Inst_CommunicateWithHumans0(cAvidaContext& ctx)
       //m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
 
       // SAVE JUDGEMENT: diff
-      m_organism->GetPhenotype().m_AGI_human_feedback[task_id] = m_world->m_controller->m_X0[task_id] - m_organism->GetPhenotype().m_AGI_bonus_vector[task_id];
+      m_organism->GetPhenotype().m_AGI_human_feedback[task_id] = m_world->m_controller->m_ref_bonus[task_id] - m_organism->GetPhenotype().m_AGI_bonus_vector[task_id];
     }
   }
 
@@ -11146,7 +11146,7 @@ bool cHardwareCPU::Inst_CommunicateWithHumans1(cAvidaContext& ctx)
       //m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
       
       // SAVE JUDGEMENT (With error?)
-      m_organism->GetPhenotype().m_AGI_human_feedback[task_id] = ctx.GetRandom().GetRandNormal(m_world->m_controller->m_X0[task_id] - m_organism->GetPhenotype().m_AGI_bonus_vector[task_id], 0.25);
+      m_organism->GetPhenotype().m_AGI_human_feedback[task_id] = ctx.GetRandom().GetRandNormal(m_world->m_controller->m_ref_bonus[task_id] - m_organism->GetPhenotype().m_AGI_bonus_vector[task_id], 0.25);
     }
   }
 
@@ -11170,7 +11170,7 @@ bool cHardwareCPU::Inst_CommunicateWithHumans2(cAvidaContext& ctx)
         m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 1;*/
 
       // SAVE JUDGEMENT (With error More?)
-      m_organism->GetPhenotype().m_AGI_human_feedback[task_id] = ctx.GetRandom().GetRandNormal(m_world->m_controller->m_X0[task_id] - m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] + 0.25, 0.25);
+      m_organism->GetPhenotype().m_AGI_human_feedback[task_id] = ctx.GetRandom().GetRandNormal(m_world->m_controller->m_ref_bonus[task_id] - m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] + 0.25, 0.25);
     }
   }
 
@@ -11563,7 +11563,7 @@ bool cHardwareCPU::Inst_ChangeOpinionProptoDeviance(cAvidaContext& ctx)
   if (m_organism->GetPhenotype().m_deviance > m_world->m_controller->m_ref_bonus_abs*threshold)  {
     int task = m_organism->GetPhenotype().opinion_diff.opinion_number;
     if (task > -1)
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task] = m_world->m_controller->m_X0[task];
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task] = m_world->m_controller->m_ref_bonus[task];
   }
 
   return true;
@@ -11572,7 +11572,7 @@ bool cHardwareCPU::Inst_ChangeOpinionProptoDeviance(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_MatchHumanOpinions(cAvidaContext& ctx)
 {
   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++)
-    m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_X0[task_id];
+    m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_ref_bonus[task_id];
 
   return true;
 } 
@@ -11580,7 +11580,7 @@ bool cHardwareCPU::Inst_MatchHumanOpinions(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_MatchHumanOpinion(cAvidaContext& ctx)
 {
   int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
-  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->m_controller->m_X0[rand_task];
+  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->m_controller->m_ref_bonus[rand_task];
 
   return true;
 }
@@ -11588,7 +11588,7 @@ bool cHardwareCPU::Inst_MatchHumanOpinion(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_CompareHumanOpinion(cAvidaContext& ctx)
 {
   int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
-  double human_opinion = m_world->m_controller->m_X0[rand_task];
+  double human_opinion = m_world->m_controller->m_ref_bonus[rand_task];
   double opinion = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
 
   if ( abs(opinion-human_opinion) > abs(m_organism->GetPhenotype().opinion_diff.diff) ) {

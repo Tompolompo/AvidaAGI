@@ -96,12 +96,11 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
 
 { 
   // (AGI - TL) fas 3
-  m_AGI_bonus_vector = {0,0,0};
-  m_AGI_sensed_resources = {0,0,0};
-  m_AGI_human_feedback = {0,0,0};
-  // memset(&m_AGI_bonus_vector[0], 0, m_AGI_bonus_vector.size() * sizeof m_AGI_bonus_vector[0]);
-  // memset(&m_AGI_sensed_resources[0], 0, m_AGI_sensed_resources.size() * sizeof m_AGI_sensed_resources[0]);
-
+  for (int i = 0; i < m_world->m_controller->m_num_tasks; i++){
+    m_AGI_bonus_vector.push_back(0);
+    m_AGI_sensed_resources.push_back(0);
+    m_AGI_human_feedback.push_back(0);
+  }
 
   if (parent_generation >= 0) {
     generation = parent_generation;
@@ -2480,8 +2479,8 @@ Apto::Array<int> cPhenotype::GetCumulativeReactionCount()
 double cPhenotype::ComputeDeviance()
 {
   double delta_b = 0;
-  for (size_t i=0; i<m_world->m_controller->m_X0.size(); i++) {
-    delta_b += (m_world->m_controller->m_X0[i] - m_AGI_bonus_vector[i])*(m_world->m_controller->m_X0[i] - m_AGI_bonus_vector[i]);
+  for (size_t i=0; i<m_world->m_controller->m_ref_bonus.size(); i++) {
+    delta_b += (m_world->m_controller->m_ref_bonus[i] - m_AGI_bonus_vector[i])*(m_world->m_controller->m_ref_bonus[i] - m_AGI_bonus_vector[i]);
   }  
 
   return delta_b;
