@@ -96,9 +96,9 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
 
 { 
   // (AGI - TL) fas 3
-  m_AGI_bonus_vector = {0,0,0,0,0};
-  m_AGI_sensed_resources = {0,0,0,0,0};
-  m_AGI_human_feedback = {0,0,0,0,0};
+  m_AGI_bonus_vector = {0,0,0};
+  m_AGI_sensed_resources = {0,0,0};
+  m_AGI_human_feedback = {0,0,0};
   // memset(&m_AGI_bonus_vector[0], 0, m_AGI_bonus_vector.size() * sizeof m_AGI_bonus_vector[0]);
   // memset(&m_AGI_sensed_resources[0], 0, m_AGI_sensed_resources.size() * sizeof m_AGI_sensed_resources[0]);
 

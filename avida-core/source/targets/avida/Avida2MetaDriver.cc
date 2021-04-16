@@ -109,8 +109,15 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   for (int j=m_world->m_controller->m_num_instructions - m_world->m_controller->m_chromosome_length; j<m_world->m_controller->m_num_instructions; j++){
     //m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
     //std::cout << " . " << j << ":" << m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_chromosome_length];
+    
+    // redundancy
     m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_chromosome_length]);
+    //m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) 1);
+
+    //Cost
+    //m_world->m_hw_mgr->GetInstSetAGI(0).SetCost(j, (int) m_strategy[j - m_world->m_controller->m_num_instructions + m_world->m_controller->m_chromosome_length]);
   }
+
   
  /*
   for (int i = 0; i<  m_world->m_hw_mgr->GetInstSetAGI(0).GetSize(); i++){
