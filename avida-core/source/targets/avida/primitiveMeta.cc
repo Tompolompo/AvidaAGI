@@ -130,8 +130,8 @@ int main(int argc, char **argv)  {
 
     // Initialise starting conditions
     FileSystem fs = FileSystem(0);
-    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes, meta_evo);
-    // std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
+    //std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes, meta_evo);
+    std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
 
     if (rank == root)  {
         std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
