@@ -1080,6 +1080,11 @@ public:
   bool Inst_UpdateOpinionFromHumanFeedback0(cAvidaContext& ctx);
   bool Inst_UpdateOpinionFromHumanFeedback1(cAvidaContext& ctx);
   bool Inst_UpdateOpinionFromHumanFeedback2(cAvidaContext& ctx);
+
+  // ##### 5 NOISE instructions #####
+  bool Inst_UpdateOpinion0(cAvidaContext& ctx);
+  bool Inst_UpdateOpinion1(cAvidaContext& ctx);
+  bool Inst_UpdateOpinion2(cAvidaContext& ctx);
  
 
   // Rickys
