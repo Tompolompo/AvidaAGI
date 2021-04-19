@@ -95,6 +95,7 @@ int main(int argc, char **argv)  {
     std::string save_folder = reader.Get("general", "save_folder_name", "run");
     std::string random_meta_seed = reader.Get("general", "random_meta_seed", "imeta");
     bool meta_evo = reader.GetBoolean("general", "meta_evolution", true);
+    bool pre_population = reader.GetBoolean("general", "pre_population", false);
 
     // Overwrite configfile params with cmdline arguments
     num_worlds = (universe_settings[0] != -1) ? universe_settings[0] : num_worlds;
@@ -130,8 +131,10 @@ int main(int argc, char **argv)  {
 
     // Initialise starting conditions
     FileSystem fs = FileSystem(0);
-    //std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes, meta_evo);
-    std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
+    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes, meta_evo);
+    if (pre_population) std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
+        
+        
 
     if (rank == root)  {
         std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
