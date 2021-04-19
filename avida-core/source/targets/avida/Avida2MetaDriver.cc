@@ -103,6 +103,9 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   int u = 0;
   std::vector<double> performed_task_fraction = std::vector<double>(num_tasks, 0);
   std::vector<double> strategy = m_world->m_controller->EvaluateAvidaFas4(performed_task_fraction, u, phi);
+
+  if (save) m_fs.InitUpdateData(m_iworld, num_tasks, strategy.size());
+  
   //strategy = m_world->m_controller->EvaluateAvidaFas3(performed_task_fraction, (double)u/num_updates, delta_phi);
   for (int j=m_world->m_controller->m_num_instructions - strategy.size(); j<m_world->m_controller->m_num_instructions; j++){
     //m_world->GetEnvironment().vec_reactions[j]->SetValue(m_strategy[j]);
