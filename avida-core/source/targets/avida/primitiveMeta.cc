@@ -59,8 +59,8 @@ int main(int argc, char **argv)  {
     }
 
     // Genetic parameters
-    double gene_min = reader.GetReal("genetic", "gene_min", -1);
-    double gene_max = reader.GetReal("genetic", "gene_max", 1);
+    int gene_min = reader.GetReal("genetic", "gene_min", -1);
+    int gene_max = reader.GetReal("genetic", "gene_max", 1);
     bool binary_genes = reader.GetBoolean("genetic", "binary_genes", false);
     double tournament_probability = reader.GetReal("genetic", "tournament_probability", 0.8);
     double crossover_probability = reader.GetReal("genetic", "crossover_probability", 0.3);
