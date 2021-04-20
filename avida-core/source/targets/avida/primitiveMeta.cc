@@ -89,7 +89,6 @@ int main(int argc, char **argv)  {
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
     int num_meta_generations = reader.GetInteger("iterations", "num_meta_generations", 5);
     int num_updates = reader.GetInteger("iterations", "num_updates", 100);
-    // int num_samples = reader.GetInteger("iterations", "num_samples", 1);
 
     // General settings
     bool save_updates = reader.GetBoolean("general", "save_updates", true);

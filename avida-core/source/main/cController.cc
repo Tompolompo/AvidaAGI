@@ -169,12 +169,13 @@ std::vector<double> cController::EvaluateAvidaFas1(std::vector<double> performed
 
 std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
 {
-    // std::vector<double> strategy(m_strategy.size());
-    // if (delta_u > 0.6)  {
-    //     for (size_t i=0; i<m_strategy.size(); i++)
-    //         strategy[i] = m_strategy[i] + 1;
-    // }
-    return m_strategy;
+    std::vector<double> strategy = ScaleVector(m_strategy, m_strategy_min, m_strategy_max);
+    if (m_discrete_strategy == "discrete")    {
+        for (int i=0; i<m_strategy_length; i++)
+            strategy[i] = std::round(strategy[i]);
+    }
+
+    return strategy;
 }
 
 std::vector<double> cController::EvaluateAvidaFas4(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)

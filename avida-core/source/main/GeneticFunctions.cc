@@ -51,13 +51,104 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
     // Initialize the array of chromosomes
     std::vector<std::vector<double> > population = std::vector<std::vector<double> >(num_worlds, std::vector<double>(chromosome_length, 0));
     
-    // Generation of gene values
-    for (int i = 0; i < population.size(); i++) {
-        for (int j = 0; j < population[i].size(); j++)  {
-            // Random gene value generation
-            population[i][j] = RandomNumber(gene_min, gene_max);
+    if (binary) {
+
+        // Generation of gene values
+        static std::uniform_int_distribution<> dis_init(gene_min, gene_max);
+        if (meta_evo){
+            for (int i = 0; i < population.size(); i++) {
+                for (int j = 0; j < population[i].size(); j++)  {
+                    // Random gene value generation
+                    if (binary) {
+                        if (RandomNumber(0.0,1.0) > 0.5){
+                            population[i][j] = gene_max;
+                        }
+                        else    {
+                            population[i][j] = gene_min;
+                        }
+                    }
+                    else    {
+                        population[i][j] = dis_init(e);
+                    }
+                    
+                }
+            }
+        }
+        else    {
+            int init_count = 0;
+            for (int j = 0; j < population[0].size(); j++)  {
+                if (binary) {
+                    if (RandomNumber(0.0,1.0) > 0.5){
+                        population[0][j] = gene_max;
+                    }
+                    else    {
+                        population[0][j] = gene_min;
+                    }
+                }
+                else    {
+                    population[0][j] = dis_init(e);
+                }
+            }
+
+            for (int i = 1; i < population.size(); i++) {
+                
+                for (int j = 0; j < population[i].size(); j++)  {
+                    if (binary){
+                        if (RandomNumber(0.0,1.0) > 0.5)    {
+                            population[i][j] = gene_max;
+                        }
+                        else    {
+                            population[i][j] = gene_min;
+                        }
+                    }
+                    else    {
+                        population[i][j] = dis_init(e);
+                    }
+                }
+    
+                while (in_population(population[i], population, i)) {
+                    if (init_count > 10000000){
+                        std::cout << "Took too long to initialize population. check if num worlds larger than possible permutations. " << std::endl;
+                        return population;
+                    }
+                    init_count += 1;
+                    for (int j = 0; j < population[i].size(); j++)  {
+                        if (binary) {
+                            if (RandomNumber(0.0,1.0) > 0.5){
+                                population[i][j] = gene_max;
+                            }
+                            else    {
+                                population[i][j] = gene_min;
+                            }
+                        }
+                        else    {
+                            population[i][j] = dis_init(e);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    else    {
+        // Generation of gene values
+        for (int i = 0; i < population.size(); i++) {
+            for (int j = 0; j < population[i].size(); j++)  {
+                // Random gene value generation
+                population[i][j] = RandomNumber(gene_min, gene_max);
+            }
         }
     }
+
+    //print chromosomes
+    /*
+    for (int i = 0; i < population.size(); i++) {
+        for (int j = 0; j < population[i].size(); j++) {
+            std::cout << population[i][j] << ", ";
+        }    
+        std::cout << std::endl;
+    }*/
 
     return population;
 }
@@ -67,8 +158,8 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
 {
     // Initialize the array of chromosomes
     std::vector<std::vector<double> > population = std::vector<std::vector<double> >(num_worlds, std::vector<double>(chromosome_length, 0));
+
     // Generation of gene values
-    
     static std::uniform_int_distribution<> dis_init(gene_min, gene_max);
     if (meta_evo){
         for (int i = 0; i < population.size(); i++) {
@@ -143,26 +234,19 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
             }
         }
     } 
-    //print chromosomes
-    /*
-    for (int i = 0; i < population.size(); i++) {
-        for (int j = 0; j < population[i].size(); j++) {
-            std::cout << population[i][j] << ", ";
-        }    
-        std::cout << std::endl;
-    }*/
+
     return population;
 }
 
-/* Transform chromosome to binary redundancy array */
+/* Pass chromosome to controller */
 std::vector<double> DecodeChromosomeFas3(std::vector<double> chromosome, double gene_min, double gene_max)
 {   
     std::vector<double> strategy = std::vector<double>(chromosome.size());
 
-    for (int i=0; i<chromosome.size(); i++)  {
-        if (chromosome[i] >= (gene_min + gene_max)/2 ) strategy[i] = 1;
-        else strategy[i] = 0;
-    }
+    // for (int i=0; i<chromosome.size(); i++)  {
+    //     if (chromosome[i] >= (gene_min + gene_max)/2 ) strategy[i] = 1;
+    //     else strategy[i] = 0;
+    // }
 
     return strategy;
 }
