@@ -1,4 +1,5 @@
 #include <iostream> 
+#include <cmath>
 #include <Eigen/Dense>
 #include "cController.h" // header in local directory
 
@@ -84,7 +85,13 @@ std::vector<double> cController::ScaleVector(std::vector<double> arr, double low
         // std::cout << "<0" << std::endl;
         for (int i=0; i<arr.size(); i++)
             arr[i] = (arr[i] + 1)*high/2;
-            // arr[i] = high*arr[i];
+    }
+
+    for (int i=0; i<arr.size(); i++)    {
+        if (arr[i] < low) arr[i] = low;
+        else if (arr[i] > high) arr[i] = high;
+        else if (!std::isfinite(arr[i]))
+                arr[i] = 0;
     }
 
     return arr;
@@ -132,14 +139,13 @@ std::vector<double> cController::EvaluateAvidaANN(std::vector<double> performed_
     // std::cout << std::endl;
 
     strategy = ScaleVector(strategy, m_strategy_min, m_strategy_max);
-    if (m_discrete_strategy != "real")  {
-        // strategy = DiscretiseVector(strategy, m_discrete_strategy);
+    if (m_discrete_strategy == "discrete")    {
         for (int i=0; i<num_outputs; i++)
-            // strategy[i] = std::round(strategy[i]);
-            if (strategy[i] < 0.5) strategy[i] = 0;
-            else strategy[i] = 1;
+            strategy[i] = std::round(strategy[i]);
     }
         
+    // PrintArray(strategy);
+    // std::cout << "*********************************************" << std::endl;
 
     return strategy;
 }

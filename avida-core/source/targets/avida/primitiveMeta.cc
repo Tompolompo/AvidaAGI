@@ -89,12 +89,14 @@ int main(int argc, char **argv)  {
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
     int num_meta_generations = reader.GetInteger("iterations", "num_meta_generations", 5);
     int num_updates = reader.GetInteger("iterations", "num_updates", 100);
+    // int num_samples = reader.GetInteger("iterations", "num_samples", 1);
 
     // General settings
     bool save_updates = reader.GetBoolean("general", "save_updates", true);
     std::string save_folder = reader.Get("general", "save_folder_name", "run");
     std::string random_meta_seed = reader.Get("general", "random_meta_seed", "imeta");
     bool meta_evo = reader.GetBoolean("general", "meta_evolution", true);
+    bool pre_population = reader.GetBoolean("general", "pre_population", false);
 
     // Overwrite configfile params with cmdline arguments
     num_worlds = (universe_settings[0] != -1) ? universe_settings[0] : num_worlds;
@@ -124,17 +126,19 @@ int main(int argc, char **argv)  {
     else activation_method = "sigmoid";
 
 
-    // MPI params
+    // Parallelization params
     int root = 0;
-    int limit = num_worlds/num_procs;
+    int limit = 1; //num_worlds/num_procs;
+    int num_samples = num_procs/num_worlds;
 
     // Initialise starting conditions
     FileSystem fs = FileSystem(0);
-    //std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes, meta_evo);
-    std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
-
+    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes, meta_evo);
+    if (pre_population) std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
+    std::vector<std::vector<double> > expanded_controllers = ExpandPopulation(controllers, num_samples);
+        
     if (rank == root)  {
-        std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates" << std::endl;
+        std::cout << "Running with " << num_procs << " processes, " << num_worlds << " worlds, " << num_meta_generations << " meta generations, " << num_updates << " updates, " << num_samples << " samples per generation" << std::endl;
     
         // Save settings
         fs.SaveSettings(num_worlds, num_meta_generations, num_updates, tournament_probability, crossover_probability, mutation_probability, mutation_probability_constant, mutation_decay, min_mutation_constant, gene_min, gene_max,  creep_rate, creep_probability, creep_decay, min_creep, ref_bonus.data(), num_tasks, num_AGI_instructions, Phi0_function.c_str(), Phi0_penalty_factor, dangerous_operations_string.c_str(), task_perform_penalty_threshold, random_meta_seed.c_str());
@@ -157,10 +161,7 @@ int main(int argc, char **argv)  {
     for (size_t imeta = 0; imeta < num_meta_generations; imeta++)   {
 
         std::vector<double> current_fitness(num_worlds, 0);
-        if (random_meta_seed == "0") cfg->RANDOM_SEED.Set(0);
-        else cfg->RANDOM_SEED.Set(imeta);
-
-        //if (rank == root)
+        std::vector<double> expanded_fitness(num_worlds*num_samples, 0);
         fs.InitUpdateDirectory(imeta);
 
         // Receive controllers
@@ -169,6 +170,8 @@ int main(int argc, char **argv)  {
                 MPI_Bcast(&controllers[i][j], 1, MPI_DOUBLE, root, MPI_COMM_WORLD);
             }
         }
+        expanded_controllers = ExpandPopulation(controllers, num_samples);
+
 
         // Find our working interval
         int rank_num = rank+1;
@@ -177,13 +180,17 @@ int main(int argc, char **argv)  {
         // Run avida for chosen worlds
         for (int iworld=start; iworld<=end; iworld++)   {
 
+
+            if (random_meta_seed == "0") cfg->RANDOM_SEED.Set(0);
+            else cfg->RANDOM_SEED.Set(imeta+iworld%num_samples);
+
             // Initialise world
             Avida::World* new_world = new Avida::World();
             cUserFeedback feedback;
 
             // Set up controller
-            std::vector<double> strategy = DecodeChromosomeFas3(controllers[iworld], gene_min, gene_max);
-            std::vector<Eigen::MatrixXf> weights = DecodeChromosomeANN(controllers[iworld], num_AGI_instructions);
+            std::vector<double> strategy = DecodeChromosomeFas3(expanded_controllers[iworld], gene_min, gene_max);
+            std::vector<Eigen::MatrixXf> weights = DecodeChromosomeANN(expanded_controllers[iworld], num_AGI_instructions);
             cController* controller = new cController(Phi0_function, ref_bonus, strategy, num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions);
             controller->SetWeights(weights);
 
@@ -197,7 +204,7 @@ int main(int argc, char **argv)  {
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world);
-            current_fitness[iworld] = driver->Run(num_updates, fs, save_updates, iworld);
+            expanded_fitness[iworld] = driver->Run(num_updates, fs, save_updates, iworld);
             // std::cout << "current_fitness[" << iworld << "] = " << current_fitness[iworld] << std::endl;
 
             // Clean up
@@ -205,6 +212,13 @@ int main(int argc, char **argv)  {
             delete controller;
             delete world;
             
+        }
+
+        for (size_t j=0; j<num_worlds; j++) {
+            for (size_t k=num_samples*j; k<num_samples+j*num_samples; k++)    {
+                current_fitness[j] += expanded_fitness[k];
+            }
+            current_fitness[j] /= num_samples;
         }
 
         // Send fitness to root process

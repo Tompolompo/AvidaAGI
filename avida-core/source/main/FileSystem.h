@@ -35,7 +35,7 @@ class FileSystem{
         void InitMetaData(int chromosome_length);
         
         // save data for meta generations
-        void SaveMetaData(int num_tasks, int imeta, double current_max_fitness, std::vector<double> chromosome, int imax);
+        void SaveMetaData(int chromosome_length, int imeta, double current_max_fitness, std::vector<double> chromosome, int imax);
 
         // create folder "M[%meta_generation]"
         void InitUpdateDirectory(int meta_generation); //update current meta_dir
