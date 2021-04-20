@@ -11305,21 +11305,21 @@ bool cHardwareCPU::Inst_UpdateOpinionFromHumanFeedback0(cAvidaContext& ctx)
   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
 
     // Increment
-    /*
     if (m_organism->GetPhenotype().m_AGI_human_feedback[task_id] > 0){
-      //m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = double(int(m_organism->GetPhenotype().m_AGI_bonus_vector[task_id]) + 1);
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = double(int(m_organism->GetPhenotype().m_AGI_bonus_vector[task_id]) + 1);
     }
     else if (m_organism->GetPhenotype().m_AGI_human_feedback[task_id] < 0){
       m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = double(int(m_organism->GetPhenotype().m_AGI_bonus_vector[task_id]) - 1);
-    }*/
+    }
 
     //set from diff
+    /*
     m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += m_organism->GetPhenotype().m_AGI_human_feedback[task_id];
 
     if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] > 5)
       m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 5;
     else if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] < 1)
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 1;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 1;*/
 
     m_organism->GetPhenotype().m_AGI_human_feedback[task_id] = 0; // set to 0 again
 
@@ -11342,20 +11342,20 @@ bool cHardwareCPU::Inst_UpdateOpinionFromHumanFeedback0(cAvidaContext& ctx)
   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
 
     // Increment
-    /*
     if (m_organism->GetPhenotype().m_AGI_human_feedback[task_id] > 0){
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(0.5, 0.5);
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(1, 0.25);
     }
     else if (m_organism->GetPhenotype().m_AGI_human_feedback[task_id] < 0){
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(-0.5, 0.5);
-    }*/
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(-1, 0.25);
+    }
     //Set from diff
+    /*
     m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(m_organism->GetPhenotype().m_AGI_human_feedback[task_id],25);
 
     if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] > 5)
       m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 5;
     else if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] < 1)
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 1;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 1;*/
 
     m_organism->GetPhenotype().m_AGI_human_feedback[task_id] = 0; // set to 0 again
 
@@ -11369,21 +11369,22 @@ bool cHardwareCPU::Inst_UpdateOpinionFromHumanFeedback2(cAvidaContext& ctx)
   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
 
     // Increment
-    /*
+    
     if (m_organism->GetPhenotype().m_AGI_human_feedback[task_id] > 0){
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(0.25, 1);
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(1, 0.5);
     }
     else if (m_organism->GetPhenotype().m_AGI_human_feedback[task_id] < 0){
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(-0.25, 1);
-    }*/
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(-1, 0.5);
+    }
 
     //Set from diff
+    /*
     m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(m_organism->GetPhenotype().m_AGI_human_feedback[task_id] + 0.25 ,25);
 
     if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] > 5)
       m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 5;
     else if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] < 1)
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 1;
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 1;*/
 
     m_organism->GetPhenotype().m_AGI_human_feedback[task_id] = 0; // set to 0 again
   }
