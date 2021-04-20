@@ -72,6 +72,12 @@ FileSystem::FileSystem(int imeta)
     */
 
     if (imeta == 0){
+        if (mkdir("./data", 0777) == -1) {
+            //cerr << "message :  " << strerror(errno) << endl; 
+        }
+        if (mkdir("./data/AGIdata", 0777) == -1) {
+            //cerr << "message :  " << strerror(errno) << endl; 
+        }
         // Creating a directory 
         if (mkdir(root_dir, 0777) == -1) {
             //cerr << "message :  " << strerror(errno) << endl; 

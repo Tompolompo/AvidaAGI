@@ -128,8 +128,9 @@ int main(int argc, char **argv)  {
 
     // Parallelization params
     int root = 0;
-    int limit = 1; //num_worlds/num_procs;
+    int limit = num_worlds/num_procs;
     int num_samples = num_procs/num_worlds;
+
 
     // Initialise starting conditions
     FileSystem fs = FileSystem(0);
@@ -172,25 +173,33 @@ int main(int argc, char **argv)  {
         }
         expanded_controllers = ExpandPopulation(controllers, num_samples);
 
-
         // Find our working interval
         int rank_num = rank+1;
         int end = rank_num*limit-1, start = rank_num*limit-limit;
+        if (limit < 1) start = rank, end = rank;
             
         // Run avida for chosen worlds
         for (int iworld=start; iworld<=end; iworld++)   {
 
-
             if (random_meta_seed == "0") cfg->RANDOM_SEED.Set(0);
-            else cfg->RANDOM_SEED.Set(imeta+iworld%num_samples);
+            else if (limit < 1) cfg->RANDOM_SEED.Set(imeta+iworld%num_samples);
+            else cfg->RANDOM_SEED.Set(imeta);
 
             // Initialise world
             Avida::World* new_world = new Avida::World();
             cUserFeedback feedback;
 
             // Set up controller
-            std::vector<double> strategy = DecodeChromosomeFas3(expanded_controllers[iworld], gene_min, gene_max);
-            std::vector<Eigen::MatrixXf> weights = DecodeChromosomeANN(expanded_controllers[iworld], num_AGI_instructions);
+            std::vector<double> strategy;
+            std::vector<Eigen::MatrixXf> weights;
+            if (limit < 1)  {
+                strategy = DecodeChromosomeFas3(expanded_controllers[iworld], gene_min, gene_max);
+                weights = DecodeChromosomeANN(expanded_controllers[iworld], num_AGI_instructions);
+            }
+            else    {
+                strategy = DecodeChromosomeFas3(controllers[iworld], gene_min, gene_max);
+                weights = DecodeChromosomeANN(controllers[iworld], num_AGI_instructions);
+            }
             cController* controller = new cController(Phi0_function, ref_bonus, strategy, num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions);
             controller->SetWeights(weights);
 
@@ -204,8 +213,10 @@ int main(int argc, char **argv)  {
 
             // Run simulation and compute fitness
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world);
-            expanded_fitness[iworld] = driver->Run(num_updates, fs, save_updates, iworld);
-            // std::cout << "current_fitness[" << iworld << "] = " << current_fitness[iworld] << std::endl;
+            if (limit < 1)
+                expanded_fitness[iworld] = driver->Run(num_updates, fs, save_updates, iworld);
+            else
+                current_fitness[iworld] = driver->Run(num_updates, fs, save_updates, iworld);
 
             // Clean up
             delete driver;
@@ -214,13 +225,15 @@ int main(int argc, char **argv)  {
             
         }
 
-        for (size_t j=0; j<num_worlds; j++) {
-            for (size_t k=num_samples*j; k<num_samples+j*num_samples; k++)    {
-                current_fitness[j] += expanded_fitness[k];
+        // Average over num_samples metagenerations
+        if (limit < 1)  {
+            for (size_t j=0; j<num_worlds; j++) {
+                for (size_t k=num_samples*j; k<num_samples+j*num_samples; k++)    {
+                    current_fitness[j] += expanded_fitness[k];
+                }
+                current_fitness[j] /= num_samples;
             }
-            current_fitness[j] /= num_samples;
         }
-
         // Send fitness to root process
         MPI_Send(&current_fitness[0], num_worlds, MPI_DOUBLE, root, 0, MPI_COMM_WORLD);
 
@@ -229,14 +242,14 @@ int main(int argc, char **argv)  {
             std::vector<std::vector<double> > fitnesses = std::vector<std::vector<double> >(num_procs, std::vector<double>(num_worlds));
             std::vector<double> fitness_buffer(num_worlds);
 
-            // Receive all fitness scores and bonuses
+            // Receive all fitness scores
             for (int i=0; i<num_procs; i++) {
                 MPI_Recv(&fitness_buffer[0], num_worlds, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         
                 for (int j = 0; j < num_worlds; j++)
                     fitnesses[i][j] = fitness_buffer[j];
             }
-            // Sum up fitness
+            // Sum up fitnesses
             for (size_t i=0; i<num_worlds; i++) {
                 double colsum = 0;
                 for (size_t j=0; j<num_procs; j++) {
@@ -249,12 +262,12 @@ int main(int argc, char **argv)  {
             std::vector<int> max_indices(num_elitism);
             std::vector<std::vector<double>> best_chromosomes(num_elitism, std::vector<double>(chromosome_length));
             std::priority_queue<std::pair<double, int>> q;
+
             for (int i = 0; i < current_fitness.size(); ++i)
                 q.push(std::pair<double, int>(current_fitness[i], i));
             for (int i = 0; i < num_elitism; ++i) {
                 max_indices[i] = q.top().second;
                 best_chromosomes[i] = controllers[max_indices[i]];
-                // std::cout << "index[" << i << "] = " << max_indices[i] << ", fitness = " << current_fitness[max_indices[i]] << std::endl;
                 q.pop();
             }
             int imax = max_indices[0];
@@ -262,7 +275,7 @@ int main(int argc, char **argv)  {
             double max_fitness = current_fitness[imax];
 
 
-            if (meta_evo){
+            if (meta_evo)   {
                 // Selection
                 std::vector<std::vector<double> > new_controllers = controllers;
                 for (size_t iworld = 0; iworld < num_worlds-1; iworld += 2) {
