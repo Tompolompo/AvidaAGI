@@ -134,8 +134,9 @@ int main(int argc, char **argv)  {
 
     // Initialise starting conditions
     FileSystem fs = FileSystem(0);
-    std::vector<std::vector<double> > controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes, meta_evo);
-    if (pre_population) std::vector<std::vector<double> > controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
+    std::vector<std::vector<double> > controllers;
+    if (pre_population) controllers = fs.ReadChromosomes(num_worlds, chromosome_length);
+    else controllers = InitialisePopulation(num_worlds, chromosome_length, gene_min, gene_max, binary_genes, meta_evo);
     std::vector<std::vector<double> > expanded_controllers = ExpandPopulation(controllers, num_samples);
         
     if (rank == root)  {
