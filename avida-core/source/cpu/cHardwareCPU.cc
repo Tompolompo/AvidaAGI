@@ -11401,7 +11401,7 @@ bool cHardwareCPU::Inst_UpdateOpinion0(cAvidaContext& ctx)
 
   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
     if (m_organism->GetPhenotype().m_AGI_sensed_resources[task_id] == 1){
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(0, 0.25);
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += 0.05;//ctx.GetRandom().GetRandNormal(0, 0.25);
       if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] > 5)
         m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 5;
       else if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] < 1)
@@ -11420,7 +11420,7 @@ bool cHardwareCPU::Inst_UpdateOpinion1(cAvidaContext& ctx)
 
   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
     if (m_organism->GetPhenotype().m_AGI_sensed_resources[task_id] == 1){
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(0.25, 0.25);
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += 0.1;//ctx.GetRandom().GetRandNormal(0.25, 0.25);
       if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] > 5)
         m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 5;
       else if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] < 1)
@@ -11439,7 +11439,7 @@ bool cHardwareCPU::Inst_UpdateOpinion2(cAvidaContext& ctx)
 
   for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
     if (m_organism->GetPhenotype().m_AGI_sensed_resources[task_id] == 1){
-      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += ctx.GetRandom().GetRandNormal(0.5, 0.25);
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += 0.5;//ctx.GetRandom().GetRandNormal(0.5, 0.25);
       if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] > 5)
         m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 5;
       else if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] < 1)
