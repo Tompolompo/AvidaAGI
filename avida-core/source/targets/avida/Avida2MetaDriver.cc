@@ -66,7 +66,7 @@ Avida2MetaDriver::~Avida2MetaDriver()
 }
 
 // MODIFIED: was void function
-double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_iworld)
+double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iworld)
 { 
   if (m_world->GetConfig().ANALYZE_MODE.Get() > 0) {
     cout << "In analyze mode!!" << endl;
@@ -104,7 +104,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   std::vector<double> performed_task_fraction = std::vector<double>(num_tasks, 0);
   std::vector<double> strategy = m_world->m_controller->EvaluateAvidaFas4(performed_task_fraction, u, phi);
 
-  if (save) m_fs.InitUpdateData(m_iworld, num_tasks, strategy.size());
+  if (save) m_fs.InitUpdateData(iworld, num_tasks, strategy.size());
 
   for (int j=m_world->m_controller->m_num_instructions - strategy.size(); j<m_world->m_controller->m_num_instructions; j++){
     // redundancy
@@ -199,7 +199,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
     }
 
     if (save)
-      m_fs.SaveUpdateData(m_iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, num_tasks, strategy, stats.GetBonusVectorMean(), stats.GetBonusVectorVar());
+      m_fs.SaveUpdateData(iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, num_tasks, strategy, stats.GetBonusVectorMean(), stats.GetBonusVectorVar());
 
 
     // Do Point Mutations

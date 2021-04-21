@@ -2,6 +2,7 @@
 #include <cmath>
 #include <Eigen/Dense>
 #include "cController.h" // header in local directory
+#include "GeneticFunctions.h"
 
 
 cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions)
@@ -25,6 +26,10 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_ref_bonus_abs = 0;
     for (double value : ref_bonus)
         m_ref_bonus_abs += value*value;
+
+    if (Phi0_function == "dynamic")
+        m_weight_matrices = DecodeChromosomeANN(strategy, strategy_length);
+
 
 }
 

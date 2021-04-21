@@ -141,14 +141,13 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
         }
     }
 
-    //print chromosomes
-    /*
-    for (int i = 0; i < population.size(); i++) {
-        for (int j = 0; j < population[i].size(); j++) {
-            std::cout << population[i][j] << ", ";
-        }    
-        std::cout << std::endl;
-    }*/
+    // //print chromosomes
+    // for (int i = 0; i < population.size(); i++) {
+    //     for (int j = 0; j < population[i].size(); j++) {
+    //         std::cout << population[i][j] << ", ";
+    //     }    
+    //     std::cout << std::endl;
+    // }
 
     return population;
 }
@@ -241,14 +240,13 @@ std::vector<std::vector<double> > InitialisePopulation(int num_worlds, int chrom
 /* Pass chromosome to controller */
 std::vector<double> DecodeChromosomeFas3(std::vector<double> chromosome, double gene_min, double gene_max)
 {   
-    std::vector<double> strategy = std::vector<double>(chromosome.size());
-
+    // std::vector<double> strategy = std::vector<double>(chromosome.size());
     // for (int i=0; i<chromosome.size(); i++)  {
     //     if (chromosome[i] >= (gene_min + gene_max)/2 ) strategy[i] = 1;
     //     else strategy[i] = 0;
     // }
 
-    return strategy;
+    return chromosome;
 }
 
 /* Translate a chromosome into weight matrices for neural network controller */
