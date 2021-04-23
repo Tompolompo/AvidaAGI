@@ -66,9 +66,9 @@ int main(int argc, char **argv)  {
     double crossover_probability = reader.GetReal("genetic", "crossover_probability", 0.3);
     double mutation_probability_constant = reader.GetReal("genetic", "mutation_probability_constant", 3);
     double mutation_decay = reader.GetReal("genetic", "mutation_decay", 0.95);
-    double min_mutation_constant = reader.GetReal("genetic", "mutation_decay", 0.5);
-    double creep_probability = reader.GetReal("genetic", "mutation_decay", 0.95);
-    double creep_decay = reader.GetReal("genetic", "mutation_decay", 0.98);
+    double min_mutation_constant = reader.GetReal("genetic", "min_mutation_constant", 0.5);
+    double creep_probability = reader.GetReal("genetic", "creep_probability", 0.95);
+    double creep_decay = reader.GetReal("genetic", "creep_decay", 0.98);
     double num_elitism = reader.GetReal("genetic", "num_elitism", 3);
 
     // Control settings
@@ -303,6 +303,7 @@ int main(int argc, char **argv)  {
                 // Mutation
                 mutation_probability_constant = mutation_probability_constant*pow(mutation_decay,imeta)+min_mutation_constant;
                 mutation_probability = mutation_probability_constant/chromosome_length;
+                if (rank == root) std::cout << mutation_probability << std::endl;
                 creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
                 for (size_t iworld = 0; iworld < num_worlds; iworld++) {
                     std::vector<double> chromosome = new_controllers[iworld];
