@@ -119,7 +119,7 @@ int main(int argc, char **argv)  {
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
     double min_creep = (gene_max-gene_min)/25.0;
-    if (binary_genes) creep_probability = 1;
+    // if (binary_genes) creep_probability = 1;
     std::string activation_method;
     if (gene_min < 0) activation_method = "tanh";
     else activation_method = "sigmoid";
