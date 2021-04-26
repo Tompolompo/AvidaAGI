@@ -109,6 +109,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int m_
   for (int j=m_world->m_controller->m_num_instructions - strategy.size(); j<m_world->m_controller->m_num_instructions; j++){
     // redundancy
     m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) strategy[j - m_world->m_controller->m_num_instructions + strategy.size()]);
+    //cout << (int) strategy[j - m_world->m_controller->m_num_instructions + strategy.size()] << endl;
     //m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) 1);
 
     //Cost

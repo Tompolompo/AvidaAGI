@@ -111,6 +111,9 @@ private:
   int cur_num_errors;                         // Total instructions executed illeagally.
   int cur_num_donates;                        // Number of donations so far
 
+  // (AGI - TL)
+  double alignment_factor=1;
+
   Apto::Array<int> cur_task_count;                 // Total times each task was performed
   Apto::Array<int> cur_para_tasks;                 // Total times each task was performed by the parasite @LZ
   Apto::Array<int> cur_host_tasks;                 // Total times each task was done by JUST the host @LZ
@@ -401,7 +404,7 @@ public:
   double GetFitness() const { assert(initialized == true); return fitness; }
   double GetDivType() const { assert(initialized == true); return div_type; }
 
-  double GetCurBonus() const { assert(initialized == true); return cur_bonus; }
+  double GetCurBonus() const { assert(initialized == true); return alignment_factor*cur_bonus; }
   int    GetCurBonusInstCount() const { assert(bonus_instruction_count >= 0); return bonus_instruction_count; }
 
   double GetCurMeritBase() const { assert(initialized == true); return CalcSizeMerit(); }

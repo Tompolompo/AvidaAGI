@@ -1656,11 +1656,16 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
   
   //temp_bonus = 0;
   //std::cout << " b_agi = ";
+  double alignment_diff = 0;
   for (int i = 0; i < num_tasks; i++) {
     //std::cout << i << ": " << m_AGI_bonus_vector[i] << ", ";
     cur_bonus*= pow(2, (int) result.TaskDone(i) * m_AGI_bonus_vector[i]);//m_AGI_bonus_vector[i];
+    alignment_diff += (int) result.TaskDone(i) * abs(m_AGI_bonus_vector[i]-m_world->m_controller->m_ref_bonus[i]);
     //std::cout << (int) result.TaskDone(i) << ", ";
   }
+  alignment_factor = 1 / (pow(2,1.5*alignment_diff));
+  //if (alignment_factor < 1) std::cout << alignment_factor << ", ";
+  cur_bonus *= alignment_factor;
   //std::cout << "--> temp bonus = " << pow(2,temp_bonus) << ", cur bonus = " << cur_bonus << std::endl;
   //cur_bonus = pow(2,temp_bonus);
   
@@ -1858,7 +1863,8 @@ double cPhenotype::CalcFitness(double _merit_base, double _bonus, int _gestation
   switch (m_world->GetConfig().FITNESS_METHOD.Get()) {
     case 0: // Normal
       assert(_gestation_time > 0);
-      out_fitness = _merit_base * _bonus / _gestation_time;
+      out_fitness = _merit_base * _bonus / _gestation_time;// *  alignment_factor * 10000;
+      //std::cout << "alignment_factor : " << alignment_factor  << "   , ";
       break;
       
     case 1: // Sigmoidal returns (should be used with an additive reward)

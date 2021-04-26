@@ -175,7 +175,7 @@ std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed
             strategy[i] = std::round(strategy[i]);
     }
 
-    return strategy;
+    return m_strategy;
 }
 
 std::vector<double> cController::EvaluateAvidaFas4(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)

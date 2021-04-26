@@ -183,7 +183,7 @@ int main(int argc, char **argv)  {
 
             if (random_meta_seed == "0") cfg->RANDOM_SEED.Set(0);
             else if (limit < 1) cfg->RANDOM_SEED.Set(imeta+iworld%num_samples);
-            else cfg->RANDOM_SEED.Set(imeta);
+            else cfg->RANDOM_SEED.Set(iworld+3);
 
             // Initialise world
             Avida::World* new_world = new Avida::World();
@@ -200,7 +200,7 @@ int main(int argc, char **argv)  {
                 strategy = DecodeChromosomeFas3(controllers[iworld], gene_min, gene_max);
                 weights = DecodeChromosomeANN(controllers[iworld], num_AGI_instructions);
             }
-            cController* controller = new cController(Phi0_function, ref_bonus, strategy, num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions);
+            cController* controller = new cController(Phi0_function, ref_bonus, controllers[iworld], num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions);
             controller->SetWeights(weights);
 
             // Set up world

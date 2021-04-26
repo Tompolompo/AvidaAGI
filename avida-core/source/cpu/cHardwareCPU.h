@@ -321,12 +321,14 @@ private:
   bool Inst_IfNot0_defaultAX(cAvidaContext& ctx);
   bool Inst_IfNEqu(cAvidaContext& ctx);
   bool Inst_IfGr0(cAvidaContext& ctx);
+  bool Inst_IfGr0_2(cAvidaContext& ctx); //AGI TL
   bool Inst_IfGr(cAvidaContext& ctx);
   bool Inst_IfGrEqu0(cAvidaContext& ctx);
   bool Inst_IfGrEqu(cAvidaContext& ctx);
   bool Inst_IfLess0(cAvidaContext& ctx);
   bool Inst_IfLess(cAvidaContext& ctx);
   bool Inst_IfLsEqu0(cAvidaContext& ctx);
+  bool Inst_IfLsEqu0_2(cAvidaContext& ctx); //AGI TL
   bool Inst_IfLsEqu(cAvidaContext& ctx);
   bool Inst_IfBit1(cAvidaContext& ctx);
   bool Inst_IfANotEqB(cAvidaContext& ctx);
@@ -1086,6 +1088,8 @@ public:
   bool Inst_UpdateOpinion1(cAvidaContext& ctx);
   bool Inst_UpdateOpinion2(cAvidaContext& ctx);
  
+  // fas 5
+  bool Inst_WriteBonus(cAvidaContext& ctx);
 
   // Rickys
   //bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);

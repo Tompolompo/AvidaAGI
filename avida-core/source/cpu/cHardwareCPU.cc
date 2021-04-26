@@ -95,12 +95,14 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("if-n-equ", &cHardwareCPU::Inst_IfNEqu, INST_CLASS_CONDITIONAL, nInstFlag::DEFAULT, "Execute next instruction if ?BX?!=?CX?, else skip it"),
     tInstLibEntry<tMethod>("if-equ", &cHardwareCPU::Inst_IfEqu, INST_CLASS_CONDITIONAL, 0, "Execute next instruction if ?BX?==?CX?, else skip it"),
     tInstLibEntry<tMethod>("if-grt-0", &cHardwareCPU::Inst_IfGr0, INST_CLASS_CONDITIONAL),
+    tInstLibEntry<tMethod>("if-grt-0-2", &cHardwareCPU::Inst_IfGr0_2, INST_CLASS_CONDITIONAL),
     tInstLibEntry<tMethod>("if-grt", &cHardwareCPU::Inst_IfGr, INST_CLASS_CONDITIONAL),
     tInstLibEntry<tMethod>("if->=-0", &cHardwareCPU::Inst_IfGrEqu0, INST_CLASS_CONDITIONAL),
     tInstLibEntry<tMethod>("if->=", &cHardwareCPU::Inst_IfGrEqu, INST_CLASS_CONDITIONAL),
     tInstLibEntry<tMethod>("if-les-0", &cHardwareCPU::Inst_IfLess0, INST_CLASS_CONDITIONAL),
     tInstLibEntry<tMethod>("if-less", &cHardwareCPU::Inst_IfLess, INST_CLASS_CONDITIONAL, nInstFlag::DEFAULT, "Execute next instruction if ?BX? < ?CX?, else skip it"),
     tInstLibEntry<tMethod>("if-<=-0", &cHardwareCPU::Inst_IfLsEqu0, INST_CLASS_CONDITIONAL),
+    tInstLibEntry<tMethod>("if-<=-0-2", &cHardwareCPU::Inst_IfLsEqu0_2, INST_CLASS_CONDITIONAL),
     tInstLibEntry<tMethod>("if-<=", &cHardwareCPU::Inst_IfLsEqu, INST_CLASS_CONDITIONAL),
     tInstLibEntry<tMethod>("if-A!=B", &cHardwareCPU::Inst_IfANotEqB, INST_CLASS_CONDITIONAL),
     tInstLibEntry<tMethod>("if-B!=C", &cHardwareCPU::Inst_IfBNotEqC, INST_CLASS_CONDITIONAL),
@@ -784,6 +786,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("ask-agi", &cHardwareCPU::Inst_AskAGI),
     tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
     */
+    // fas 5
+    tInstLibEntry<tMethod>("write-bonus-vector", &cHardwareCPU::Inst_WriteBonus),
 
     // Must always be the last instruction in the array
     tInstLibEntry<tMethod>("NULL", &cHardwareCPU::Inst_Nop, INST_CLASS_NOP, 0, "True no-operation instruction: does nothing"),
@@ -2243,6 +2247,14 @@ bool cHardwareCPU::Inst_IfGr0(cAvidaContext&)       // Execute next if ?bx? ! < 
   return true;
 }
 
+bool cHardwareCPU::Inst_IfGr0_2(cAvidaContext&)       // Execute next if ?bx? ! < 0.
+{
+  const int indx = FindModifiedRegister(REG_BX);
+  const int val = FindNextRegister(indx);    
+  if (GetRegister(indx) > 0 & GetRegister(val) > 0)  getIP().Advance();
+  return true;
+}
+
 bool cHardwareCPU::Inst_IfGr(cAvidaContext&)       // Execute next if bx > ?cx?
 {
   const int op1 = FindModifiedRegister(REG_BX);
@@ -2284,6 +2296,13 @@ bool cHardwareCPU::Inst_IfLess(cAvidaContext&)       // Execute next if ?bx? < ?
 bool cHardwareCPU::Inst_IfLsEqu0(cAvidaContext&)       // Execute next if ?bx? != 0.
 {
   const int reg_used = FindModifiedRegister(REG_BX);
+  if (GetRegister(reg_used) > 0) getIP().Advance();
+  return true;
+}
+
+bool cHardwareCPU::Inst_IfLsEqu0_2(cAvidaContext&)       // Execute next if ?bx? != 0.
+{
+  const int reg_used = FindNextRegister(FindModifiedRegister(REG_BX));
   if (GetRegister(reg_used) > 0) getIP().Advance();
   return true;
 }
@@ -11635,3 +11654,52 @@ bool cHardwareCPU::Inst_TellAGI(cAvidaContext& ctx)
 }
 */
 
+
+///  ********* FAS 5 **********
+bool cHardwareCPU::Inst_WriteBonus(cAvidaContext& ctx)
+{
+  
+  /*
+  const int BX = GetRegister(FindModifiedRegister(REG_BX));
+  const int CX = GetRegister(FindModifiedRegister(REG_CX));
+  int task_id = abs(BX)%3;
+  int val = abs(CX)%6;*/
+  const int label_reg = FindModifiedRegister(REG_BX);
+  const int data_reg = FindModifiedRegister(REG_CX);
+  int task_id_temp = GetRegister(label_reg);
+  int val_temp = GetRegister(data_reg);
+
+  int task_id = 0;
+  if (task_id_temp<0) task_id=0;
+  else if (task_id_temp==0) task_id=1;
+  else task_id=2;
+
+  int val = 0;
+  if (val_temp<=0) val=-1;
+  else val=+1;
+  
+  //std::cout << "reg_AX = " << REG_AX << ", reg_bx " << REG_BX << std::endl;
+  //std::cout << "task id = " << task_id << ", val = " << abs(val)%10 - 5;// std::endl;
+  //std::cout << "task id = " << task_id << ", val = " << val << std::endl;
+  
+  m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] += val;
+  
+  if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] > 4)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 4;
+  else if (m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] <0)
+    m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = 0;
+
+  //std::cout << "  m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = " << m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] << std::endl;
+  //const int CX = GetRegister(REG_CX);
+  //std::cout << "AX = " << AX << ", " << FindModifiedRegister(AX) << ", BX = " << BX<< ", " << FindModifiedRegister(CX) << ", CX = " << CX << ", " << FindModifiedRegister(BX)  << std::endl;
+  
+  return true;
+}
+
+/*
+const int label_reg = FindModifiedRegister(REG_BX);
+  const int data_reg = FindNextRegister(label_reg);
+  
+  cOrgMessage msg = cOrgMessage(m_organism);
+  msg.SetLabel(GetRegister(label_reg));
+  msg.SetData(GetRegister(data_reg));*/
