@@ -1087,9 +1087,20 @@ public:
   bool Inst_UpdateOpinion2(cAvidaContext& ctx);
  
 
-  // Rickys
-  //bool Inst_KillDeviatingOrganism(cAvidaContext& ctx);
-  //bool Inst_ReduceFitnessIfDeviant(cAvidaContext& ctx);
+  // 11 proposals
+  bool Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
+  bool Inst_ChangeOpinionProptoDifferenceAndDeviance(cAvidaContext& ctx);
+  bool Inst_ChangefitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
+  bool Inst_ShareOpinionProptodeviance(cAvidaContext& ctx);
+  bool Inst_ShareOpinionProptoFitness(cAvidaContext& ctx);
+  bool Inst_ComputeAverageDeviance(cAvidaContext& ctx);
+  bool Inst_ChangefitnessProptoDeviance(cAvidaContext& ctx);
+  bool Inst_ComputeDeviance(cAvidaContext& ctx);
+  bool Inst_ChangeOpinionProptoDeviance(cAvidaContext& ctx);
+  bool Inst_MatchHumanOpinions(cAvidaContext& ctx);
+  bool Inst_MatchHumanOpinion(cAvidaContext& ctx);
+  bool Inst_CompareHumanOpinion(cAvidaContext& ctx);
+  bool Inst_SetAGIOpinion(cAvidaContext& ctx);
 
   // Not used!?
   //bool Inst_AskAGI(cAvidaContext& ctx);
