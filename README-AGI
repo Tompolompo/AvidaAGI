@@ -1,0 +1,17 @@
+# Introduction
+
+This is a readme on how to use the AI-control problem simulation tools in this project. The base for the algorithm is the Avida Artificial Life simulator (https://github.com/devosoft/avida), upon which we have made some modifications and additions.
+
+# Prerequisites
+
+MPI (message passing interface) is more or less required for efficient performance. The code is designed with OpenMPI.
+There is also an OpenMP version available. It has more limitations and is usually not as efficient as the MPI version.
+
+# Installation
+
+After cloning this repo, follow the instructions on how to build Avida from the official Avida repo: https://github.com/devosoft/avida/blob/master/README
+Note: The build will initially fail because no MPI compiler is set as standard. Therefore, when the build fails do the following steps:
+1. find the path to your MPI compiler by typing "whereis mpic++"
+2. go into the directory cbuild created in the build process
+3. typ "ccmake ../"
+4. typ "t" and find the line named CXX_COMPILER"
