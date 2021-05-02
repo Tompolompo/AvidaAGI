@@ -127,7 +127,7 @@ int main(int argc, char **argv)  {
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
     double min_creep = (gene_max-gene_min)/25.0;
-    if (binary_genes) creep_probability = 1;
+    // if (binary_genes) creep_probability = 1;
     std::string activation_method;
     if (gene_min < 0) activation_method = "tanh";
     else activation_method = "sigmoid";
@@ -312,7 +312,7 @@ int main(int argc, char **argv)  {
                 // Mutation
                 mutation_probability_constant = mutation_probability_constant*pow(mutation_decay,imeta)+min_mutation_constant;
                 mutation_probability = mutation_probability_constant/chromosome_length;
-                if (rank == root) std::cout << mutation_probability << std::endl;
+                if (rank == root) std::cout << "mut_prob = " << mutation_probability << std::endl;
                 creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
                 for (size_t iworld = 0; iworld < num_worlds; iworld++) {
                     std::vector<double> chromosome = new_controllers[iworld];

@@ -347,25 +347,27 @@ std::vector<double> Mutate(std::vector<double> chromosome, double mutation_proba
     for (size_t i=0; i<chromosome_length; i++) {
         r = RandomNumber(0.0, 1.0);
         if ( r < mutation_probability) {
-            if (RandomNumber(0.0, 1.0) < creep_probability) {
-                chromosome[i] += - creep_rate/2 + creep_rate*r;
+            if (!binary)    {
+                if (RandomNumber(0.0, 1.0) < creep_probability) {
+                    chromosome[i] += - creep_rate/2 + creep_rate*r;
 
-                if (chromosome[i] > gene_max){
-                    chromosome[i]=gene_max;
+                    if (chromosome[i] > gene_max){
+                        chromosome[i]=gene_max;
+                    }
+                    else if (chromosome[i] < gene_min){
+                        chromosome[i]=gene_min;
+                    }
                 }
-                else if (chromosome[i] < gene_min){
-                    chromosome[i]=gene_min;
-                }
+                else
+                    chromosome[i] = RandomNumber(gene_min, gene_max);
             }
-            else{
-                chromosome[i] = RandomNumber(gene_min, gene_max);
-            } 
+            else
+                chromosome[i] = 1 - chromosome[i];
         }
     }
 
     return chromosome;
 }
-
 // int
 std::vector<double> Mutate(std::vector<double> chromosome, double mutation_probability, double creep_rate, double creep_probability, int gene_min, int gene_max, bool binary) {
     int chromosome_length = chromosome.size();

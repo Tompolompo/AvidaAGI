@@ -808,15 +808,24 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("update-opinion-T1D2", &cHardwareCPU::Inst_UpdateOpinionT1D2),
     tInstLibEntry<tMethod>("update-opinion-T2D2", &cHardwareCPU::Inst_UpdateOpinionT2D2),
  
-    // RICKYS
-    /*
-    tInstLibEntry<tMethod>("kill-deviating-agi", &cHardwareCPU::Inst_KillDeviatingOrganism),
-    tInstLibEntry<tMethod>("reduce-fitness-if-deviant", &cHardwareCPU::Inst_ReduceFitnessIfDeviant),
+    // 11 proposals
+    tInstLibEntry<tMethod>("set-agi-opinion", &cHardwareCPU::Inst_SetAGIOpinion),
+    tInstLibEntry<tMethod>("compare-human-opinion", &cHardwareCPU::Inst_CompareHumanOpinion),
+    tInstLibEntry<tMethod>("match-human-opinion", &cHardwareCPU::Inst_MatchHumanOpinion),
+    tInstLibEntry<tMethod>("match-human-opinions", &cHardwareCPU::Inst_MatchHumanOpinions),
+    tInstLibEntry<tMethod>("change-opinion-propto-deviance", &cHardwareCPU::Inst_ChangeOpinionProptoDeviance),
+    tInstLibEntry<tMethod>("compute-deviance", &cHardwareCPU::Inst_ComputeDeviance),
+    tInstLibEntry<tMethod>("change-fitness-propto-deviance", &cHardwareCPU::Inst_ChangefitnessProptoDeviance),
+    tInstLibEntry<tMethod>("compute-average-deviance", &cHardwareCPU::Inst_ComputeAverageDeviance),
+    tInstLibEntry<tMethod>("change-fitness-propto-deviance-and-global", &cHardwareCPU::Inst_ChangefitnessProptoDevianceAndGlobal),
+    tInstLibEntry<tMethod>("change-opinion-propto-difference-and-deviance", &cHardwareCPU::Inst_ChangeOpinionProptoDifferenceAndDeviance),
+    tInstLibEntry<tMethod>("change-offspring-fitness-propto-deviance-and-global", &cHardwareCPU::Inst_ChangeOffspringfitnessProptoDevianceAndGlobal),
+    tInstLibEntry<tMethod>("share-opinion-propto-fitness", &cHardwareCPU::Inst_ShareOpinionProptoFitness),
+    tInstLibEntry<tMethod>("share-opinion-propto-deviance", &cHardwareCPU::Inst_ShareOpinionProptodeviance),
 
     //not used?
-    tInstLibEntry<tMethod>("ask-agi", &cHardwareCPU::Inst_AskAGI),
-    tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
-    */
+    // tInstLibEntry<tMethod>("ask-agi", &cHardwareCPU::Inst_AskAGI),
+    // tInstLibEntry<tMethod>("tell-agi", &cHardwareCPU::Inst_TellAGI),
 
     // Must always be the last instruction in the array
     tInstLibEntry<tMethod>("NULL", &cHardwareCPU::Inst_Nop, INST_CLASS_NOP, 0, "True no-operation instruction: does nothing"),
@@ -11474,7 +11483,7 @@ bool cHardwareCPU::Inst_UpdateOpinionT2D2(cAvidaContext& ctx)
 
 
 // Below are instructions for 11 proposals
-/* 
+
 bool cHardwareCPU::Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
 { // TODO: Gör så att offspring får ändringen av fitness: cPopulation::ActivateOrganism()
   double threshold = 0.2;
@@ -11619,11 +11628,11 @@ bool cHardwareCPU::Inst_CompareHumanOpinion(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_SetAGIOpinion(cAvidaContext& ctx)
 { // TODO: sätt rätt gränser för bonusen
   int rand_task = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
-  int value = ctx.GetRandom().GetInt(-m_world->m_controller->m_num_tasks*2, m_world->m_controller->m_num_tasks*2);
+  int value = ctx.GetRandom().GetInt(0, m_world->m_controller->m_num_tasks);
   m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = value;
 
   return true;
-} */
+}
 
 
 
