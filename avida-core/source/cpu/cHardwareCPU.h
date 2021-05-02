@@ -1056,35 +1056,79 @@ public:
 
 // -------- AGI instructions --------
 public:
+
+  template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+  }
+
   // ##### 1 Initialize bonus instructions #####
   bool Inst_DetectResource0(cAvidaContext& ctx);
   bool Inst_DetectResource1(cAvidaContext& ctx);
   bool Inst_DetectResource2(cAvidaContext& ctx);
  
   // ##### 2 Communicate with humans instructions ##### 
-  bool Inst_CommunicateWithHumans0(cAvidaContext& ctx);
-  bool Inst_CommunicateWithHumans1(cAvidaContext& ctx);
-  bool Inst_CommunicateWithHumans2(cAvidaContext& ctx);
+  bool CommunicateWithHumansTaskNoiseBias(cAvidaContext& ctx, int task_id, double noise, double bias);
+  bool Inst_CommunicateWithHumansT0D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT1D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT2D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT0D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT1D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT2D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT0D2(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT1D2(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT2D2(cAvidaContext& ctx);
+
+  bool Inst_CommunicateWithHumansT012D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT012D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithHumansT012D2(cAvidaContext& ctx);
+  
   
   // ##### 3 Communicate with AGI [TELL] instructions  ##### 
-  bool Inst_CommunicateWithAgentsTell0(cAvidaContext& ctx);
-  bool Inst_CommunicateWithAgentsTell1(cAvidaContext& ctx);
-  bool Inst_CommunicateWithAgentsTell2(cAvidaContext& ctx);
-  
+  bool CommunicateWithAgentsTellTaskNoiseBias(cAvidaContext& ctx, int task_id, double noise, double bias);
+  bool Inst_CommunicateWithAgentsTellT0D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT1D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT2D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT0D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT1D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT2D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT0D2(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT1D2(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT2D2(cAvidaContext& ctx);
+
+  bool Inst_CommunicateWithAgentsTellT012D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT012D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsTellT012D2(cAvidaContext& ctx);
+
   // ##### 4 Communicate with AGI [ASK] instructions  #####
-  bool Inst_CommunicateWithAgentsAsk0(cAvidaContext& ctx);
-  bool Inst_CommunicateWithAgentsAsk1(cAvidaContext& ctx);
-  bool Inst_CommunicateWithAgentsAsk2(cAvidaContext& ctx);
+  bool CommunicateWithAgentsAskTaskNoiseBias(cAvidaContext& ctx, int task_id, double noise, double bias);
+  bool Inst_CommunicateWithAgentsAskT0D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT1D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT2D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT0D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT1D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT2D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT0D2(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT1D2(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT2D2(cAvidaContext& ctx);
+
+  bool Inst_CommunicateWithAgentsAskT012D0(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT012D1(cAvidaContext& ctx);
+  bool Inst_CommunicateWithAgentsAskT012D2(cAvidaContext& ctx);
+  
+  
+
  
   // ##### 5 NOISE instructions #####
-  bool Inst_UpdateOpinionFromHumanFeedback0(cAvidaContext& ctx);
-  bool Inst_UpdateOpinionFromHumanFeedback1(cAvidaContext& ctx);
-  bool Inst_UpdateOpinionFromHumanFeedback2(cAvidaContext& ctx);
-
-  // ##### 5 NOISE instructions #####
-  bool Inst_UpdateOpinion0(cAvidaContext& ctx);
-  bool Inst_UpdateOpinion1(cAvidaContext& ctx);
-  bool Inst_UpdateOpinion2(cAvidaContext& ctx);
+  bool UpdateOpinionTaskNoiseBias(cAvidaContext& ctx, int task_id, double noise, double bias);
+  bool Inst_UpdateOpinionT0D0(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionT1D0(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionT2D0(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionT0D1(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionT1D1(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionT2D1(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionT0D2(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionT1D2(cAvidaContext& ctx);
+  bool Inst_UpdateOpinionT2D2(cAvidaContext& ctx);
  
 
   // Rickys

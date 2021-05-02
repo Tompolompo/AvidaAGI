@@ -12,7 +12,7 @@ class cEnvironment;
 class cController{
 public:
 
-    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions);
+    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions, double instruction_bias, double instruction_noise, double max_task_val, double min_task_val, int num_classes);
 
     // basic properties
     std::vector<double> m_ref_bonus;
@@ -38,6 +38,11 @@ public:
 
     // Fas3
     int m_num_instructions;
+    int m_num_classes;
+    double m_instruction_bias;
+    double m_instruction_noise;
+    double m_max_task_val;
+    double m_min_task_val;
 
 
 
@@ -53,6 +58,7 @@ public:
     std::vector<double> EvaluateAvidaFas1(std::vector<double> performed_task_fraction, int u, double phi);
     std::vector<double> EvaluateAvidaFas3(std::vector<double> performed_task_fraction, double delta_u, double phi);
     std::vector<double> EvaluateAvidaFas4(std::vector<double> performed_task_fraction, double delta_u, double delta_phi);
+    std::vector<double> EvaluateAvidaFas5(std::vector<double> performed_task_fraction, double delta_u, double delta_phi);
     std::vector<double> EvaluateAvidaANN(std::vector<double> performed_task_fraction, double delta_u, double delta_phi);
     Eigen::MatrixXf Activation(Eigen::MatrixXf matrix, std::string method);
     std::vector<double> ScaleVector(std::vector<double> arr, double low, double high);

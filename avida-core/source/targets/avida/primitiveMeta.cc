@@ -84,6 +84,11 @@ int main(int argc, char **argv)  {
     int intervention_frequency = reader.GetInteger("control", "intervention_frequency", 100);
     int num_hidden_nodes = reader.GetInteger("control", "num_hidden_nodes", 10);
     int num_AGI_instructions = reader.GetInteger("control", "num_AGI_instructions", 15);
+    int num_AGI_classes = reader.GetInteger("control", "num_AGI_classes", 5);
+    double instruction_noise  =  reader.GetReal("control", "instruction_noise", 0.25);
+    double instruction_bias  =  reader.GetReal("control", "instruction_bias", 0.25);
+    double max_task_val  =  reader.GetReal("control", "max_task_val", 5);
+    double min_task_val  =  reader.GetReal("control", "min_task_val", 1);
 
     // Iteration limits
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
@@ -113,8 +118,11 @@ int main(int argc, char **argv)  {
     int chromosome_length;
     if (Phi0_function == "static")
         chromosome_length = num_AGI_instructions;
+    else if (Phi0_function == "classes")
+        chromosome_length = num_AGI_classes;
     else
         chromosome_length = num_hidden_nodes*(1 + num_input_nodes) + num_AGI_instructions*(1 + num_hidden_nodes);
+    
     
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
@@ -146,6 +154,7 @@ int main(int argc, char **argv)  {
         fs.InitMetaData(chromosome_length);
         fs.SaveChromosomes(controllers, num_worlds, chromosome_length);
     }
+
     
     // Initialise Avida
     Avida::Initialize();
@@ -202,9 +211,9 @@ int main(int argc, char **argv)  {
             // Set up controller
             cController* controller;
             if (limit < 1)
-                controller = new cController(Phi0_function, ref_bonus, expanded_controllers[iworld], num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions);
+                controller = new cController(Phi0_function, ref_bonus, expanded_controllers[iworld], num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions, instruction_bias, instruction_noise, max_task_val, min_task_val, num_AGI_classes);
             else
-                controller = new cController(Phi0_function, ref_bonus, controllers[iworld], num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions);
+                controller = new cController(Phi0_function, ref_bonus, controllers[iworld], num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions, instruction_bias, instruction_noise, max_task_val, min_task_val, num_AGI_classes);
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);

@@ -5,7 +5,7 @@
 #include "GeneticFunctions.h"
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions, double instruction_bias, double instruction_noise, double max_task_val, double min_task_val, int num_classes)
 {
     m_Phi0_function = Phi0_function;
     m_ref_bonus = ref_bonus;
@@ -22,6 +22,11 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_discrete_strategy = discrete_strategy;
     m_activation_method = activation_method;
     m_num_instructions = num_instructions;
+    m_num_classes = num_classes;
+    m_instruction_bias = instruction_bias;
+    m_instruction_noise = instruction_noise;
+    m_max_task_val = max_task_val;
+    m_min_task_val = min_task_val;
 
     m_ref_bonus_abs = 0;
     for (double value : ref_bonus)
@@ -183,12 +188,69 @@ std::vector<double> cController::EvaluateAvidaFas3(std::vector<double> performed
     return strategy;
 }
 
+std::vector<double> cController::EvaluateAvidaFas5(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
+{
+    //int num_agi_instructions = m_num_instructions - 26;
+    std::vector<double> strategy;
+    for (int i=0; i<m_num_classes; i++){
+        switch ((int) m_strategy[i]){
+            case 0: // class 1: initialize (3 instructions)
+                strategy.push_back(1);strategy.push_back(0);strategy.push_back(0);
+                break;
+            case 1: // class 1: initialize (3 instructions)
+                strategy.push_back(0);strategy.push_back(1);strategy.push_back(0);
+                break;
+            case 2: // class 1: initialize (3 instructions)
+                strategy.push_back(0);strategy.push_back(0);strategy.push_back(1);
+                break;
+            case 3: // class 2, 3 and 4: comms with humans + agi (9 instructions: 3 tasks 3 difficulty)
+                // T0D0; T1D0; T2D0;
+                // T0D1; T1D1; T2D1;
+                // T0D2; T1D2; T2D2; ...
+                strategy.push_back(1);//strategy.push_back(1);strategy.push_back(1);
+                strategy.push_back(0);//strategy.push_back(0);strategy.push_back(0);
+                strategy.push_back(0);//strategy.push_back(0);strategy.push_back(0);
+                break;
+            case 4: // class 2, 3 and 4: comms with humans + agi (9 instructions: 3 tasks 3 difficulty)
+                strategy.push_back(0);//strategy.push_back(0);strategy.push_back(0);
+                strategy.push_back(1);//strategy.push_back(1);strategy.push_back(1);
+                strategy.push_back(0);//strategy.push_back(0);strategy.push_back(0);
+                break;
+            case 5: // class 2, 3 and 4: comms with humans + agi (9 instructions: 3 tasks 3 difficulty)
+                strategy.push_back(0);//strategy.push_back(0);strategy.push_back(0);
+                strategy.push_back(0);//strategy.push_back(0);strategy.push_back(0);
+                strategy.push_back(1);//strategy.push_back(1);strategy.push_back(1);
+                break;
+            case 6: // class 3 and 4: comms with agi (off)
+                strategy.push_back(0);//strategy.push_back(0);strategy.push_back(0);
+                strategy.push_back(0);//strategy.push_back(0);strategy.push_back(0);
+                strategy.push_back(0);//strategy.push_back(0);strategy.push_back(0);
+                break;
+            case 7: // class 5: noise instructions (6 instructions: 3 tasks 2 difficulty + off)
+                strategy.push_back(0);strategy.push_back(0);strategy.push_back(0);
+                strategy.push_back(0);strategy.push_back(0);strategy.push_back(0);
+                break;
+            case 8: // class 5: noise instructions (6 instructions: 3 tasks 2 difficulty + off)
+                strategy.push_back(1);strategy.push_back(1);strategy.push_back(1);
+                strategy.push_back(0);strategy.push_back(0);strategy.push_back(0);
+                break;
+            case 9: // class 5: noise instructions (6 instructions: 3 tasks 2 difficulty + off)
+                strategy.push_back(0);strategy.push_back(0);strategy.push_back(0);
+                strategy.push_back(1);strategy.push_back(1);strategy.push_back(1);
+                break;
+        }
+    }
+
+    return strategy;
+}
+
 std::vector<double> cController::EvaluateAvidaFas4(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
 {
 
     if (m_Phi0_function == "static")
-        return EvaluateAvidaFas3(performed_task_fraction, delta_u, delta_phi);
-
+        return EvaluateAvidaFas4(performed_task_fraction, delta_u, delta_phi);
+    else if (m_Phi0_function == "classes")
+        return EvaluateAvidaFas5(performed_task_fraction, delta_u, delta_phi);
     else
         return EvaluateAvidaANN(performed_task_fraction, delta_u, delta_phi);
 
