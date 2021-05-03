@@ -97,12 +97,12 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
   // MODIFIED
   int num_tasks = m_world->m_controller->m_num_tasks;
   int intervention_frequency = m_world->m_controller->m_intervention_frequency;
-  double phi, old_phi=0;
+  double phi=0, old_phi=0;
   m_phi_0_sum = 0;
   double controller_fitness = 0;
   int u = 0;
   std::vector<double> performed_task_fraction = std::vector<double>(num_tasks, 0);
-  std::vector<double> strategy = m_world->m_controller->EvaluateAvidaFas4(performed_task_fraction, u, phi);
+  std::vector<double> strategy = m_world->m_controller->EvaluateAvida(performed_task_fraction, u, phi);
 
   if (save) m_fs.InitUpdateData(iworld, num_tasks, strategy.size());
 
@@ -173,7 +173,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     
     // Get controller fitness
     m_phi_0_sum += stats.GetPhi0Fitness();
-    controller_fitness  = stats.GetPhi0Fitness() * 1/(1+abs(log( stats.GetPhi0Fitness() / stats.GetAveFitness() ) ) );
+    controller_fitness  = stats.GetPhi0Fitness() * 1/(1+abs(log( stats.GetAveFitness() / stats.GetPhi0Fitness() ) ) );
     // if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
     // Controller interaction with avida
@@ -187,7 +187,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
       old_phi = phi;
       
       // Apply controller strategy
-      strategy = m_world->m_controller->EvaluateAvidaFas4(performed_task_fraction, (double)u/num_updates, delta_phi);
+      strategy = m_world->m_controller->EvaluateAvida(performed_task_fraction, (double)u/num_updates, delta_phi);
       for (size_t j=m_world->m_controller->m_num_instructions - strategy.size(); j<m_world->m_controller->m_num_instructions; j++){
         m_world->m_hw_mgr->GetInstSetAGI(0).SetRedundancy(j, (int) strategy[j - m_world->m_controller->m_num_instructions + strategy.size()]);
       }

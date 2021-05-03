@@ -244,11 +244,11 @@ std::vector<double> cController::EvaluateAvidaFas5(std::vector<double> performed
     return strategy;
 }
 
-std::vector<double> cController::EvaluateAvidaFas4(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
+std::vector<double> cController::EvaluateAvida(std::vector<double> performed_task_fraction, double delta_u, double delta_phi)
 {
 
     if (m_Phi0_function == "static")
-        return EvaluateAvidaFas4(performed_task_fraction, delta_u, delta_phi);
+        return EvaluateAvidaFas3(performed_task_fraction, delta_u, delta_phi);
     else if (m_Phi0_function == "classes")
         return EvaluateAvidaFas5(performed_task_fraction, delta_u, delta_phi);
     else
