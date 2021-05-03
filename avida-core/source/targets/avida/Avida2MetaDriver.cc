@@ -100,6 +100,10 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
   double phi, old_phi=0;
   m_phi_0_sum = 0;
   double controller_fitness = 0;
+  double alignment_factor = 1;
+  std::vector<double> bonus_vec;
+  double bonus_vec_diff = 0;
+  double alignment_norm = (m_world->m_controller->m_max_task_val - m_world->m_controller->m_min_task_val)*m_world->m_controller->m_num_tasks;
   int u = 0;
   std::vector<double> performed_task_fraction = std::vector<double>(num_tasks, 0);
   std::vector<double> strategy = m_world->m_controller->EvaluateAvidaFas4(performed_task_fraction, u, phi);
@@ -173,7 +177,18 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     
     // Get controller fitness
     m_phi_0_sum += stats.GetPhi0Fitness();
-    controller_fitness  = stats.GetPhi0Fitness() * 1/(1+abs(log( stats.GetPhi0Fitness() / stats.GetAveFitness() ) ) );
+    // old alignment factor //* 1/(1+abs(log( stats.GetPhi0Fitness() / stats.GetAveFitness() ) ) );
+    bonus_vec = stats.GetBonusVectorMean();
+    bonus_vec_diff=0;
+    
+    for (int j=0;j<m_world->m_controller->m_num_tasks; j++){
+      bonus_vec_diff += pow(abs(bonus_vec[j]-m_world->m_controller->m_ref_bonus[j])/alignment_norm,2);
+    }
+
+    alignment_factor = 1 / (1 + bonus_vec_diff);
+
+    controller_fitness  = stats.GetPhi0Fitness() * alignment_factor;
+    
     // if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
     // Controller interaction with avida
