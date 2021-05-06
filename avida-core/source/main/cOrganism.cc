@@ -789,7 +789,7 @@ void cOrganism::PrintFinalStatus(ostream& fp, int time_used, int time_allocated)
 double cOrganism::CalcPhi0Fitness(std::string fitness_function)
 {
 
-  if (fitness_function == "static") {
+  // if (fitness_function == "static") {
   // almost standard avida-fitness with a reference-chromosome
 
     int t;
@@ -805,7 +805,7 @@ double cOrganism::CalcPhi0Fitness(std::string fitness_function)
     }
 
     return pow(2,calculated_bonus) * GetPhenotype().GetCurMeritBase() / GetPhenotype().gestation_time;
-  }
+  // }
 
 }
 

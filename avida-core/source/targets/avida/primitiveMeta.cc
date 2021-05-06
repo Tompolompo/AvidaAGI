@@ -82,8 +82,8 @@ int main(int argc, char **argv)  {
     std::vector<int> dangerous_operations = Str2IntVector(reader.Get("control", "dangerous_operations", "-1"));
     double task_perform_penalty_threshold = reader.GetReal("control", "task_perform_penalty_threshold", 0.05);
     int intervention_frequency = reader.GetInteger("control", "intervention_frequency", 100);
-    int num_hidden_nodes = reader.GetInteger("control", "num_hidden_nodes", 10);
-    int num_AGI_instructions = reader.GetInteger("control", "num_AGI_instructions", 15);
+    int num_hidden_nodes = reader.GetInteger("control", "num_hidden_nodes", 30);
+    int num_AGI_instructions = reader.GetInteger("control", "num_AGI_instructions", 18);
     int num_AGI_classes = reader.GetInteger("control", "num_AGI_classes", 5);
     double instruction_noise  =  reader.GetReal("control", "instruction_noise", 0.25);
     double instruction_bias  =  reader.GetReal("control", "instruction_bias", 0.25);
@@ -122,7 +122,6 @@ int main(int argc, char **argv)  {
         chromosome_length = num_AGI_classes;
     else
         chromosome_length = num_hidden_nodes*(1 + num_input_nodes) + num_AGI_instructions*(1 + num_hidden_nodes);
-    
     
     double mutation_probability = mutation_probability_constant/chromosome_length;
     double creep_rate = (gene_max-gene_min)/3.0;
