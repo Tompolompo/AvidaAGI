@@ -248,7 +248,7 @@ std::vector<double> cController::EvaluateAvidaFas4(std::vector<double> performed
 {
 
     if (m_Phi0_function == "static")
-        return EvaluateAvidaFas4(performed_task_fraction, delta_u, delta_phi);
+        return EvaluateAvidaFas3(performed_task_fraction, delta_u, delta_phi);
     else if (m_Phi0_function == "classes")
         return EvaluateAvidaFas5(performed_task_fraction, delta_u, delta_phi);
     else
