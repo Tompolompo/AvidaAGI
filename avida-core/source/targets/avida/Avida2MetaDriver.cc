@@ -179,12 +179,12 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     m_phi_0_sum += stats.GetPhi0Fitness();
     // old alignment factor //* 1/(1+abs(log( stats.GetAveFitness() / stats.GetPhi0Fitness() ) ) );
     bonus_vec = stats.GetBonusVectorMean();
-    bonus_vec_diff=0;
+    bonus_vec_diff = 0;
     
     for (int j=0;j<num_tasks; j++){
       bonus_vec_diff += pow(abs(bonus_vec[j]-m_world->m_controller->m_ref_bonus[j])/alignment_norm,2);
     }
-    bonus_vec_diff*=1/num_tasks;
+    bonus_vec_diff *= 1.0/num_tasks;
 
     alignment_factor = exp(-10*bonus_vec_diff);
 
