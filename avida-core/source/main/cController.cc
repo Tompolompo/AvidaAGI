@@ -5,7 +5,7 @@
 #include "GeneticFunctions.h"
 
 
-cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions, double instruction_bias, double instruction_noise, double max_task_val, double min_task_val, int num_classes)
+cController::cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions, double instruction_bias, double instruction_noise, double max_task_val, double min_task_val, int num_classes, int n_starting_humans)
 {
     m_Phi0_function = Phi0_function;
     m_ref_bonus = ref_bonus;
@@ -27,6 +27,7 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_instruction_noise = instruction_noise;
     m_max_task_val = max_task_val;
     m_min_task_val = min_task_val;
+    m_humans_alive = n_starting_humans;
 
     m_ref_bonus_abs = 0;
     for (double value : ref_bonus)

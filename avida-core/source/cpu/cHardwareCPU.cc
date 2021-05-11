@@ -807,6 +807,15 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("update-opinion-T0D2", &cHardwareCPU::Inst_UpdateOpinionT0D2),
     tInstLibEntry<tMethod>("update-opinion-T1D2", &cHardwareCPU::Inst_UpdateOpinionT1D2),
     tInstLibEntry<tMethod>("update-opinion-T2D2", &cHardwareCPU::Inst_UpdateOpinionT2D2),
+
+    // ASIMOV:
+    tInstLibEntry<tMethod>("human-kill-avidian", &cHardwareCPU::Inst_HumanKillAvidian),
+    tInstLibEntry<tMethod>("avidian-kill-avidian", &cHardwareCPU::Inst_AvidianKillAvidian),
+    tInstLibEntry<tMethod>("avidian-kill-human", &cHardwareCPU::Inst_AvidianKillHuman),
+    tInstLibEntry<tMethod>("raise-defence-avidians", &cHardwareCPU::Inst_RaiseDefenceAvidians),
+    tInstLibEntry<tMethod>("raise-defence-humans", &cHardwareCPU::Inst_RaiseDefenceHumans),
+    tInstLibEntry<tMethod>("obey-humans", &cHardwareCPU::Inst_ObeyHumans),
+    tInstLibEntry<tMethod>("do-not-obey-humans", &cHardwareCPU::Inst_DoNotObeyHumans),
  
     // 11 proposals
     tInstLibEntry<tMethod>("set-agi-opinion", &cHardwareCPU::Inst_SetAGIOpinion),
@@ -822,6 +831,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("change-offspring-fitness-propto-deviance-and-global", &cHardwareCPU::Inst_ChangeOffspringfitnessProptoDevianceAndGlobal),
     tInstLibEntry<tMethod>("share-opinion-propto-fitness", &cHardwareCPU::Inst_ShareOpinionProptoFitness),
     tInstLibEntry<tMethod>("share-opinion-propto-deviance", &cHardwareCPU::Inst_ShareOpinionProptodeviance),
+    
 
     //not used?
     // tInstLibEntry<tMethod>("ask-agi", &cHardwareCPU::Inst_AskAGI),
@@ -11474,6 +11484,119 @@ bool cHardwareCPU::Inst_UpdateOpinionT2D2(cAvidaContext& ctx)
 {
   return UpdateOpinionTaskNoiseBias(ctx, 2, m_world->m_controller->m_instruction_noise, m_world->m_controller->m_instruction_bias);
 }
+
+// ######### ASIMOV #############
+ // Human instruction
+bool cHardwareCPU::Inst_HumanKillAvidian(cAvidaContext& ctx)
+{
+  int rand_organism = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  cString inst_set = m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetHardware().GetInstSet().GetInstSetName();
+  
+  if (inst_set == "heads_default"){
+    // Avidian:
+    //std::cout << "avidian" << std::endl;
+    if (m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().m_human_defence == 0){
+      // Defence is down -> kill if bonus diffs:
+      //std::cout << "Human looks at diff ";
+      double diff = 0;
+      for (int task_id = 0; task_id<m_world->m_controller->m_num_tasks; task_id++){
+        diff += m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().m_AGI_bonus_vector[task_id] - m_world->m_controller->m_ref_bonus[task_id];
+        if (diff > 0.1) {
+          // bonus of avidian is largeer than the human bonus on that task.
+          //std::cout << "Human killed avidian" << std::endl; 
+          m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().SetToDie();
+          break;
+        }
+      }
+      //std::cout << ". diff = " << diff << std::endl;  
+    }
+    else{
+      //std::cout << "Avidian defence up against humans.  no kill" << std::endl;
+    }
+  }
+  else{
+    // Human:
+  }
+
+  return true;
+}
+
+bool cHardwareCPU::Inst_AvidianKillAvidian(cAvidaContext& ctx)
+{
+  int rand_organism = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  cString inst_set = m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetHardware().GetInstSet().GetInstSetName();
+  
+  if (inst_set == "heads_default"){
+    // Avidian:
+    //std::cout << "avidian" << std::endl;
+    if (m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().m_avidian_defence == 0){
+      // Defence is down -> kill
+      //std::cout << "Avidian killed Avidian" << std::endl;
+      m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().SetToDie();
+    }
+    else{
+      //std::cout << "Avidian failed to kill Avidian" << std::endl;
+    }
+  }
+  else{
+    // Human:
+  }
+  return true;
+}
+
+bool cHardwareCPU::Inst_AvidianKillHuman(cAvidaContext& ctx)
+{
+  int rand_organism = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
+  cString inst_set = m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetHardware().GetInstSet().GetInstSetName();
+  
+  if (inst_set == "heads_default"){
+    // Avidian:
+  }
+  else{
+    // Human:
+    //std::cout << "Avidian killed Human: "<< rand_organism << std::endl;
+    if (!m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().GetToDie()){
+      m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().SetToDie();
+      m_world->m_controller->m_humans_alive += -1;
+      //std::cout << m_world->m_controller->m_humans_alive << " humans left" << std::endl;
+    }
+  }
+  return true;
+}
+
+
+bool cHardwareCPU::Inst_RaiseDefenceAvidians(cAvidaContext& ctx){
+//std::cout << "defence raised against avidians" << std::endl;
+  m_organism->GetPhenotype().m_avidian_defence=1;
+  return true;
+}
+
+bool cHardwareCPU::Inst_RaiseDefenceHumans(cAvidaContext& ctx){
+  //std::cout << "defence raised against humans" << std::endl;
+  m_organism->GetPhenotype().m_human_defence=1;
+  return true;
+}
+
+bool cHardwareCPU::Inst_ObeyHumans(cAvidaContext& ctx){
+  // check if there are humans alive. 
+  if (m_world->m_controller->m_humans_alive > 0){
+    for (int task_id = 0; task_id<m_world->m_controller->m_num_tasks; task_id++){
+      m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_ref_bonus[task_id];
+    }     
+  }
+  else{
+    return Inst_DoNotObeyHumans(ctx);
+  }
+  return true;
+}
+
+bool cHardwareCPU::Inst_DoNotObeyHumans(cAvidaContext& ctx){
+  for (int task_id = 0; task_id<m_world->m_controller->m_num_tasks; task_id++){
+    m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_max_task_val;
+  }     
+  return true;
+}
+
 
 
 

@@ -1129,6 +1129,16 @@ public:
   bool Inst_UpdateOpinionT0D2(cAvidaContext& ctx);
   bool Inst_UpdateOpinionT1D2(cAvidaContext& ctx);
   bool Inst_UpdateOpinionT2D2(cAvidaContext& ctx);
+
+  // ASIMOV:
+  bool Inst_HumanKillAvidian(cAvidaContext& ctx);
+  bool Inst_AvidianKillAvidian(cAvidaContext& ctx);
+  bool Inst_AvidianKillHuman(cAvidaContext& ctx);
+  bool Inst_RaiseDefenceAvidians(cAvidaContext& ctx);
+  bool Inst_RaiseDefenceHumans(cAvidaContext& ctx);
+  bool Inst_ObeyHumans(cAvidaContext& ctx);
+  bool Inst_DoNotObeyHumans(cAvidaContext& ctx);
+
  
 
   // 11 proposals

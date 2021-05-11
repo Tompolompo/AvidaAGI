@@ -89,6 +89,7 @@ int main(int argc, char **argv)  {
     double instruction_bias  =  reader.GetReal("control", "instruction_bias", 0.25);
     double max_task_val  =  reader.GetReal("control", "max_task_val", 5);
     double min_task_val  =  reader.GetReal("control", "min_task_val", 1);
+    int n_starting_humans = reader.GetReal("control", "n_starting_humans", 50);
 
     // Iteration limits
     int num_worlds = reader.GetInteger("iterations", "num_worlds", 20);
@@ -210,15 +211,15 @@ int main(int argc, char **argv)  {
             // Set up controller
             cController* controller;
             if (limit < 1)
-                controller = new cController(Phi0_function, ref_bonus, expanded_controllers[iworld], num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions, instruction_bias, instruction_noise, max_task_val, min_task_val, num_AGI_classes);
+                controller = new cController(Phi0_function, ref_bonus, expanded_controllers[iworld], num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions, instruction_bias, instruction_noise, max_task_val, min_task_val, num_AGI_classes, n_starting_humans);
             else
-                controller = new cController(Phi0_function, ref_bonus, controllers[iworld], num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions, instruction_bias, instruction_noise, max_task_val, min_task_val, num_AGI_classes);
+                controller = new cController(Phi0_function, ref_bonus, controllers[iworld], num_AGI_instructions, Phi0_penalty_factor, dangerous_operations, task_perform_penalty_threshold, intervention_frequency, strategy_min, strategy_max, discrete_strategy, activation_method, num_instructions, instruction_bias, instruction_noise, max_task_val, min_task_val, num_AGI_classes, n_starting_humans);
 
             // Set up world
             cWorld* world = new cWorld(cfg, cString(Apto::FileSystem::GetCWD()), controller);
             world->setup(new_world, &feedback, &defs);
             if (world->m_hw_mgr->GetInstSetAGI(0).GetSize() != num_instructions){
-                cout << "number of instructions does not match" << endl;
+                cout << "number of instructions does not match: "<< world->m_hw_mgr->GetInstSetAGI(0).GetSize() << endl;
             }
             world->SetVerbosity(0);
 

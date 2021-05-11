@@ -101,6 +101,7 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation, int num_nops)
     m_AGI_sensed_resources.push_back(0);
     m_AGI_human_feedback.push_back(0);
   }
+  m_avidian_defence=0;m_human_defence=0;
 
   if (parent_generation >= 0) {
     generation = parent_generation;

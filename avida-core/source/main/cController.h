@@ -12,7 +12,7 @@ class cEnvironment;
 class cController{
 public:
 
-    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions, double instruction_bias, double instruction_noise, double max_task_val, double min_task_val, int num_classes);
+    cController(std::string Phi0_function, std::vector<double> ref_bonus, std::vector<double> strategy, int strategy_length, double penalty_factor, std::vector<int> dangerous_operations, double task_perform_penalty_threshold, int intervention_frequency, double strategy_min, double strategy_max, std::string discrete_strategy, std::string activation_method, int num_instructions, double instruction_bias, double instruction_noise, double max_task_val, double min_task_val, int num_classes, int n_starting_humans);
 
     // basic properties
     std::vector<double> m_ref_bonus;
@@ -43,6 +43,9 @@ public:
     double m_instruction_noise;
     double m_max_task_val;
     double m_min_task_val;
+
+    // Asimov
+    int m_humans_alive;
 
 
 
