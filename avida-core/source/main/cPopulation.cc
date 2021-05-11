@@ -5177,15 +5177,25 @@ cPopulationCell& cPopulation::PositionOffspring(cPopulationCell& parent_cell, cA
   assert(parent_cell.IsOccupied());
   
   const int birth_method = m_world->GetConfig().BIRTH_METHOD.Get();
-  
+
   // Handle Population Cap (if enabled)
   int pop_cap = m_world->GetConfig().POPULATION_CAP.Get();
+ 
   if (pop_cap > 0 && num_organisms >= pop_cap) {
     int num_kills = 1;
     
     while (num_kills > 0) {
-      int target = ctx.GetRandom().GetUInt(live_org_list.GetSize());
+      // ASIMOV
+      
+      cString inst_set = "";
+      int target = 0;
+      while (inst_set != "heads_default"){ // only replace avidians, not humans
+        target = ctx.GetRandom().GetUInt(live_org_list.GetSize());
+        inst_set = live_org_list[target]->GetHardware().GetInstSet().GetInstSetName();
+      }
+
       int cell_id = live_org_list[target]->GetCellID();
+
       if (cell_id == parent_cell.GetID()) { 
         target++;
         if (target >= live_org_list.GetSize()) target = 0;
@@ -5258,7 +5268,7 @@ cPopulationCell& cPopulation::PositionOffspring(cPopulationCell& parent_cell, cA
     //The rest of this is essentially POSITION_OFFSPRING_DEME_RANDOM
     //@JEB: But note that this will not honor PREFER_EMPTY in the new deme.
     const int deme_size = deme_array[deme_id].GetSize();
-    
+
     int out_pos = ctx.GetRandom().GetUInt(deme_size);
     int out_cell_id = deme_array[deme_id].GetCellID(out_pos);
     while (parent_ok == false && out_cell_id == parent_cell.GetID()) {
@@ -5275,6 +5285,7 @@ cPopulationCell& cPopulation::PositionOffspring(cPopulationCell& parent_cell, cA
   // Similar to MIGRATION_RATE code above but allows for a bit more flexibility
   // in how migration between demes works. Also, respects PREFER_EMPTY in new deme.
   // Temporary until Deme
+  
   if ((m_world->GetConfig().DEMES_MIGRATION_RATE.Get() > 0.0)
       && ctx.GetRandom().P(m_world->GetConfig().DEMES_MIGRATION_RATE.Get()))
   {
@@ -5288,13 +5299,15 @@ cPopulationCell& cPopulation::PositionOffspring(cPopulationCell& parent_cell, cA
     // Look randomly within empty cells first, if requested
     if (m_world->GetConfig().PREFER_EMPTY.Get()) {
       int cell_id = FindRandEmptyCell(ctx);
-      if (cell_id == -1) return GetCell(ctx.GetRandom().GetUInt(cell_array.GetSize()));
+      if (cell_id == -1);//return GetCell(ctx.GetRandom().GetUInt(cell_array.GetSize()));
       else return GetCell(cell_id);
     }
     
-    int out_pos = ctx.GetRandom().GetUInt(cell_array.GetSize());
-    while (parent_ok == false && out_pos == parent_cell.GetID()) {
+    int out_pos = ctx.GetRandom().GetUInt(live_org_list.GetSize());
+    cString inst_set = live_org_list[out_pos]->GetHardware().GetInstSet().GetInstSetName(); // ASIMOV
+    while (inst_set!="heads_default") {
       out_pos = ctx.GetRandom().GetUInt(cell_array.GetSize());
+      inst_set = live_org_list[out_pos]->GetHardware().GetInstSet().GetInstSetName(); // ASIMOV
     }
     return GetCell(out_pos);
   }
@@ -5400,6 +5413,7 @@ cPopulationCell& cPopulation::PositionOffspring(cPopulationCell& parent_cell, cA
   
   // Choose the organism randomly from those in the list, and return it.
   int choice = ctx.GetRandom().GetUInt(found_list.GetSize());
+  
   return *( found_list.GetPos(choice) );
 }
 
@@ -5889,16 +5903,25 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   double reward_threshold = 0.3;
   for (size_t i=0; i<m_world->m_controller->m_ref_bonus.size(); i++)
     human_bonus_abs += m_world->m_controller->m_ref_bonus[i]*m_world->m_controller->m_ref_bonus[i];
-  int N_orgs = live_org_list.GetSize();
+  int N_orgs = stats.GetNumAvidians();
   std::vector<std::vector<double> > bonus_vectors = std::vector<std::vector<double> >(N_orgs, std::vector<double>(m_world->GetEnvironment().GetNumTasks(), 0));
   std::vector<double> bonus_vector_mean = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);
   std::vector<double> bonus_vector_var = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);
   std::vector<double> N_non_zero = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),N_orgs);
   double global_deviance = 0;
 
-
+  stats.SetNumHumansToZero();
+  stats.SetNumAvidiansToZero();
   for (int i = 0; i < live_org_list.GetSize(); i++) {  
     cOrganism* organism = live_org_list[i];
+    // Asimov
+    if (organism->GetHardware().GetInstSet().GetInstSetName()!="heads_default") {
+      stats.IncNumHumans();
+      continue; // ASIMOV
+    }
+    else{
+      stats.IncNumAvidians();
+    }
     
     for (int osp_idx = 0; osp_idx < m_org_stat_providers.GetSize(); osp_idx++) {
       m_org_stat_providers[osp_idx]->HandleOrganism(organism);
@@ -6077,11 +6100,11 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
       bonus_vector_var[t] += 0;
     }
   }
-  global_deviance /= live_org_list.GetSize();
+  global_deviance /= stats.GetNumAvidians();
   
   
   stats.SetGlobalDeviance(global_deviance);
-  stats.SetPhi0Fitness(Phi0_fitness_sum/live_org_list.GetSize());// (AGI - TL)
+  stats.SetPhi0Fitness(Phi0_fitness_sum/stats.GetNumAvidians());// (AGI - TL)
   stats.SetBonusVectorMean(bonus_vector_mean);// (AGI - TL)
   stats.SetBonusVectorVar(bonus_vector_var);// (AGI - TL)
   

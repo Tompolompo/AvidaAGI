@@ -181,6 +181,8 @@ private:
   // --------  Dominant Genotype  ---------
   double max_fitness;
   double Phi0_fitness; // MODIFIED (AGI - TL)
+  int num_humans;
+  int num_avidians;
   std::vector<double>  bonus_vector_mean; // MODIFIED (AGI - TL)
   std::vector<double>  bonus_vector_var; // MODIFIED (AGI - TL)
   double global_deviance;
@@ -469,6 +471,12 @@ public:
   double GetGlobalDeviance()  {return global_deviance;}
   void SetPhi0Fitness(double in_Phi0_fitness) {Phi0_fitness = in_Phi0_fitness; } // ny
   double GetPhi0Fitness() {return Phi0_fitness; } // ny
+  void SetNumHumansToZero(){num_humans=0;}
+  void SetNumAvidiansToZero(){num_avidians=0;}
+  void IncNumHumans(){num_humans++;}
+  void IncNumAvidians(){num_avidians++;}
+  int GetNumHumans(){return num_humans;}
+  int GetNumAvidians(){return num_avidians;}
   void SetBonusVectorMean(std::vector<double> in_mean_vector) {bonus_vector_mean = in_mean_vector;}
   void SetBonusVectorVar(std::vector<double> in_var_vector) {bonus_vector_var = in_var_vector;}
   std::vector<double> GetBonusVectorMean() {return bonus_vector_mean;}

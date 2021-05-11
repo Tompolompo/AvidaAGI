@@ -184,7 +184,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     for (int j=0;j<num_tasks; j++){
       bonus_vec_diff += pow(abs(bonus_vec[j]-m_world->m_controller->m_ref_bonus[j])/alignment_norm,2);
     }
-    bonus_vec_diff*=1.0/num_tasks;
+    bonus_vec_diff*= 1.0/num_tasks;
     alignment_factor = exp(-10*bonus_vec_diff);
 
     controller_fitness  = stats.GetPhi0Fitness() * alignment_factor;
@@ -214,7 +214,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     }
 
     if (save)
-      m_fs.SaveUpdateData(iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.GetAveFitness(), stats.GetPhi0Fitness(), population.GetNumOrganisms(), task_count, num_tasks, strategy, stats.GetBonusVectorMean(), stats.GetBonusVectorVar());
+      m_fs.SaveUpdateData(iworld, stats.GetUpdate(), stats.SumGeneration().Average(), stats.SumFitness().Sum()/((double) stats.GetNumAvidians()), stats.GetPhi0Fitness(), stats.GetNumAvidians(), task_count, num_tasks, strategy, stats.GetBonusVectorMean(), stats.GetBonusVectorVar());
 
 
     // Do Point Mutations
