@@ -186,7 +186,7 @@ int main(int argc, char **argv)  {
         int rank_num = rank+1;
         int end = rank_num*limit-1, start = rank_num*limit-limit;
         if (limit < 1) start = rank, end = rank;
-        
+
             
         // Run avida for chosen worlds
         for (int iworld=start; iworld<=end; iworld++)   {
@@ -224,6 +224,7 @@ int main(int argc, char **argv)  {
             world->SetVerbosity(0);
 
             // Run simulation and compute fitness
+
             Avida2MetaDriver* driver = new Avida2MetaDriver(world, new_world);
             if (limit < 1)
                 expanded_fitness[iworld] = driver->Run(num_updates, fs, save_iteration, true_iworld);

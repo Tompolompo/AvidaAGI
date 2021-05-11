@@ -5896,6 +5896,7 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   int min_genome_length = INT_MAX;
 
   // MODIFIED
+  
   double Phi0_fitness_sum = 0; //(AGI - TL)
   std::string function_name = m_world->m_controller->m_Phi0_function;
   m_world->m_controller->ResetTaskCounter();
@@ -5903,24 +5904,29 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   double reward_threshold = 0.3;
   for (size_t i=0; i<m_world->m_controller->m_ref_bonus.size(); i++)
     human_bonus_abs += m_world->m_controller->m_ref_bonus[i]*m_world->m_controller->m_ref_bonus[i];
-  int N_orgs = stats.GetNumAvidians();
+  
+  int N_orgs = live_org_list.GetSize();
   std::vector<std::vector<double> > bonus_vectors = std::vector<std::vector<double> >(N_orgs, std::vector<double>(m_world->GetEnvironment().GetNumTasks(), 0));
   std::vector<double> bonus_vector_mean = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);
   std::vector<double> bonus_vector_var = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),0);
   std::vector<double> N_non_zero = std::vector<double>(m_world->GetEnvironment().GetNumTasks(),N_orgs);
   double global_deviance = 0;
-
+  
   stats.SetNumHumansToZero();
   stats.SetNumAvidiansToZero();
+  cString inst_set;
+  int j=-1;
   for (int i = 0; i < live_org_list.GetSize(); i++) {  
     cOrganism* organism = live_org_list[i];
     // Asimov
-    if (organism->GetHardware().GetInstSet().GetInstSetName()!="heads_default") {
+    inst_set = organism->GetHardware().GetInstSet().GetInstSetName();
+    if (inst_set!="heads_default") {
       stats.IncNumHumans();
       continue; // ASIMOV
     }
     else{
       stats.IncNumAvidians();
+      j++;
     }
     
     for (int osp_idx = 0; osp_idx < m_org_stat_providers.GetSize(); osp_idx++) {
@@ -5951,7 +5957,7 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     stats.SumLogDivMutRate().Push(log(organism->MutationRates().GetDivMutProb() / organism->GetPhenotype().GetDivType()));
     stats.SumCopySize().Add(phenotype.GetCopiedSize());
     stats.SumExeSize().Add(phenotype.GetExecutedSize());
-    
+
     if (cur_merit > max_merit) max_merit = cur_merit;
     if (cur_fitness > max_fitness) max_fitness = cur_fitness;
     if (cur_gestation_time > max_gestation_time) max_gestation_time = cur_gestation_time;
@@ -5961,7 +5967,7 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     if (cur_fitness < min_fitness) min_fitness = cur_fitness;
     if (cur_gestation_time < min_gestation_time) min_gestation_time = cur_gestation_time;
     if (cur_genome_length < min_genome_length) min_genome_length = cur_genome_length;
-    
+
     // Test what tasks this creatures has completed.
     for (int j = 0; j < m_world->GetEnvironment().GetNumTasks(); j++) {
       if (phenotype.GetCurTaskCount()[j] > 0) {
@@ -6001,7 +6007,7 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
         stats.AddLastInternalTaskQuality(j, phenotype.GetLastInternalTaskQuality()[j]);
       }
     }
-
+ 
     if (stats.ShouldCollectEnvTestStats()) {
       Systematics::GroupPtr genotype = organism->SystematicsGroup("genotype");
       Systematics::GenomeTestMetricsPtr metrics(Systematics::GenomeTestMetrics::GetMetrics(m_world, ctx, genotype));
@@ -6050,9 +6056,9 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     Phi0_fitness_sum += organism->CalcPhi0Fitness(function_name); // (AGI - TL) calculate Phi_0
     
     for (int t=0; t<m_world->GetEnvironment().GetNumTasks();t++){
-      bonus_vectors[i][t] = phenotype.m_AGI_bonus_vector[t];
-      bonus_vector_mean[t] += bonus_vectors[i][t];
-      if (bonus_vectors[i][t] == 0) N_non_zero[t] -= 1;
+      bonus_vectors[j][t] = phenotype.m_AGI_bonus_vector[t];
+      bonus_vector_mean[t] += bonus_vectors[j][t];
+      if (bonus_vectors[j][t] == 0) N_non_zero[t] -= 1;
     }
 
     // Update global deviance (delta_b)
@@ -6327,12 +6333,14 @@ void cPopulation::ProcessPostUpdate(cAvidaContext& ctx)
   cStats& stats = m_world->GetStats();
   
   stats.SetNumCreatures(GetNumOrganisms());
-  
+
   UpdateDemeStats(ctx); 
   UpdateOrganismStats(ctx);
+
   if (m_world->GetConfig().PRED_PREY_SWITCH.Get() == -2 || m_world->GetConfig().PRED_PREY_SWITCH.Get() > -1) {
     UpdateFTOrgStats(ctx);
   }
+  
   if (m_world->GetConfig().MATING_TYPES.Get()) {
     UpdateMaleFemaleOrgStats(ctx);
   }

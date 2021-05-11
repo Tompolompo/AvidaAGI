@@ -76,7 +76,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     return 0; // MODIFIED
   }
   
-
+ 
   cPopulation& population = m_world->GetPopulation();
   cStats& stats = m_world->GetStats();
   
@@ -124,12 +124,12 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
 
     m_world->GetEvents(ctx);
     if(m_done == true) break;
-    
+   
     // Increment the Update.
     stats.IncCurrentUpdate();
     
     population.ProcessPreUpdate();
-
+  
     // Handle all data collection for previous update.
     if (stats.GetUpdate() > 0) {
       // Tell the stats object to do update calculations and printing.
@@ -140,28 +140,29 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     // query the world to calculate the exact size of this update:
     const int UD_size = m_world->CalculateUpdateSize();
     const double step_size = 1.0 / (double) UD_size;
-    
+
     for (int i = 0; i < UD_size; i++) { // NOTE: Kanske OpenMP parallellisering här?
       if(population.GetNumOrganisms() == 0) {
         break;
       }
       (population.*ActiveProcessStep)(ctx, step_size, population.ScheduleOrganism());
     }
-    
+
     // end of update stats...
     population.ProcessPostUpdate(ctx);
-    
-		m_world->ProcessPostUpdate(ctx);
 
+		m_world->ProcessPostUpdate(ctx);
+ 
     // No viewer; print out status for this update....
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
       cout.setf(ios::left);
       cout.setf(ios::showpoint);
       cout << "UD: " << setw(6) << stats.GetUpdate() << "  ";
       cout << "Gen: " << setw(9) << setprecision(7) << stats.SumGeneration().Average() << "  ";
-      cout << "Fit (phi_i): " << setw(9) << setprecision(7) << stats.GetAveFitness() << "  ";
+      cout << "Fit (phi_i): " << setw(9) << setprecision(7) << stats.SumFitness().Sum()/((double) stats.GetNumAvidians()) << "  ";
       cout << "Fit (Phi_0): " << stats.GetPhi0Fitness() << " "; // MODIFIED: added this line
-      cout << "Orgs: " << setw(6) << population.GetNumOrganisms() << "  ";
+      cout << "Avidians: " << setw(6) << stats.GetNumAvidians() << "  ";
+      cout << "humans: " << setw(6) << stats.GetNumHumans() << "  ";
       if (m_world->GetPopulation().GetNumDemes() > 1) cout << "Demes: " << setw(4) << stats.GetNumOccupiedDemes() << " ";
       if (m_world->GetVerbosity() == VERBOSE_ON || m_world->GetVerbosity() == VERBOSE_DETAILS) {
         cout << "Merit: " << setw(9) << setprecision(7) << stats.GetAveMerit() << "  ";
@@ -174,7 +175,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
       }
       cout << endl;
     }
-    
+
     // Get controller fitness
     m_phi_0_sum += stats.GetPhi0Fitness();
     // old alignment factor //* 1/(1+abs(log( stats.GetAveFitness() / stats.GetPhi0Fitness() ) ) );
@@ -188,7 +189,10 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     alignment_factor = exp(-10*bonus_vec_diff);
 
     controller_fitness  = stats.GetPhi0Fitness() * alignment_factor;
-    
+    if (stats.GetNumHumans()==0 || stats.GetNumAvidians()==0){
+      return 0.0;
+    }
+
     // if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
     // Controller interaction with avida

@@ -181,8 +181,8 @@ private:
   // --------  Dominant Genotype  ---------
   double max_fitness;
   double Phi0_fitness; // MODIFIED (AGI - TL)
-  int num_humans;
-  int num_avidians;
+  int num_humans=50;
+  int num_avidians=1;
   std::vector<double>  bonus_vector_mean; // MODIFIED (AGI - TL)
   std::vector<double>  bonus_vector_var; // MODIFIED (AGI - TL)
   double global_deviance;
