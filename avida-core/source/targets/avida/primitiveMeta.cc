@@ -192,7 +192,7 @@ int main(int argc, char **argv)  {
 
             // Set correct seed depending on running mode
             if (random_meta_seed == "0") cfg->RANDOM_SEED.Set(0);
-            else if (limit < 1) cfg->RANDOM_SEED.Set(imeta+iworld%num_samples);
+            else if (limit < 1) cfg->RANDOM_SEED.Set(imeta*num_samples+iworld%num_samples);
             else cfg->RANDOM_SEED.Set(imeta);
 
             // Save only "true" world results
@@ -311,7 +311,6 @@ int main(int argc, char **argv)  {
                 // Mutation
                 mutation_probability_constant = mutation_probability_constant*pow(mutation_decay,imeta)+min_mutation_constant;
                 mutation_probability = mutation_probability_constant/chromosome_length;
-                if (rank == root) std::cout << "mut_prob = " << mutation_probability << std::endl;
                 creep_rate = creep_rate*pow(creep_decay, imeta) + min_creep;
                 for (size_t iworld = 0; iworld < num_worlds; iworld++) {
                     std::vector<double> chromosome = new_controllers[iworld];
@@ -329,7 +328,8 @@ int main(int argc, char **argv)  {
 
             cout << "Meta Generation: " << imeta
                  << ", Fitness: " << max_fitness 
-                << ", Elapsed: " << duration.count() << " minutes" << endl;
+                 << ", Mutation rate x chromosome length: " << mutation_probability*chromosome_length
+                << ", Elapsed time: " << duration.count()/60.0 << " hours" << endl;
                 
             cout << "Best chromosome is "<< imax << ": [";
             for (int k = 0; k<chromosome_length; k++)
