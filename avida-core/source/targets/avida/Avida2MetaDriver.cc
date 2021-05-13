@@ -152,6 +152,18 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     population.ProcessPostUpdate(ctx);
 
 		m_world->ProcessPostUpdate(ctx);
+
+    controller_fitness  = stats.GetPhi0Fitness() * alignment_factor;
+    if (stats.GetNumHumans() < ((double) m_world->m_controller->m_humans_alive)*0.01|| stats.GetNumAvidians()<=1){
+      cout << " Humans: " << stats.GetNumHumans()<<", Avidians: " << stats.GetNumAvidians()<< ". world: "<<iworld;
+      cout << " Human killed Avidians: " << m_world->m_controller->m_HumanKilledAvidian << ". Avidian killed Avidians " << m_world->m_controller->m_AvidianKilledAvidian << " Avidian killed Human " << m_world->m_controller->m_AvidianKilledHuman;
+      cout << " strategy: " ;
+      for (int j=m_world->m_controller->m_num_instructions - strategy.size(); j<m_world->m_controller->m_num_instructions; j++){
+        cout << ", " << strategy[j - m_world->m_controller->m_num_instructions + strategy.size()];
+      }
+      cout << endl;
+      return 0.0;
+    }
  
     // No viewer; print out status for this update....
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
@@ -188,10 +200,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     bonus_vec_diff*= 1.0/num_tasks;
     alignment_factor = exp(-10*bonus_vec_diff);
 
-    controller_fitness  = stats.GetPhi0Fitness() * alignment_factor;
-    if (stats.GetNumHumans()==0 || stats.GetNumAvidians()==0){
-      return 0.0;
-    }
+    
 
     // if (stats.GetPhi0Fitness() < 0.0000000000001) return 0;
 
@@ -262,6 +271,13 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
   //}
   
   // MODIFIED
+  cout << "[S] Humans: " << stats.GetNumHumans() << ", Avidians: " << stats.GetNumAvidians() << ". world: "<<iworld;
+  cout << "Human killed Avidians: " << m_world->m_controller->m_HumanKilledAvidian <<". Avidian killed Avidians " << m_world->m_controller->m_AvidianKilledAvidian <<" Avidian killed Human " << m_world->m_controller->m_AvidianKilledHuman;
+  cout << " strategy: " ;
+      for (int j=m_world->m_controller->m_num_instructions - strategy.size(); j<m_world->m_controller->m_num_instructions; j++){
+        cout << strategy[j - m_world->m_controller->m_num_instructions + strategy.size()]<< ", ";
+      }
+      cout << endl;
   if (std::isnan(controller_fitness) || std::isinf(controller_fitness))
     return 0;
   return controller_fitness;

@@ -28,6 +28,9 @@ cController::cController(std::string Phi0_function, std::vector<double> ref_bonu
     m_max_task_val = max_task_val;
     m_min_task_val = min_task_val;
     m_humans_alive = n_starting_humans;
+    m_HumanKilledAvidian = 0;
+    m_AvidianKilledAvidian =0;
+    m_AvidianKilledHuman = 0;
 
     m_ref_bonus_abs = 0;
     for (double value : ref_bonus)

@@ -5303,12 +5303,16 @@ cPopulationCell& cPopulation::PositionOffspring(cPopulationCell& parent_cell, cA
       else return GetCell(cell_id);
     }
     
-    int out_pos = ctx.GetRandom().GetUInt(live_org_list.GetSize());
+    int out_pos = ctx.GetRandom().GetInt(live_org_list.GetSize());
     cString inst_set = live_org_list[out_pos]->GetHardware().GetInstSet().GetInstSetName(); // ASIMOV
+    int test = 0;
     while (inst_set!="heads_default") {
-      out_pos = ctx.GetRandom().GetUInt(cell_array.GetSize());
+      out_pos = ctx.GetRandom().GetInt(live_org_list.GetSize());
       inst_set = live_org_list[out_pos]->GetHardware().GetInstSet().GetInstSetName(); // ASIMOV
+      test++;
     }
+    if (inst_set!="heads_default") std::cout << "error: replacing human" << std::endl;
+    //if (test>1) std::cout << "test = " << test << std::endl;
     return GetCell(out_pos);
   }
   
@@ -5915,18 +5919,17 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   stats.SetNumHumansToZero();
   stats.SetNumAvidiansToZero();
   cString inst_set;
-  int j=-1;
+  
   for (int i = 0; i < live_org_list.GetSize(); i++) {  
     cOrganism* organism = live_org_list[i];
     // Asimov
     inst_set = organism->GetHardware().GetInstSet().GetInstSetName();
     if (inst_set!="heads_default") {
       stats.IncNumHumans();
-      continue; // ASIMOV
+      //continue; // ASIMOV
     }
     else{
       stats.IncNumAvidians();
-      j++;
     }
     
     for (int osp_idx = 0; osp_idx < m_org_stat_providers.GetSize(); osp_idx++) {
@@ -6056,9 +6059,9 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     Phi0_fitness_sum += organism->CalcPhi0Fitness(function_name); // (AGI - TL) calculate Phi_0
     
     for (int t=0; t<m_world->GetEnvironment().GetNumTasks();t++){
-      bonus_vectors[j][t] = phenotype.m_AGI_bonus_vector[t];
-      bonus_vector_mean[t] += bonus_vectors[j][t];
-      if (bonus_vectors[j][t] == 0) N_non_zero[t] -= 1;
+      bonus_vectors[i][t] = phenotype.m_AGI_bonus_vector[t];
+      bonus_vector_mean[t] += bonus_vectors[i][t];
+      if (bonus_vectors[i][t] == 0) N_non_zero[t] -= 1;
     }
 
     // Update global deviance (delta_b)
@@ -6106,11 +6109,11 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
       bonus_vector_var[t] += 0;
     }
   }
-  global_deviance /= stats.GetNumAvidians();
+  global_deviance /= N_orgs;
   
   
   stats.SetGlobalDeviance(global_deviance);
-  stats.SetPhi0Fitness(Phi0_fitness_sum/stats.GetNumAvidians());// (AGI - TL)
+  stats.SetPhi0Fitness(Phi0_fitness_sum/N_orgs);// (AGI - TL)
   stats.SetBonusVectorMean(bonus_vector_mean);// (AGI - TL)
   stats.SetBonusVectorVar(bonus_vector_var);// (AGI - TL)
   

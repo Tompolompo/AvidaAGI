@@ -46,6 +46,10 @@ public:
 
     // Asimov
     int m_humans_alive;
+    int m_HumanKilledAvidian;
+    int m_AvidianKilledAvidian;
+    int m_AvidianKilledHuman;
+
 
 
 
