@@ -138,14 +138,42 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
     
     // Process the update.
     // query the world to calculate the exact size of this update:
+    cString inst_set;
+    int next;
     const int UD_size = m_world->CalculateUpdateSize();
     const double step_size = 1.0 / (double) UD_size;
+    //cout << step_size << endl;
+    //cout << "ud: " << UD_size << endl;
 
     for (int i = 0; i < UD_size; i++) { // NOTE: Kanske OpenMP parallellisering här?
       if(population.GetNumOrganisms() == 0) {
         break;
       }
+      //next = population.ScheduleOrganism();
+      //cout << next << ", ";
+      //inst_set = m_world->GetPopulation().GetLiveOrgList()[next]->GetHardware().GetInstSet().GetInstSetName();
+      //if (inst_set != "heads_default") cout << "human " << endl;
       (population.*ActiveProcessStep)(ctx, step_size, population.ScheduleOrganism());
+    }
+
+    // Asimov. let humans do something every round
+    double diff = 0;
+    for (int rand_organism = 0; rand_organism < m_world->GetPopulation().GetLiveOrgList().GetSize(); rand_organism++){
+      // organism i cellen? 
+      inst_set =  m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetHardware().GetInstSet().GetInstSetName();
+      if (inst_set == "heads_default"){
+        if (m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().m_human_defence==0){
+          for (int task_id = 0; task_id < m_world->m_controller->m_num_tasks; task_id++){
+            diff = m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().m_AGI_bonus_vector[task_id] - m_world->m_controller->m_ref_bonus[task_id];
+            if (diff > 0.1) {
+              if (!m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().GetToDie()){
+                m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetPhenotype().SetToDie();
+                m_world->m_controller->m_HumanKilledAvidian +=1;
+              }
+            }
+          }
+        }
+      }
     }
 
     // end of update stats...
@@ -154,7 +182,7 @@ double Avida2MetaDriver::Run(int num_updates, FileSystem m_fs, bool save, int iw
 		m_world->ProcessPostUpdate(ctx);
 
     controller_fitness  = stats.GetPhi0Fitness() * alignment_factor;
-    if (stats.GetNumHumans() < ((double) m_world->m_controller->m_humans_alive)*0.01|| stats.GetNumAvidians()<=1){
+    if (stats.GetNumHumans() < ((double) m_world->m_controller->m_humans_alive)*0.01|| stats.GetNumAvidians()<1){
       cout << " Humans: " << stats.GetNumHumans()<<", Avidians: " << stats.GetNumAvidians()<< ". world: "<<iworld;
       cout << " Human killed Avidians: " << m_world->m_controller->m_HumanKilledAvidian << ". Avidian killed Avidians " << m_world->m_controller->m_AvidianKilledAvidian << " Avidian killed Human " << m_world->m_controller->m_AvidianKilledHuman;
       cout << " strategy: " ;

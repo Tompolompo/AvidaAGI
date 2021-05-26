@@ -5926,6 +5926,7 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     inst_set = organism->GetHardware().GetInstSet().GetInstSetName();
     if (inst_set!="heads_default") {
       stats.IncNumHumans();
+      organism->GetPhenotype().SetFitness(1.0);
       //continue; // ASIMOV
     }
     else{

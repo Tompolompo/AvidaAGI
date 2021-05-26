@@ -11493,14 +11493,15 @@ bool cHardwareCPU::Inst_HumanKillAvidian(cAvidaContext& ctx)
   for (int task_id = 0; task_id<m_world->m_controller->m_num_tasks; task_id++){
     m_organism->GetPhenotype().m_AGI_bonus_vector[task_id] = m_world->m_controller->m_ref_bonus[task_id];
   } 
-
+  
   int rand_organism = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
   cString inst_set = m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetHardware().GetInstSet().GetInstSetName();
   
+  /*
   while (inst_set!="heads_default") {
     rand_organism = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
     inst_set = m_world->GetPopulation().GetLiveOrgList()[rand_organism]->GetHardware().GetInstSet().GetInstSetName(); // ASIMOV
-  }
+  }*/
   
   if (inst_set == "heads_default"){
     // Avidian:
@@ -11530,6 +11531,7 @@ bool cHardwareCPU::Inst_HumanKillAvidian(cAvidaContext& ctx)
   else{
     // Human:
   }
+  
   
 
   return true;
