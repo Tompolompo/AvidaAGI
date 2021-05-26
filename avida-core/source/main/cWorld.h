@@ -86,7 +86,6 @@ public:
   
   const cString& GetWorkingDir() const { return m_working_dir; }
 
-  // MODIFIED
   cAvidaContext* m_ctx; // not original placement (protected is original)
   cEnvironment* m_env; //not original placement (protected is original)
   cController* m_controller;
@@ -141,7 +140,6 @@ public:
 	//! Calculate the size (in virtual CPU cycles) of the current update.
 	virtual int CalculateUpdateSize();
 
-  // MODIFIED
   bool setup(World* new_world, cUserFeedback* errors,  const Apto::Map<Apto::String, Apto::String>* mappings); // (AGI - TL) changed from protected and added arguments
   
 protected:

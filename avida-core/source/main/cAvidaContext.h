@@ -28,7 +28,7 @@
 
 #include "avida/core/Types.h"
 
-// MODIFIED
+// AGI
 #include "cController.h"
 
 class cWorld;

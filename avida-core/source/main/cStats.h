@@ -180,9 +180,9 @@ private:
 
   // --------  Dominant Genotype  ---------
   double max_fitness;
-  double Phi0_fitness; // MODIFIED (AGI - TL)
-  std::vector<double>  bonus_vector_mean; // MODIFIED (AGI - TL)
-  std::vector<double>  bonus_vector_var; // MODIFIED (AGI - TL)
+  double Phi0_fitness; // (AGI - TL)
+  std::vector<double>  bonus_vector_mean; // (AGI - TL)
+  std::vector<double>  bonus_vector_var; //(AGI - TL)
   double global_deviance;
   double max_merit;
   int max_gestation_time;
@@ -464,11 +464,11 @@ public:
   inline void SetNumThreads(int in_num_threads) { m_num_threads = in_num_threads; }
   inline void SetNumModified(int in_num_modified);
 
-  // MODIFIED
+  // AGI
   void SetGlobalDeviance(double in_global_deviance)  {global_deviance = in_global_deviance;}
   double GetGlobalDeviance()  {return global_deviance;}
-  void SetPhi0Fitness(double in_Phi0_fitness) {Phi0_fitness = in_Phi0_fitness; } // ny
-  double GetPhi0Fitness() {return Phi0_fitness; } // ny
+  void SetPhi0Fitness(double in_Phi0_fitness) {Phi0_fitness = in_Phi0_fitness; }
+  double GetPhi0Fitness() {return Phi0_fitness; }
   void SetBonusVectorMean(std::vector<double> in_mean_vector) {bonus_vector_mean = in_mean_vector;}
   void SetBonusVectorVar(std::vector<double> in_var_vector) {bonus_vector_var = in_var_vector;}
   std::vector<double> GetBonusVectorMean() {return bonus_vector_mean;}

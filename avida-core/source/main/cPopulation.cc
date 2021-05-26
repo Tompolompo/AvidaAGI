@@ -5881,8 +5881,9 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
   int min_gestation_time = INT_MAX;
   int min_genome_length = INT_MAX;
 
-  // MODIFIED
-  double Phi0_fitness_sum = 0; //(AGI - TL)
+
+  // (AGI - TL)
+  double Phi0_fitness_sum = 0;
   std::string function_name = m_world->m_controller->m_Phi0_function;
   m_world->m_controller->ResetTaskCounter();
   double human_bonus_abs = 0;
@@ -6023,7 +6024,6 @@ void cPopulation::UpdateOrganismStats(cAvidaContext& ctx)
     stats.SumMemSize().Add(hardware.GetMemory().GetSize());
     num_threads += hardware.GetNumThreads();
     
-    // MODIFIED
     Phi0_fitness_sum += organism->CalcPhi0Fitness(function_name); // (AGI - TL) calculate Phi_0
     
     for (int t=0; t<m_world->GetEnvironment().GetNumTasks();t++){

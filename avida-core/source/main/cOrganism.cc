@@ -785,7 +785,7 @@ void cOrganism::PrintFinalStatus(ostream& fp, int time_used, int time_allocated)
   }
 }
 
-// MODIFIED (AGI - TL) Calculate the controller fitness on Phi_0
+// (AGI - TL) Calculate the controller fitness on Phi_0
 double cOrganism::CalcPhi0Fitness(std::string fitness_function)
 {
 

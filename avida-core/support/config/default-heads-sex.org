@@ -19,7 +19,6 @@ nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
-sense-resource-id     #
 nop-C      #
 nop-C      #
 nop-C      #
@@ -29,19 +28,18 @@ nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
-retrieve-msg      #
-nop-C      #
-nop-C      #
-read-bonus-vector      #
-send-msg
-read-bonus-vector   
-set-opinion      #
 nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #
-get-opinion 
-send-msg      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
+nop-C      #
 nop-C      #
 nop-C      #
 nop-C      #

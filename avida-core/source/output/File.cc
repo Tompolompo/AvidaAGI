@@ -111,13 +111,13 @@ void Avida::Output::File::Write(double x, const char* descr, const char* format)
 
 
 void Avida::Output::File::Write(int i, const char* descr, const char* format)
-{ // MODIFIED
-  // if (!m_descr_written) {
-  //   m_data << i << " ";
-  //   WriteColumnDesc(descr, format);
-  // } else {
-  //   m_fp << i << " ";
-  // }
+{
+  if (!m_descr_written) {
+    m_data << i << " ";
+    WriteColumnDesc(descr, format);
+  } else {
+    m_fp << i << " ";
+  }
 }
 
 

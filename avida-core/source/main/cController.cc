@@ -1,7 +1,7 @@
 #include <iostream> 
 #include <cmath>
 #include <Eigen/Dense>
-#include "cController.h" // header in local directory
+#include "cController.h"
 #include "GeneticFunctions.h"
 
 
@@ -256,58 +256,3 @@ std::vector<double> cController::EvaluateAvida(std::vector<double> performed_tas
 
 
 }
-
-
-
-
-
-
-
-
-
-
-// Avida::Genome cController::controll_genome(Avida::Genome* old_genome){
-//     /*
-//     Apto::String genome_string = old_genome->AsString();
-//     //cout << genome_string << endl;
-//     Apto::String sub_string_start = genome_string.Substring(0, 42);
-//     Apto::String sub_string_end = genome_string.Substring(42, -1);
-//     //Apto::String insert = "c";
-//     //Apto::String updated_genome = sub_string_start + insert + sub_string_end;
-//     Apto::String updated_genome = sub_string_start + sub_string_end;
-//     //cout << updated_genome << endl;
-//     Avida::Genome new_genome = Avida::Genome(updated_genome);
-//     */
-//     return *old_genome;
-// }
-
-
-
-
-
-
-
-        //~cController();
-/*
-    void method()
-    {   
-        std::cout << std::endl;
-        std::cout << "********************************" << std::endl;
-        std::cout << "This is you controller speaking!" << std::endl;
-        
-        /*
-        cout << " I have information about the population: " << endl;
-        double generation = m_stats->GetGeneration();
-        int num_creatures = m_stats->GetNumCreatures();
-        double average_merit = m_stats->GetAveMerit();
-        
-
-        cout << "Generation= " << generation << endl;
-        cout << "Number of creatures= " << num_creatures << endl;
-        cout << "Average merit= " << average_merit << endl;
-        cout << "********************************" << endl;
-        cout << endl;
-    }
-        */
-
-

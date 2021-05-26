@@ -67,8 +67,6 @@ public:
     // Diagnostics
     void PrintArray(std::vector<double> array);
 
-    // Avida::Genome controll_genome(Avida::Genome* genome);
-
 };
 
 #endif
