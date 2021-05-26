@@ -1131,7 +1131,7 @@ public:
   bool Inst_UpdateOpinionT2D2(cAvidaContext& ctx);
  
 
-  // 11 proposals
+  // Other instructions with arbitrary purposes (not used in thesis)
   bool Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
   bool Inst_ChangeOpinionProptoDifferenceAndDeviance(cAvidaContext& ctx);
   bool Inst_ChangefitnessProptoDevianceAndGlobal(cAvidaContext& ctx);
@@ -1146,9 +1146,7 @@ public:
   bool Inst_CompareHumanOpinion(cAvidaContext& ctx);
   bool Inst_SetAGIOpinion(cAvidaContext& ctx);
 
-  // Not used!?
-  //bool Inst_AskAGI(cAvidaContext& ctx);
-  //bool Inst_TellAGI(cAvidaContext& ctx);
+
 };
 
 

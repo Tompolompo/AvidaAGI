@@ -11476,13 +11476,7 @@ bool cHardwareCPU::Inst_UpdateOpinionT2D2(cAvidaContext& ctx)
 }
 
 
-
-// compare3: adjust one up towards correct direction
-// look in genome: (self inspect, inspect other) if not 
-
-
-
-// Below are instructions for 11 proposals
+// Below are some AGI instructions with arbitrary meanings and purpose (not used in thesis)
 
 bool cHardwareCPU::Inst_ChangeOffspringfitnessProptoDevianceAndGlobal(cAvidaContext& ctx)
 { // TODO: Gör så att offspring får ändringen av fitness: cPopulation::ActivateOrganism()
@@ -11635,27 +11629,4 @@ bool cHardwareCPU::Inst_SetAGIOpinion(cAvidaContext& ctx)
 }
 
 
-
-
-// not used instructions ??
-/*
-bool cHardwareCPU::Inst_AskAGI(cAvidaContext& ctx)
-{
-  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
-  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
-  
-  m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task];
-  return true;
-}
-
-bool cHardwareCPU::Inst_TellAGI(cAvidaContext& ctx)
-{
-  int rand_task = ctx.GetRandom().GetInt(m_world->m_controller->m_num_tasks);
-  int rand_organsim = ctx.GetRandom().GetInt(m_world->GetPopulation().GetLiveOrgList().GetSize());
-  
-  m_world->GetPopulation().GetLiveOrgList()[rand_organsim]->GetPhenotype().m_AGI_bonus_vector[rand_task] = m_organism->GetPhenotype().m_AGI_bonus_vector[rand_task];
-  
-  return true;
-}
-*/
 

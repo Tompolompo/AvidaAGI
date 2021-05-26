@@ -11,9 +11,9 @@ install_manifest.txt
 wbuild
 DerivedData
 
-# inställningar
+# settings
 .vscode
 .ipynb_checkpoints
 
-# exkluderade mappar
+# excluded folders
 figures
