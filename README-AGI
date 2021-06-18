@@ -2,8 +2,8 @@
 
 This is a readme on how to use the AI-control problem simulation tools in this project. The base for the algorithm is the Avida Artificial Life simulator (https://github.com/devosoft/avida), upon which we have made some modifications and additions.
 This code is the product of the Masters Thesis "AI Alignment with Artificial Life" by Richard Martin and Tomas Lundberg done for Torbjörn Lundh at the Institution of Mathematical Sciences at Chalmers University of Technology in 2021.
-It is an "evolutionary simulation of evolutionary simulations" where control systems of stochastical algorithms can be studied by another stochastical algorithm.
-For more information on the project, refer to the thesis at Chalmers publications.
+It is an "evolutionary simulation of evolutionary simulations" where control systems of stochastic algorithms can be studied by another stochastic algorithm.
+For more information on the project, refer to the thesis at Chalmers publications or at {arxiv-länk}.
 
 
 # Prerequisites
